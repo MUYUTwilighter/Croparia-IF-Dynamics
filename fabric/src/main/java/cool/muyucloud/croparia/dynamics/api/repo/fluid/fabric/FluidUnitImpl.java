@@ -1,6 +1,6 @@
-package cool.muyucloud.croparia.dynamics.api.fabric;
+package cool.muyucloud.croparia.dynamics.api.repo.fluid.fabric;
 
-import cool.muyucloud.croparia.dynamics.api.FluidUnit;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidUnit;
 import cool.muyucloud.croparia.dynamics.api.RepoFlag;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -41,7 +41,17 @@ public class FluidUnitImpl extends FluidUnit implements StorageView<FluidVariant
 
     @Override
     public FluidVariant getResource() {
-        return FluidVariant.of(this.getFluid());
+        return FluidVariant.of(this.fluid());
+    }
+
+    @Override
+    public long getAmount() {
+        return this.amount();
+    }
+
+    @Override
+    public long getCapacity() {
+        return this.capacity();
     }
 
     class FluidUnitIterator implements Iterator<StorageView<FluidVariant>> {

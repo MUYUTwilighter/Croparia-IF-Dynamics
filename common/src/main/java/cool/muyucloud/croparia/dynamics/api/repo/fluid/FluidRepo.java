@@ -1,8 +1,7 @@
-package cool.muyucloud.croparia.dynamics.api;
+package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
+import cool.muyucloud.croparia.dynamics.api.RepoFlag;
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,16 +20,9 @@ public interface FluidRepo {
         throw new AssertionError("Not implemented");
     }
 
-    static Predicate<Fluid> testId(ResourceLocation id) {
-        return new PredicateFluidId(id);
-    }
-
-    static Predicate<Fluid> testTag(TagKey<Fluid> tag) {
-        return new PredicateFluidTag(tag);
-    }
-
-    static Predicate<Fluid> testTag(ResourceLocation tagId) {
-        return new PredicateFluidTag(tagId);
+    @ExpectPlatform
+    static void register(FluidRepoProvider registration) {
+        throw new AssertionError("Not implemented");
     }
 
     boolean isEmpty();

@@ -1,8 +1,8 @@
-package cool.muyucloud.croparia.dynamics.api.fabric;
+package cool.muyucloud.croparia.dynamics.api.repo.fluid.fabric;
 
-import cool.muyucloud.croparia.dynamics.api.FluidComposite;
-import cool.muyucloud.croparia.dynamics.api.FluidRepo;
-import cool.muyucloud.croparia.dynamics.api.FluidUnit;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidComposite;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidUnit;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 
-@SuppressWarnings({"UnstableApiUsage", "unused"})
+@SuppressWarnings({"UnstableApiUsage"})
 public class FluidCompositeImpl extends FluidComposite implements Storage<FluidVariant> {
     public FluidCompositeImpl(boolean divide, @NotNull FluidRepo... children) {
         super(divide, children);

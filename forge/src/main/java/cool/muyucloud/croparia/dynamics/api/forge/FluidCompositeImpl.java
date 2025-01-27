@@ -1,8 +1,8 @@
 package cool.muyucloud.croparia.dynamics.api.forge;
 
-import cool.muyucloud.croparia.dynamics.api.FluidComposite;
-import cool.muyucloud.croparia.dynamics.api.FluidRepo;
-import cool.muyucloud.croparia.dynamics.api.FluidUnit;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidComposite;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidUnit;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public class FluidCompositeImpl extends FluidComposite implements IFluidHandler 
     @Override
     public @NotNull FluidStack getFluidInTank(int i) {
         FluidUnit unit = units.get(i);
-        return new FluidStack(unit.getFluid(), (int) (unit.getAmount() / 81L));
+        return new FluidStack(unit.fluid(), (int) (unit.amount() / 81L));
     }
 
     @Override
@@ -62,8 +62,8 @@ public class FluidCompositeImpl extends FluidComposite implements IFluidHandler 
             return FluidStack.EMPTY;
         }
         FluidUnit unit = units.get(0);
-        long amount = unit.getAmount();
+        long amount = unit.amount();
         unit.setAmount(0);
-        return new FluidStack(unit.getFluid(), (int) (amount / 81));
+        return new FluidStack(unit.fluid(), (int) (amount / 81));
     }
 }

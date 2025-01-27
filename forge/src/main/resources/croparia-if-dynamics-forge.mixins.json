@@ -1,11 +1,12 @@
 {
   "required": true,
-  "package": "cool.muyucloud.croparia.dynamics.mixin",
+  "package": "cool.muyucloud.croparia.dynamics.forge.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
   ],
   "mixins": [
+    "CapabilityProviderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "croparia-if-dynamics",
+  "id": "croparia_dynamics",
   "version": "${version}",
-  "name": "croparia-if-dynamics",
+  "name": "Croparia IF: Dynamics",
   "description": "Bring automation to Croparia IF",
   "authors": [
     "MUYU_Twilighter"
@@ -25,10 +25,10 @@
     "croparia-if-dynamics.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.16.10",
-    "minecraft": "~1.20.1",
-    "java": ">=17",
-    "architectury": ">=9.2.14",
+    "fabricloader": "*",
+    "minecraft": "~1.20",
+    "java": "*",
+    "architectury": "*",
     "fabric-api": "*"
   },
   "suggests": {

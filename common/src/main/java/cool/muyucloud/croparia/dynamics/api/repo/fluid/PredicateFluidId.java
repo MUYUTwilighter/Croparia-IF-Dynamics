@@ -1,4 +1,4 @@
-package cool.muyucloud.croparia.dynamics.api;
+package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;

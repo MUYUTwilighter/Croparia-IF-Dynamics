@@ -1,5 +1,6 @@
-package cool.muyucloud.croparia.dynamics.api;
+package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
+import cool.muyucloud.croparia.dynamics.api.RepoFlag;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +23,7 @@ public abstract class FluidUnit implements FluidRepo {
         this.predicates = predicates;
     }
 
-    public long getAmount() {
+    public long amount() {
         return this.amount;
     }
 
@@ -30,11 +31,11 @@ public abstract class FluidUnit implements FluidRepo {
         return this.getCapacity;
     }
 
-    public RepoFlag getFlag() {
+    public RepoFlag flag() {
         return this.flag;
     }
 
-    public Fluid getFluid() {
+    public Fluid fluid() {
         return this.fluid;
     }
 
@@ -64,13 +65,13 @@ public abstract class FluidUnit implements FluidRepo {
 
     @Override
     public boolean isEmpty() {
-        return this.getAmount() == 0 || this.getFluid() == Fluids.EMPTY;
+        return this.amount() == 0 || this.fluid() == Fluids.EMPTY;
     }
 
     @Override
     public long amountFor(@Nullable Fluid fluid) {
-        if (this.getFluid() == fluid) {
-            return this.getAmount();
+        if (this.fluid() == fluid) {
+            return this.amount();
         } else {
             return 0;
         }
@@ -78,11 +79,11 @@ public abstract class FluidUnit implements FluidRepo {
 
     @Override
     public boolean canConsume(Fluid fluid, long amount) {
-        if (!this.getFlag().isConsumable()) {
+        if (!this.flag().isConsumable()) {
             return false;
         }
-        if (this.getFluid() == fluid) {
-            return this.getAmount() >= amount;
+        if (this.fluid() == fluid) {
+            return this.amount() >= amount;
         } else {
             return false;
         }
@@ -90,7 +91,7 @@ public abstract class FluidUnit implements FluidRepo {
 
     @Override
     public boolean canAccept(Fluid fluid, long amount) {
-        if (!this.getFlag().isAcceptable()) {
+        if (!this.flag().isAcceptable()) {
             return false;
         }
         if (this.isEmpty()) {
@@ -102,12 +103,12 @@ public abstract class FluidUnit implements FluidRepo {
 
     @Override
     public long consume(Fluid fluid, long amount) {
-        if (!this.getFlag().isConsumable()) {
+        if (!this.flag().isConsumable()) {
             return 0;
         }
-        if (this.getFluid() == fluid) {
-            long decrement = Math.min(this.getAmount(), amount);
-            this.setAmount(this.getAmount() - decrement);
+        if (this.fluid() == fluid) {
+            long decrement = Math.min(this.amount(), amount);
+            this.setAmount(this.amount() - decrement);
             return decrement;
         } else {
             return 0;
@@ -116,16 +117,16 @@ public abstract class FluidUnit implements FluidRepo {
 
     @Override
     public long accept(Fluid fluid, long amount) {
-        if (!this.getFlag().isAcceptable()) {
+        if (!this.flag().isAcceptable()) {
             return 0;
         }
         if (this.isEmpty() && this.testFluid(fluid) && amount <= this.capacity()) {
             this.setFluid(fluid);
             this.setAmount(amount);
             return 0;
-        } else if (this.getFluid() == fluid) {
+        } else if (this.fluid() == fluid) {
             long increment = Math.min(this.spaceFor(fluid), amount);
-            this.setAmount(this.getAmount() + increment);
+            this.setAmount(this.amount() + increment);
             return increment;
         } else {
             return 0;
@@ -136,8 +137,8 @@ public abstract class FluidUnit implements FluidRepo {
     public long spaceFor(Fluid fluid) {
         if (this.isEmpty()) {
             return this.testFluid(fluid) ? this.capacity() : 0;
-        } else if (this.getFluid() == fluid) {
-            return Math.max(this.capacity() - this.getAmount(), 0);
+        } else if (this.fluid() == fluid) {
+            return Math.max(this.capacity() - this.amount(), 0);
         } else {
             return 0;
         }
@@ -147,7 +148,7 @@ public abstract class FluidUnit implements FluidRepo {
     public long capacityFor(Fluid fluid) {
         if (this.isEmpty()) {
             return this.testFluid(fluid) ? this.capacity() : 0;
-        } else if (this.getFluid() == fluid) {
+        } else if (this.fluid() == fluid) {
             return this.capacity();
         } else {
             return 0;
