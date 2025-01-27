@@ -1,0 +1,35 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+#issueTrackerURL = ""
+license = "All Rights Reserved"
+
+[[mods]]
+modId = "croparia-if-dynamics"
+version = "${version}"
+displayName = "croparia-if-dynamics"
+authors = "MUYU_Twilighter"
+description = '''
+Bring automation to Croparia IF
+'''
+#logoFile = ""
+
+[[dependencies.croparia-if-dynamics]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.croparia-if-dynamics]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.croparia-if-dynamics]]
+modId = "architectury"
+mandatory = true
+versionRange = "[9.2.14,)"
+ordering = "AFTER"
+side = "BOTH"
