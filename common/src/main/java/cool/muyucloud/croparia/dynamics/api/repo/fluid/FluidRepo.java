@@ -1,45 +1,219 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
-import cool.muyucloud.croparia.dynamics.api.RepoFlag;
-import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.material.Fluid;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Iterator;
-import java.util.function.Predicate;
-
+/**
+ * <p>
+ * This is where you define the behavior of your fluid repository.<br>
+ * To connect this to a fluid API, see {@link FluidAgent} and {@link FluidRepoProvider}.
+ * </p>
+ * <p>
+ * Abstractly, this should be viewed as a composite of "fluid storage units"
+ * </p>
+ */
 public interface FluidRepo {
-    @ExpectPlatform
-    static FluidComposite composite(boolean divide, @NotNull FluidRepo... children) {
-        throw new AssertionError("Not implemented");
+    /**
+     * The amount of fluid storage units
+     */
+    int size();
+
+    /**
+     * Whether the specified fluid storage unit is empty
+     */
+    boolean isEmpty(int i);
+
+    /**
+     * Checks if the total storage for the specified fluid is at or above the specified amount.
+     *
+     * @param fluid  The fluid to check
+     * @param amount The amount to check
+     * @return true if the total storage can consume the specified amount, false otherwise
+     */
+    default boolean canConsume(Fluid fluid, long amount) {
+        long total = 0;
+        for (int i = 0; i < size() && total < amount; i++) {
+            total += amountFor(i, fluid);
+        }
+        return total >= amount;
     }
 
-    @SafeVarargs
-    @ExpectPlatform
-    static FluidUnit unit(long capacity, RepoFlag flag, @NotNull Predicate<Fluid>... predicates) {
-        throw new AssertionError("Not implemented");
+    /**
+     * Determines if the specified fluid storage unit can consume at least the specified amount.
+     *
+     * @param i      The index of the fluid storage unit to check
+     * @param fluid  The fluid to check
+     * @param amount The amount to check
+     * @return true if the fluid storage unit can consume the specified amount, false otherwise
+     */
+    boolean canConsume(int i, Fluid fluid, long amount);
+
+    /**
+     * Whether the total space for the specified fluid is at or above the specified amount
+     *
+     * @param fluid  The fluid to check
+     * @param amount The amount to check
+     * @return result
+     */
+    default boolean canAccept(Fluid fluid, long amount) {
+        long total = 0;
+        for (int i = 0; i < size() && total < amount; i++) {
+            total += spaceFor(i, fluid);
+        }
+        return false;
     }
 
-    @ExpectPlatform
-    static void register(FluidRepoProvider registration) {
-        throw new AssertionError("Not implemented");
+
+    /**
+     * Whether the specified fluid storage unit can accept at least the specified amount.
+     *
+     * @param i      The index of the fluid storage unit to check
+     * @param fluid  The fluid to check
+     * @param amount The amount to check
+     * @return true if the fluid storage unit can accept the specified amount, false otherwise
+     */
+    boolean canAccept(int i, Fluid fluid, long amount);
+
+    /**
+     * Consumes the specified amount of fluid from the total storage.
+     *
+     * @param fluid  The fluid to consume
+     * @param amount The amount to consume
+     * @return the amount actually consumed
+     */
+    default long consume(Fluid fluid, long amount) {
+        long totalConsumed = 0;
+        for (int i = 0; i < size() && totalConsumed < amount; i++) {
+            long consumed = consume(i, fluid, amount - totalConsumed);
+            totalConsumed += consumed;
+        }
+        return totalConsumed;
     }
 
-    boolean isEmpty();
+    /**
+     * Consumes the specified amount of fluid from the specified fluid storage unit.
+     *
+     * @param i      The index of the fluid storage unit to consume
+     * @param fluid  The fluid to consume
+     * @param amount The amount to consume
+     * @return The amount actually consumed
+     */
+    long consume(int i, Fluid fluid, long amount);
 
-    boolean canConsume(Fluid fluid, long amount);
+    /**
+     * Accepts the specified amount of fluid into the total storage.
+     *
+     * @param fluid  The fluid to accept
+     * @param amount The amount to accept
+     * @return the amount actually accepted
+     */
+    default long accept(Fluid fluid, long amount) {
+        long totalAccepted = 0;
+        for (int i = 0; i < size() && totalAccepted < amount; i++) {
+            long accepted = accept(i, fluid, amount - totalAccepted);
+            totalAccepted += accepted;
+        }
+        return totalAccepted;
+    }
 
-    boolean canAccept(Fluid fluid, long amount);
+    /**
+     * Accepts the specified amount of fluid into the specified fluid storage unit.
+     *
+     * @param i      The index of the fluid storage unit to accept
+     * @param fluid  The fluid to accept
+     * @param amount The amount to accept
+     * @return The amount actually accepted
+     */
+    long accept(int i, Fluid fluid, long amount);
 
-    long consume(Fluid fluid, long amount);
+    /**
+     * The total amount of fluid that can be accepted into the total storage.
+     *
+     * @param fluid The fluid to check
+     * @return The total amount of fluid that can be accepted
+     */
+    default long spaceFor(Fluid fluid) {
+        long space = 0;
+        for (int i = 0; i < size(); i++) {
+            space += spaceFor(i, fluid);
+        }
+        return space;
+    }
 
-    long accept(Fluid fluid, long amount);
+    /**
+     * The amount of fluid that can be accepted into the specified fluid storage unit.
+     *
+     * @param i      The index of the fluid storage unit to check
+     * @param fluid  The fluid to check
+     * @return The amount of fluid that can be accepted
+     */
+    long spaceFor(int i, Fluid fluid);
 
-    long spaceFor(Fluid fluid);
+    /**
+     * Calculates the total capacity for the specified fluid across all fluid storage units.
+     *
+     * @param fluid The fluid to check
+     * @return The total capacity for the specified fluid
+     */
+    default long capacityFor(Fluid fluid) {
+        long capacity = 0;
+        for (int i = 0; i < size(); i++) {
+            capacity += capacityFor(i, fluid);
+        }
+        return capacity;
+    }
 
-    long capacityFor(Fluid fluid);
+    /**
+     * Calculates the capacity for the specified fluid in the specified fluid storage unit.
+     *
+     * @param i      The index of the fluid storage unit to check
+     * @param fluid  The fluid to check
+     * @return The capacity for the specified fluid
+     */
+    long capacityFor(int i, Fluid fluid);
 
-    long amountFor(Fluid fluid);
+    /**
+     * Calculates the total amount of fluid across all fluid storage units.
+     *
+     * @param fluid The fluid to check
+     * @return The total amount of fluid
+     */
+    default long amountFor(Fluid fluid) {
+        long amount = 0;
+        for (int i = 0; i < size(); i++) {
+            amount += amountFor(i, fluid);
+        }
+        return amount;
+    }
 
-    Iterator<FluidUnit> units();
+    /**
+     * Calculates the amount of fluid in the specified fluid storage unit.
+     *
+     * @param i      The index of the fluid storage unit to check
+     * @param fluid  The fluid to check
+     * @return The amount of fluid
+     */
+    long amountFor(int i, Fluid fluid);
+
+    /**
+     * Retrieves the fluid stored in the specified fluid storage unit.
+     *
+     * @param i The index of the fluid storage unit
+     * @return The fluid stored in the specified fluid storage unit
+     */
+    Fluid fluidFor(int i);
+
+    /**
+     * Loads the fluid repository from the specified compound tag.
+     *
+     * @param tag The compound tag to load from
+     */
+    void load(CompoundTag tag);
+
+    /**
+     * Saves the fluid repository to the specified compound tag.
+     *
+     * @param tag The compound tag to save to
+     */
+    void save(CompoundTag tag);
 }

@@ -1,9 +1,7 @@
 package cool.muyucloud.croparia.dynamics.forge.mixin;
 
 
-import cool.muyucloud.croparia.dynamics.api.forge.FluidCompositeImpl;
-import cool.muyucloud.croparia.dynamics.api.forge.FluidUnitImpl;
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidAgent;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepoProvider;
 import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -21,20 +19,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class CapabilityProviderMixin {
     @Inject(method = "getCapability", at = @At("HEAD"), cancellable = true, remap = false)
     public void onGetCapability(@NotNull Capability<Object> cap, @Nullable Direction side, CallbackInfoReturnable<LazyOptional<Object>> cir) {
-        if (this instanceof FluidRepoProvider provider) {
-            cir.setReturnValue(LazyOptional.of(() -> {
-                FluidRepo repo = provider.get(
-                    provider.getLevel(), provider.getBlockPos(),
-                    provider.getLevel().getBlockState(provider.getBlockPos()), null, side
-                );
-                if (repo instanceof FluidCompositeImpl composite) {
-                    return composite;
-                } else if (repo instanceof FluidUnitImpl unit) {
-                    return unit;
-                } else {
-                    throw new IllegalArgumentException("Unsupported fluid repo: " + repo + ", please extend either FluidCompositeImpl or FluidUnitImpl");
-                }
-            }));
+        if (this instanceof FluidRepoProvider provider && cap.getName().equals("fluid")) {
+            FluidAgent agent = provider.fluidAgent(
+                null, null,
+                null, null, side
+            );
+            if (agent == null) {
+                cir.setReturnValue(LazyOptional.empty());
+            } else {
+                cir.setReturnValue(LazyOptional.of(() -> agent));
+            }
+            cir.cancel();
         }
     }
 }
