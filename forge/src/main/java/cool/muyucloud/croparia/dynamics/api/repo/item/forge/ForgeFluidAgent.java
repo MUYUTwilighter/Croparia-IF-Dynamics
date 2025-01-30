@@ -32,8 +32,12 @@ public class ForgeFluidAgent implements ItemRepo {
 
     @Override
     public boolean canConsume(int i, ItemSpec item, long amount) {
-        ItemStack result = this.get().extractItem(i, (int) Math.min(amount, Integer.MAX_VALUE), true);
-        return item.matches(result) && amount >= result.getCount();
+        ItemStack stored = this.get().getStackInSlot(i);
+        if (item.matches(stored) || stored.isEmpty()) {
+            return this.get().extractItem(i, (int) Math.min(amount, stored.getCount()), true).getCount() >= amount;
+        } else {
+            return false;
+        }
     }
 
     @Override

@@ -36,7 +36,7 @@ public interface ItemRepo {
      * @param amount The amount to check
      * @return true if the item slot can consume the specified amount, false otherwise
      */
-    @Unreliable(reason = "only responsible for the remaining amount")
+    @Unreliable(value = "FABRIC", reason = "only responsible for the remaining amount")
     boolean canConsume(int i, ItemSpec item, long amount);
 
     /**
