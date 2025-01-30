@@ -35,17 +35,17 @@ public class FluidAgentImpl extends FluidAgent implements IFluidHandler {
     }
 
     @Override
-    public boolean isFluidValid(int i, @NotNull FluidStack fluidStack) {
-        FluidSpec fluid = ForgeFluidSpec.from(fluidStack);
-        return this.canAccept(fluid, fluidStack.getAmount() * 81L);
+    public boolean isFluidValid(int i, @NotNull FluidStack input) {
+        FluidSpec fluid = ForgeFluidSpec.from(input);
+        long amount = input.getAmount() * 81L;
+        return this.simAccept(i, fluid, amount) >= amount;
     }
 
     @Override
     public int fill(FluidStack input, FluidAction fluidAction) {
         FluidSpec fluid = ForgeFluidSpec.from(input);
         if (fluidAction.simulate()) {
-            return this.canAccept(fluid, input.getAmount() * 81L) ? input.getAmount()
-                : (int) (this.spaceFor(fluid) / 81L);
+            return (int) (this.simAccept(fluid, input.getAmount() * 81L) / 81);
         } else if (fluidAction.execute()) {
             return (int) (this.accept(fluid, input.getAmount() * 81L) / 81L);
         } else {
@@ -57,11 +57,11 @@ public class FluidAgentImpl extends FluidAgent implements IFluidHandler {
     public @NotNull FluidStack drain(FluidStack input, FluidAction fluidAction) {
         FluidSpec fluid = ForgeFluidSpec.from(input);
         if (fluidAction.simulate()) {
-            return this.canConsume(fluid, input.getAmount() * 81L) ? input :
-                new FluidStack(input.getFluid(), (int) (this.amountFor(fluid) / 81L));
+            long consumed = this.simConsume(fluid, input.getAmount() * 81L);
+            return ForgeFluidSpec.of(fluid, consumed);
         } else if (fluidAction.execute()) {
-            long amount = this.consume(fluid, input.getAmount() * 81L);
-            return new FluidStack(input.getFluid(), (int) (amount / 81L));
+            long consumed = this.consume(fluid, input.getAmount() * 81L);
+            return ForgeFluidSpec.of(fluid, consumed);
         } else {
             return FluidStack.EMPTY;
         }
@@ -72,14 +72,11 @@ public class FluidAgentImpl extends FluidAgent implements IFluidHandler {
         if (this.size() < 1) return FluidStack.EMPTY;
         FluidSpec fluid = this.fluidFor(0);
         if (fluidAction.simulate()) {
-            long available = Math.min(this.amountFor(fluid), amount * 81L);
-            if (this.canConsume(fluid, available)) {
-                return ForgeFluidSpec.of(fluid, available);
-            }
-            return FluidStack.EMPTY;
+            long consumed = this.simConsume(fluid, amount * 81L);
+            return ForgeFluidSpec.of(fluid, consumed);
         } else if (fluidAction.execute()) {
             long consumed = this.consume(fluid, amount * 81L);
-            return ForgeFluidSpec.of(fluid, (int) consumed);
+            return ForgeFluidSpec.of(fluid, consumed);
         } else {
             return FluidStack.EMPTY;
         }

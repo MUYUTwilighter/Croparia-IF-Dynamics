@@ -4,6 +4,7 @@ import cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import org.jetbrains.annotations.NotNull;
@@ -24,10 +25,14 @@ public class FabricItemAgent implements ItemRepo {
         this.storage = storage;
     }
 
+    public Storage<ItemVariant> get() {
+        return this.storage;
+    }
+
     @Nullable
     public StorageView<ItemVariant> get(int i) {
         int v = 0;
-        Iterator<StorageView<ItemVariant>> iterator = this.storage.iterator();
+        Iterator<StorageView<ItemVariant>> iterator = this.get().iterator();
         StorageView<ItemVariant> view = null;
         while (iterator.hasNext() && i > v) {
             v++;
@@ -43,7 +48,7 @@ public class FabricItemAgent implements ItemRepo {
     @Override
     public int size() {
         int i = 0;
-        for (StorageView<ItemVariant> ignored : this.storage) {
+        for (StorageView<ItemVariant> ignored : this.get()) {
             i++;
         }
         return i;
@@ -56,48 +61,29 @@ public class FabricItemAgent implements ItemRepo {
     }
 
     @Override
-    public boolean canConsume(int i, ItemSpec item, long amount) {
-        if (!this.storage.supportsExtraction()) {
-            return false;
+    public long simConsume(ItemSpec item, long amount) {
+        if (!this.get().supportsExtraction()) {
+            return 0L;
+        }
+        return StorageUtil.simulateExtract(this.get(), FabricItemSpec.of(item), amount, null);
+    }
+
+    @Override
+    public long simConsume(int i, ItemSpec item, long amount) {
+        if (!this.get().supportsExtraction()) {
+            return 0L;
         }
         StorageView<ItemVariant> view = this.get(i);
-        return view != null && FabricItemSpec.matches(item, view.getResource()) && view.getAmount() >= amount;
-    }
-
-    @Override
-    public boolean canConsume(ItemSpec item, long amount) {
-        if (!this.storage.supportsExtraction()) {
-            return false;
+        if (view == null) {
+            return 0L;
+        } else {
+            return StorageUtil.simulateExtract(view, FabricItemSpec.of(item), amount, null);
         }
-        Iterator<StorageView<ItemVariant>> iterator = this.storage.iterator();
-        while (iterator.hasNext() && amount > 0L) {
-            StorageView<ItemVariant> view = iterator.next();
-            if (FabricItemSpec.matches(item, view.getResource())) {
-                amount -= view.getAmount();
-            }
-        }
-        return amount <= 0L;
-    }
-
-    @Override
-    public boolean canAccept(ItemSpec item, long amount) {
-        if (!this.storage.supportsInsertion()) {
-            return false;
-        }
-        return this.spaceFor(item) >= amount;
-    }
-
-    @Override
-    public boolean canAccept(int i, ItemSpec item, long amount) {
-        if (!this.storage.supportsInsertion()) {
-            return false;
-        }
-        return this.spaceFor(i, item) >= amount;
     }
 
     @Override
     public long consume(int i, ItemSpec item, long amount) {
-        if (!this.storage.supportsExtraction()) {
+        if (!this.get().supportsExtraction()) {
             return 0L;
         }
         StorageView<ItemVariant> view = this.get(i);
@@ -110,60 +96,64 @@ public class FabricItemAgent implements ItemRepo {
 
     @Override
     public long consume(ItemSpec item, long amount) {
-        if (!this.storage.supportsExtraction()) {
+        if (!this.get().supportsExtraction()) {
             return 0L;
         }
-        return this.storage.extract(FabricItemSpec.of(item), amount, Transaction.openOuter());
+        return this.get().extract(FabricItemSpec.of(item), amount, Transaction.openOuter());
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public long accept(int i, ItemSpec item, long amount) {
-        if (!this.storage.supportsInsertion()) {
+    public long simAccept(ItemSpec item, long amount) {
+        if (!this.get().supportsInsertion()) {
+            return 0L;
+        }
+        return StorageUtil.simulateInsert(this.get(), FabricItemSpec.of(item), amount, null);
+    }
+
+    @Override
+    public long simAccept(int i, ItemSpec item, long amount) {
+        if (!this.get().supportsInsertion()) {
             return 0L;
         }
         StorageView<ItemVariant> view = this.get(i);
         if (!(view instanceof Storage<?> s)) {
             return 0L;
         } else {
-            Storage<ItemVariant> storage = (Storage<ItemVariant>) s;
-            return storage.insert(FabricItemSpec.of(item), amount, Transaction.openOuter());
+            try {
+                @SuppressWarnings("unchecked")
+                Storage<ItemVariant> storage = (Storage<ItemVariant>) s;
+                return StorageUtil.simulateInsert(storage, FabricItemSpec.of(item), amount, null);
+            } catch (ClassCastException e) {
+                return 0L;
+            }
+        }
+    }
+
+    @Override
+    public long accept(int i, ItemSpec item, long amount) {
+        if (!this.get().supportsInsertion()) {
+            return 0L;
+        }
+        StorageView<ItemVariant> view = this.get(i);
+        if (!(view instanceof Storage<?> s)) {
+            return 0L;
+        } else {
+            try {
+                @SuppressWarnings("unchecked")
+                Storage<ItemVariant> storage = (Storage<ItemVariant>) s;
+                return storage.insert(FabricItemSpec.of(item), amount, Transaction.openOuter());
+            } catch (ClassCastException e) {
+                return 0L;
+            }
         }
     }
 
     @Override
     public long accept(ItemSpec item, long amount) {
-        if (!this.storage.supportsInsertion()) {
+        if (!this.get().supportsInsertion()) {
             return 0L;
         }
-        return this.storage.insert(FabricItemSpec.of(item), amount, Transaction.openOuter());
-    }
-
-    @Override
-    public long spaceFor(int i, ItemSpec item) {
-        if (!this.storage.supportsInsertion()) {
-            return 0L;
-        }
-        StorageView<ItemVariant> view = this.get(i);
-        if (view == null || FabricItemSpec.matches(item, view.getResource())) {
-            return 0L;
-        } else {
-            return view.getCapacity() - view.getAmount();
-        }
-    }
-
-    @Override
-    public long spaceFor(ItemSpec item) {
-        if (!this.storage.supportsInsertion()) {
-            return 0L;
-        }
-        long result = 0L;
-        for (StorageView<ItemVariant> view : this.storage) {
-            if (FabricItemSpec.matches(item, view.getResource()) || view.isResourceBlank()) {
-                result += view.getCapacity() - view.getAmount();
-            }
-        }
-        return result;
+        return this.get().insert(FabricItemSpec.of(item), amount, Transaction.openOuter());
     }
 
     @Override
@@ -178,11 +168,11 @@ public class FabricItemAgent implements ItemRepo {
 
     @Override
     public long capacityFor(ItemSpec item) {
-        if (!this.storage.supportsInsertion()) {
+        if (!this.get().supportsInsertion()) {
             return 0L;
         }
         long result = 0L;
-        for (StorageView<ItemVariant> view : this.storage) {
+        for (StorageView<ItemVariant> view : this.get()) {
             if (FabricItemSpec.matches(item, view.getResource()) || view.isResourceBlank()) {
                 result += view.getCapacity();
             }
@@ -203,7 +193,7 @@ public class FabricItemAgent implements ItemRepo {
     @Override
     public long amountFor(ItemSpec item) {
         long result = 0L;
-        for (StorageView<ItemVariant> view : this.storage) {
+        for (StorageView<ItemVariant> view : this.get()) {
             if (FabricItemSpec.matches(item, view.getResource())) {
                 result += view.getAmount();
             }

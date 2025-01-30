@@ -1,13 +1,24 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 @SuppressWarnings("unused")
 public class ItemSpec {
+    public static final MapCodec<ItemSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        ResourceLocation.CODEC.fieldOf("id").forGetter(item -> item.getItem().arch$registryName()),
+        CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(item -> Optional.ofNullable(item.getNbt()))
+    ).apply(instance, (id, nbt) -> new ItemSpec(BuiltInRegistries.ITEM.get(id), nbt.orElse(null))));
+
     private Item item;
     private CompoundTag nbt;
 

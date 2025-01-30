@@ -30,15 +30,15 @@ public class ItemAgentImpl extends ItemAgent implements IItemHandler {
 
     @Override
     public @NotNull ItemStack insertItem(int i, @NotNull ItemStack input, boolean simulate) {
-        ItemSpec item = ItemSpec.from(input);
+        ItemSpec item = this.itemFor(i);
         ItemStack result = item.toStack();
-        long amount = Math.min(this.spaceFor(i, item), input.getCount());
+        long accepted;
         if (simulate) {
-            amount = this.canAccept(i, item, amount) ? amount : 0;
+            accepted = this.simConsume(i, item, input.getCount());
         } else {
-            amount = this.accept(i, item, amount);
+            accepted = this.consume(i, item, input.getCount());
         }
-        result.setCount((int) amount);
+        result.setCount((int) accepted);
         return result;
     }
 
@@ -46,11 +46,11 @@ public class ItemAgentImpl extends ItemAgent implements IItemHandler {
     public @NotNull ItemStack extractItem(int i, int amount, boolean simulate) {
         ItemSpec item = this.itemFor(i);
         ItemStack result = item.toStack();
-        long consumed = Math.min(this.amountFor(item), amount);
+        long consumed;
         if (simulate) {
-            consumed = this.canConsume(i, item, consumed) ? consumed : 0;
+            consumed = this.simConsume(i, item, amount);
         } else {
-            consumed = this.consume(i, item, consumed);
+            consumed = this.consume(i, item, amount);
         }
         result.setCount((int) consumed);
         return result;
@@ -64,6 +64,6 @@ public class ItemAgentImpl extends ItemAgent implements IItemHandler {
 
     @Override
     public boolean isItemValid(int i, @NotNull ItemStack input) {
-        return this.canAccept(i, ItemSpec.from(input), input.getCount());
+        return this.simAccept(i, ItemSpec.from(input), input.getCount()) >= input.getCount();
     }
 }

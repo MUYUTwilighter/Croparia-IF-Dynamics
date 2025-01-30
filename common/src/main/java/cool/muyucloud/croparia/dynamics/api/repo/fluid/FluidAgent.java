@@ -51,23 +51,18 @@ public abstract class FluidAgent implements FluidRepo {
     }
 
     @Override
-    public boolean canConsume(int i, FluidSpec fluid, long amount) {
-        return this.get().canConsume(i, fluid, amount);
+    public FluidSpec fluidFor(int i) {
+        return this.get().fluidFor(i);
     }
 
     @Override
-    public boolean canConsume(FluidSpec fluid, long amount) {
-        return this.get().canConsume(fluid, amount);
+    public long simConsume(FluidSpec fluid, long amount) {
+        return this.get().simConsume(fluid, amount);
     }
 
     @Override
-    public boolean canAccept(int i, FluidSpec fluid, long amount) {
-        return this.get().canAccept(i, fluid, amount);
-    }
-
-    @Override
-    public boolean canAccept(FluidSpec fluid, long amount) {
-        return this.get().canAccept(fluid, amount);
+    public long simConsume(int i, FluidSpec fluid, long amount) {
+        return this.get().simConsume(i, fluid, amount);
     }
 
     @Override
@@ -81,6 +76,16 @@ public abstract class FluidAgent implements FluidRepo {
     }
 
     @Override
+    public long simAccept(FluidSpec fluid, long amount) {
+        return this.get().simAccept(fluid, amount);
+    }
+
+    @Override
+    public long simAccept(int i, FluidSpec fluid, long amount) {
+        return this.get().simAccept(i, fluid, amount);
+    }
+
+    @Override
     public long accept(int i, FluidSpec fluid, long amount) {
         return this.get().accept(i, fluid, amount);
     }
@@ -88,16 +93,6 @@ public abstract class FluidAgent implements FluidRepo {
     @Override
     public long accept(FluidSpec fluid, long amount) {
         return this.get().accept(fluid, amount);
-    }
-
-    @Override
-    public long spaceFor(int i, FluidSpec fluid) {
-        return this.get().spaceFor(i, fluid);
-    }
-
-    @Override
-    public long spaceFor(FluidSpec fluid) {
-        return this.get().spaceFor(fluid);
     }
 
     @Override
@@ -118,10 +113,5 @@ public abstract class FluidAgent implements FluidRepo {
     @Override
     public long amountFor(FluidSpec fluid) {
         return this.get().amountFor(fluid);
-    }
-
-    @Override
-    public FluidSpec fluidFor(int i) {
-        return this.get().fluidFor(i);
     }
 }

@@ -5,7 +5,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 public class ForgeFluidSpec {
     public static FluidStack of(FluidSpec fluidSpec, long amount) {
-        return new FluidStack(fluidSpec.getFluid(), (int) (amount / 81L), fluidSpec.getNbt());
+        return new FluidStack(fluidSpec.getFluid(), (int) Math.min(amount / 81L, Integer.MAX_VALUE), fluidSpec.getNbt());
     }
 
     public static FluidStack of(FluidSpec fluidSpec, int amount) {
@@ -14,5 +14,9 @@ public class ForgeFluidSpec {
 
     public static FluidSpec from(FluidStack stack) {
         return new FluidSpec(stack.getFluid(), stack.getTag());
+    }
+
+    public static boolean matches(FluidSpec a, FluidStack b) {
+        return a.getFluid() == b.getFluid() && a.getNbt().equals(b.getTag());
     }
 }

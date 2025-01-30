@@ -19,6 +19,6 @@ public class ItemRepoProviderImpl {
         if (be == null) {
             return Optional.empty();
         }
-        return be.getCapability(ForgeCapabilities.ITEM_HANDLER, direction).map(ForgeFluidAgent::of);
+        return be.getCapability(ForgeCapabilities.ITEM_HANDLER, direction).map(ForgeItemAgent::of);
     }
 }

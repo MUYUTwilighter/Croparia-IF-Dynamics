@@ -5,14 +5,14 @@ import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
-public class ForgeFluidAgent implements ItemRepo {
-    public static ForgeFluidAgent of(IItemHandler handler) {
-        return new ForgeFluidAgent(handler);
+public class ForgeItemAgent implements ItemRepo {
+    public static ForgeItemAgent of(IItemHandler handler) {
+        return new ForgeItemAgent(handler);
     }
 
     private final IItemHandler handler;
 
-    public ForgeFluidAgent(IItemHandler handler) {
+    public ForgeItemAgent(IItemHandler handler) {
         this.handler = handler;
     }
 
@@ -31,18 +31,13 @@ public class ForgeFluidAgent implements ItemRepo {
     }
 
     @Override
-    public boolean canConsume(int i, ItemSpec item, long amount) {
+    public long simConsume(int i, ItemSpec item, long amount) {
         ItemStack stored = this.get().getStackInSlot(i);
-        if (item.matches(stored) || stored.isEmpty()) {
-            return this.get().extractItem(i, (int) Math.min(amount, stored.getCount()), true).getCount() >= amount;
+        if (item.matches(stored)) {
+            return this.get().extractItem(i, (int) Math.min(amount, stored.getCount()), true).getCount();
         } else {
-            return false;
+            return 0;
         }
-    }
-
-    @Override
-    public boolean canAccept(int i, ItemSpec item, long amount) {
-        return this.get().insertItem(i, item.toStack(amount), true).getCount() >= amount;
     }
 
     @Override
@@ -56,13 +51,13 @@ public class ForgeFluidAgent implements ItemRepo {
     }
 
     @Override
-    public long accept(int i, ItemSpec item, long amount) {
-        return this.get().insertItem(i, item.toStack(amount), false).getCount();
+    public long simAccept(int i, ItemSpec item, long amount) {
+        return this.get().insertItem(i, item.toStack(amount), true).getCount();
     }
 
     @Override
-    public long spaceFor(int i, ItemSpec item) {
-        return this.get().insertItem(i, item.toStack(Integer.MAX_VALUE), true).getCount();
+    public long accept(int i, ItemSpec item, long amount) {
+        return this.get().insertItem(i, item.toStack(amount), false).getCount();
     }
 
     @Override
@@ -73,8 +68,9 @@ public class ForgeFluidAgent implements ItemRepo {
     @Override
     public long capacityFor(int i, ItemSpec item) {
         ItemStack stored = this.get().getStackInSlot(i);
-        if (item.matches(stored) || stored.isEmpty()) {
-            return stored.getMaxStackSize();
+        if ((stored.isEmpty() && this.get().insertItem(i, item.toStack(1), true).getCount() == 1)
+            || item.matches(stored)) {
+            return this.get().getSlotLimit(i);
         } else {
             return 0;
         }

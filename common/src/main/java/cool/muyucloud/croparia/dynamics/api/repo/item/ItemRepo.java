@@ -14,58 +14,22 @@ public interface ItemRepo {
     boolean isEmpty(int i);
 
     /**
-     * Checks if the total storage for the specified item is at or above the specified amount.
+     * Query the {@link ItemSpec} stored in the specified item slot.
      *
-     * @param item   The item to check
-     * @param amount The amount to check
-     * @return true if the total storage can consume the specified amount, false otherwise
+     * @param i The index of the item slot
+     * @return The fluid stored in the specified item slot
      */
-    default boolean canConsume(ItemSpec item, long amount) {
-        long total = 0;
-        for (int i = 0; i < size() && total < amount; i++) {
-            total += amountFor(i, item);
+    ItemSpec itemFor(int i);
+
+    default long simConsume(ItemSpec item, long amount) {
+        int i = 0;
+        while (i < size() && amount > 0) {
+            amount -= simConsume(i, item, amount);
         }
-        return total >= amount;
+        return Math.max(0, amount);
     }
 
-    /**
-     * Determines if the specified item slot can consume at least the specified amount.
-     *
-     * @param i      The index of the item slot to check
-     * @param item   The item to check
-     * @param amount The amount to check
-     * @return true if the item slot can consume the specified amount, false otherwise
-     */
-    @Unreliable(value = "FABRIC", reason = "only responsible for the remaining amount")
-    boolean canConsume(int i, ItemSpec item, long amount);
-
-    /**
-     * Whether the total space for the specified item is at or above the specified amount
-     *
-     * @param item   The item to check
-     * @param amount The amount to check
-     * @return result
-     */
-    @Unreliable(value = "FABRIC", reason = "only responsible for the remaining space")
-    default boolean canAccept(ItemSpec item, long amount) {
-        long total = 0;
-        for (int i = 0; i < size() && total < amount; i++) {
-            total += spaceFor(i, item);
-        }
-        return false;
-    }
-
-
-    /**
-     * Whether the specified item slot can accept at least the specified amount.
-     *
-     * @param i      The index of the item slot to check
-     * @param item   The item to check
-     * @param amount The amount to check
-     * @return true if the item slot can accept the specified amount, false otherwise
-     */
-    @Unreliable(value = "FABRIC", reason = "only responsible for the remaining space")
-    boolean canAccept(int i, ItemSpec item, long amount);
+    long simConsume(int i, ItemSpec item, long amount);
 
     /**
      * Consumes the specified amount of item from the total storage.
@@ -94,6 +58,31 @@ public interface ItemRepo {
     long consume(int i, ItemSpec item, long amount);
 
     /**
+     * Simulates accepting the specified amount of item into the total storage.
+     *
+     * @param item   The item to accept
+     * @param amount The amount to accept
+     * @return the amount actually accepted
+     */
+    default long simAccept(ItemSpec item, long amount) {
+        int i = 0;
+        while (i < size() && amount > 0) {
+            amount -= simAccept(i, item, amount);
+        }
+        return Math.max(0, amount);
+    }
+
+    /**
+     * Simulates accepting the specified amount of item into the specified item slot.
+     *
+     * @param i      The index of the item slot to accept
+     * @param item   The item to accept
+     * @param amount The amount to accept
+     * @return The amount actually accepted
+     */
+    long simAccept(int i, ItemSpec item, long amount);
+
+    /**
      * Accepts the specified amount of item into the total storage.
      *
      * @param item   The item to accept
@@ -117,33 +106,8 @@ public interface ItemRepo {
      * @param amount The amount to accept
      * @return The amount actually accepted
      */
-    @Unreliable(value = "FABRIC", reason = "only insertable if specified StorageView extends Storage")
+    @Unreliable(value = "FABRIC", reason = "rely on Iterable<StorageView>")
     long accept(int i, ItemSpec item, long amount);
-
-    /**
-     * The total amount of item that can be accepted into the total storage.
-     *
-     * @param item The item to check
-     * @return The total amount of item that can be accepted
-     */
-    @Unreliable(value = "FABRIC", reason = "calculated from amount & capacity")
-    default long spaceFor(ItemSpec item) {
-        long space = 0;
-        for (int i = 0; i < size(); i++) {
-            space += spaceFor(i, item);
-        }
-        return space;
-    }
-
-    /**
-     * The amount of item that can be accepted into the specified item slot.
-     *
-     * @param i    The index of the item slot to check
-     * @param item The item to check
-     * @return The amount of item that can be accepted
-     */
-    @Unreliable(value = "FABRIC", reason = "calculated from amount & capacity")
-    long spaceFor(int i, ItemSpec item);
 
     /**
      * Calculates the total capacity for the specified fluid across all item slots.
@@ -151,7 +115,7 @@ public interface ItemRepo {
      * @param item The fluid to check
      * @return The total capacity for the specified fluid
      */
-    @Unreliable(value = "FABRIC", reason = "empty StorageView is counted as full capacity")
+    @Unreliable(value = "FABRIC", reason = "no canAccept check")
     default long capacityFor(ItemSpec item) {
         long capacity = 0;
         for (int i = 0; i < size(); i++) {
@@ -167,7 +131,7 @@ public interface ItemRepo {
      * @param item The item to check
      * @return The capacity for the specified item
      */
-    @Unreliable(reason = "empty StorageView is counted as full capacity")
+    @Unreliable(value = "FABRIC", reason = "no canAccept check")
     long capacityFor(int i, ItemSpec item);
 
     /**
@@ -192,12 +156,4 @@ public interface ItemRepo {
      * @return The amount of item
      */
     long amountFor(int i, ItemSpec item);
-
-    /**
-     * Retrieves the item stored in the specified item slot.
-     *
-     * @param i The index of the item slot
-     * @return The fluid stored in the specified item slot
-     */
-    ItemSpec itemFor(int i);
 }

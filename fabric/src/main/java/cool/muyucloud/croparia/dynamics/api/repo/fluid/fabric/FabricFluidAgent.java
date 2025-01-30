@@ -4,6 +4,7 @@ import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
-@SuppressWarnings({"UnstableApiUsage", "unchecked"})
+@SuppressWarnings({"UnstableApiUsage"})
 public class FabricFluidAgent implements FluidRepo {
     @NotNull
     public static FabricFluidAgent of(@NotNull Storage<FluidVariant> storage) {
@@ -22,6 +23,10 @@ public class FabricFluidAgent implements FluidRepo {
 
     public FabricFluidAgent(Storage<FluidVariant> storage) {
         this.storage = storage;
+    }
+
+    public Storage<FluidVariant> get() {
+        return this.storage;
     }
 
     @Nullable
@@ -43,7 +48,7 @@ public class FabricFluidAgent implements FluidRepo {
     @Override
     public int size() {
         int i = 0;
-        for (StorageView<FluidVariant> ignored : this.storage) {
+        for (StorageView<FluidVariant> ignored : this.get()) {
             i++;
         }
         return i;
@@ -55,49 +60,41 @@ public class FabricFluidAgent implements FluidRepo {
         return view == null || view.isResourceBlank();
     }
 
+    @Nullable
     @Override
-    public boolean canConsume(int i, FluidSpec fluid, long amount) {
-        if (!this.storage.supportsExtraction()) {
-            return false;
+    public FluidSpec fluidFor(int i) {
+        StorageView<FluidVariant> view = this.get(i);
+        if (view == null) {
+            return null;
+        } else {
+            return FabricFluidSpec.from(view.getResource());
+        }
+    }
+
+    @Override
+    public long simConsume(int i, FluidSpec fluid, long amount) {
+        if (!this.get().supportsExtraction()) {
+            return 0L;
         }
         StorageView<FluidVariant> view = this.get(i);
-        return view != null && FabricFluidSpec.matches(view.getResource(), fluid) && view.getAmount() >= amount;
+        if (view == null) {
+            return 0L;
+        } else {
+            return StorageUtil.simulateExtract(view, FabricFluidSpec.of(fluid), amount, null);
+        }
     }
 
     @Override
-    public boolean canConsume(FluidSpec fluid, long amount) {
-        if (!this.storage.supportsExtraction()) {
-            return false;
+    public long consume(FluidSpec fluid, long amount) {
+        if (!this.get().supportsExtraction()) {
+            return 0L;
         }
-        Iterator<StorageView<FluidVariant>> iterator = this.storage.iterator();
-        while (iterator.hasNext() && amount > 0L) {
-            StorageView<FluidVariant> view = iterator.next();
-            if (FabricFluidSpec.matches(view.getResource(), fluid)) {
-                amount -= view.getAmount();
-            }
-        }
-        return amount <= 0L;
-    }
-
-    @Override
-    public boolean canAccept(FluidSpec fluid, long amount) {
-        if (!this.storage.supportsInsertion()) {
-            return false;
-        }
-        return this.spaceFor(fluid) >= amount;
-    }
-
-    @Override
-    public boolean canAccept(int i, FluidSpec fluid, long amount) {
-        if (!this.storage.supportsInsertion()) {
-            return false;
-        }
-        return this.spaceFor(i, fluid) >= amount;
+        return this.get().extract(FabricFluidSpec.of(fluid), amount, Transaction.openOuter());
     }
 
     @Override
     public long consume(int i, FluidSpec fluid, long amount) {
-        if (!this.storage.supportsExtraction()) {
+        if (!this.get().supportsExtraction()) {
             return 0L;
         }
         StorageView<FluidVariant> view = this.get(i);
@@ -109,79 +106,71 @@ public class FabricFluidAgent implements FluidRepo {
     }
 
     @Override
-    public long consume(FluidSpec fluid, long amount) {
-        if (!this.storage.supportsExtraction()) {
-            return 0L;
-        }
-        return this.storage.extract(FabricFluidSpec.of(fluid), amount, Transaction.openOuter());
-    }
-
-    @Override
-    public long accept(int i, FluidSpec fluid, long amount) {
-        if (!this.storage.supportsInsertion()) {
+    public long simAccept(int i, FluidSpec fluid, long amount) {
+        if (!this.get().supportsInsertion()) {
             return 0L;
         }
         StorageView<FluidVariant> view = this.get(i);
         if (!(view instanceof Storage<?> s)) {
             return 0L;
         } else {
-            Storage<FluidVariant> storage = (Storage<FluidVariant>) s;
-            return storage.insert(FabricFluidSpec.of(fluid), amount, Transaction.openOuter());
+            try {
+                @SuppressWarnings("unchecked")
+                Storage<FluidVariant> storage = (Storage<FluidVariant>) s;
+                return StorageUtil.simulateInsert(storage, FabricFluidSpec.of(fluid), amount, null);
+            } catch (ClassCastException e) {
+                return 0L;
+            }
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long accept(int i, FluidSpec fluid, long amount) {
+        if (!this.get().supportsInsertion()) {
+            return 0L;
+        }
+        StorageView<FluidVariant> view = this.get(i);
+        if (!(view instanceof Storage<?> s)) {
+            return 0L;
+        } else {
+            try {
+                @SuppressWarnings("unchecked")
+                Storage<FluidVariant> storage = (Storage<FluidVariant>) s;
+                return storage.insert(FabricFluidSpec.of(fluid), amount, Transaction.openOuter());
+            } catch (ClassCastException e) {
+                return 0L;
+            }
         }
     }
 
     @Override
     public long accept(FluidSpec fluid, long amount) {
-        if (!this.storage.supportsInsertion()) {
+        if (!this.get().supportsInsertion()) {
             return 0L;
         }
-        return this.storage.insert(FabricFluidSpec.of(fluid), amount, Transaction.openOuter());
-    }
-
-    @Override
-    public long spaceFor(int i, FluidSpec fluid) {
-        if (!this.storage.supportsInsertion()) {
-            return 0L;
-        }
-        StorageView<FluidVariant> view = this.get(i);
-        if (view == null || FabricFluidSpec.matches(view.getResource(), fluid)) {
-            return 0L;
-        } else {
-            return view.getCapacity() - view.getAmount();
-        }
-    }
-
-    @Override
-    public long spaceFor(FluidSpec fluid) {
-        if (!this.storage.supportsInsertion()) {
-            return 0L;
-        }
-        long result = 0L;
-        for (StorageView<FluidVariant> view : this.storage) {
-            if (FabricFluidSpec.matches(view.getResource(), fluid) || view.isResourceBlank()) {
-                result += view.getCapacity() - view.getAmount();
-            }
-        }
-        return result;
+        return this.get().insert(FabricFluidSpec.of(fluid), amount, Transaction.openOuter());
     }
 
     @Override
     public long capacityFor(int i, FluidSpec fluid) {
         StorageView<FluidVariant> view = this.get(i);
-        if (view == null || !FabricFluidSpec.matches(view.getResource(), fluid)) {
+        if (view == null) {
             return 0L;
-        } else {
+        } else if (view.isResourceBlank() || FabricFluidSpec.matches(view.getResource(), fluid)) {
             return view.getCapacity();
+        } else {
+            return 0L;
         }
     }
 
     @Override
     public long capacityFor(FluidSpec fluid) {
-        if (!this.storage.supportsInsertion()) {
+        if (!this.get().supportsInsertion()) {
             return 0L;
         }
         long result = 0L;
-        for (StorageView<FluidVariant> view : this.storage) {
+        for (StorageView<FluidVariant> view : this.get()) {
             if (FabricFluidSpec.matches(view.getResource(), fluid) || view.isResourceBlank()) {
                 result += view.getCapacity();
             }
@@ -202,22 +191,11 @@ public class FabricFluidAgent implements FluidRepo {
     @Override
     public long amountFor(FluidSpec fluid) {
         long result = 0L;
-        for (StorageView<FluidVariant> view : this.storage) {
+        for (StorageView<FluidVariant> view : this.get()) {
             if (FabricFluidSpec.matches(view.getResource(), fluid)) {
                 result += view.getAmount();
             }
         }
         return result;
-    }
-
-    @Nullable
-    @Override
-    public FluidSpec fluidFor(int i) {
-        StorageView<FluidVariant> view = this.get(i);
-        if (view == null) {
-            return null;
-        } else {
-            return FabricFluidSpec.from(view.getResource());
-        }
     }
 }

@@ -31,23 +31,13 @@ public abstract class ItemAgent implements ItemRepo {
     }
 
     @Override
-    public boolean canConsume(ItemSpec item, long amount) {
-        return this.get().canConsume(item, amount);
+    public long simConsume(ItemSpec item, long amount) {
+        return this.get().simConsume(item, amount);
     }
 
     @Override
-    public boolean canConsume(int i, ItemSpec item, long amount) {
-        return this.canConsume(item, amount);
-    }
-
-    @Override
-    public boolean canAccept(ItemSpec item, long amount) {
-        return this.get().canAccept(item, amount);
-    }
-
-    @Override
-    public boolean canAccept(int i, ItemSpec item, long amount) {
-        return this.get().canAccept(i, item, amount);
+    public long simConsume(int i, ItemSpec item, long amount) {
+        return this.get().simConsume(i, item, amount);
     }
 
     @Override
@@ -61,6 +51,16 @@ public abstract class ItemAgent implements ItemRepo {
     }
 
     @Override
+    public long simAccept(ItemSpec item, long amount) {
+        return this.get().simAccept(item, amount);
+    }
+
+    @Override
+    public long simAccept(int i, ItemSpec item, long amount) {
+        return this.get().simAccept(i, item, amount);
+    }
+
+    @Override
     public long accept(ItemSpec item, long amount) {
         return this.get().accept(item, amount);
     }
@@ -68,16 +68,6 @@ public abstract class ItemAgent implements ItemRepo {
     @Override
     public long accept(int i, ItemSpec item, long amount) {
         return this.get().accept(i, item, amount);
-    }
-
-    @Override
-    public long spaceFor(ItemSpec item) {
-        return this.get().spaceFor(item);
-    }
-
-    @Override
-    public long spaceFor(int i, ItemSpec item) {
-        return this.get().spaceFor(i, item);
     }
 
     @Override
