@@ -23,12 +23,12 @@ public class FluidAgentImpl extends FluidAgent implements Storage<FluidVariant> 
 
     @Override
     public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-        return this.accept(resource.getFluid(), maxAmount);
+        return this.accept(FabricFluidSpec.from(resource), maxAmount);
     }
 
     @Override
     public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-        return this.consume(resource.getFluid(), maxAmount);
+        return this.consume(FabricFluidSpec.from(resource), maxAmount);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class FluidAgentImpl extends FluidAgent implements Storage<FluidVariant> 
 
         @Override
         public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-            return this.repo.consume(i, resource.getFluid(), maxAmount);
+            return this.repo.consume(i, FabricFluidSpec.from(resource), maxAmount);
         }
 
         @Override
@@ -74,7 +74,7 @@ public class FluidAgentImpl extends FluidAgent implements Storage<FluidVariant> 
 
         @Override
         public FluidVariant getResource() {
-            return FluidVariant.of(this.repo.fluidFor(i));
+            return FabricFluidSpec.of(this.repo.fluidFor(i));
         }
 
         @Override

@@ -5,13 +5,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * A signal to Fluid Repo API to identify a block entity for forge.<br>
  * In most cases, your {@link BlockEntity} implements this.
  */
+@SuppressWarnings("unused")
 public interface FluidRepoProvider {
     /**
      * Register a fluid repo provider to fabric
@@ -24,14 +26,28 @@ public interface FluidRepoProvider {
     }
 
     /**
+     * <p>
+     * Find a {@link FluidRepo} in world.
+     * </p>
+     * <p>
+     * The return value might not be fully reliable. See methods in {@link FluidRepo} with annotation {@link cool.muyucloud.croparia.dynamics.api.repo.Unreliable}
+     * </p>
+     *
+     * @param world     the world
+     * @param pos       the position of the block entity
+     * @param direction the direction of the block entity
+     * @return the fluid repo
+     */
+    @ExpectPlatform
+    static Optional<FluidRepo> find(Level world, BlockPos pos, Direction direction) {
+        throw new AssertionError("Not implemented");
+    }
+
+    /**
      * Provide your {@link FluidAgent}
      *
-     * @param world     the world, {@code null} if in forge
-     * @param pos       the position, {@code null} if in forge
-     * @param state     the state, {@code null} if in forge
-     * @param be        the block entity, {@code null} if in forge
      * @param direction the directio of interaction
      */
     @Nullable
-    FluidAgent fluidAgent(@Nullable Level world, @Nullable BlockPos pos, @Nullable BlockState state, @Nullable BlockEntity be, Direction direction);
+    FluidAgent fluidAgent(@Nullable Direction direction);
 }

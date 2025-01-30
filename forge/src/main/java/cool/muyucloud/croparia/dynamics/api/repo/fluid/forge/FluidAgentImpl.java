@@ -2,7 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.fluid.forge;
 
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidAgent;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
-import net.minecraft.world.level.material.Fluid;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,8 @@ public class FluidAgentImpl extends FluidAgent implements IFluidHandler {
 
     @Override
     public @NotNull FluidStack getFluidInTank(int i) {
-        return new FluidStack(this.fluidFor(i), (int) (this.amountFor(i, this.fluidFor(i)) / 81L));
+        FluidSpec fluidSpec = this.fluidFor(i);
+        return ForgeFluidSpec.of(fluidSpec, this.amountFor(i, fluidSpec));
     }
 
     @Override
@@ -35,24 +36,52 @@ public class FluidAgentImpl extends FluidAgent implements IFluidHandler {
 
     @Override
     public boolean isFluidValid(int i, @NotNull FluidStack fluidStack) {
-        return this.canAccept(fluidStack.getFluid(), fluidStack.getAmount() * 81L);
+        FluidSpec fluid = ForgeFluidSpec.from(fluidStack);
+        return this.canAccept(fluid, fluidStack.getAmount() * 81L);
     }
 
     @Override
-    public int fill(FluidStack fluidStack, FluidAction fluidAction) {
-        return (int) (this.accept(fluidStack.getFluid(), fluidStack.getAmount() * 81L) / 81L);
+    public int fill(FluidStack input, FluidAction fluidAction) {
+        FluidSpec fluid = ForgeFluidSpec.from(input);
+        if (fluidAction.simulate()) {
+            return this.canAccept(fluid, input.getAmount() * 81L) ? input.getAmount()
+                : (int) (this.spaceFor(fluid) / 81L);
+        } else if (fluidAction.execute()) {
+            return (int) (this.accept(fluid, input.getAmount() * 81L) / 81L);
+        } else {
+            return 0;
+        }
     }
 
     @Override
-    public @NotNull FluidStack drain(FluidStack fluidStack, FluidAction fluidAction) {
-        long amount = this.consume(fluidStack.getFluid(), fluidStack.getAmount() * 81L);
-        return new FluidStack(fluidStack.getFluid(), (int) (amount / 81L));
+    public @NotNull FluidStack drain(FluidStack input, FluidAction fluidAction) {
+        FluidSpec fluid = ForgeFluidSpec.from(input);
+        if (fluidAction.simulate()) {
+            return this.canConsume(fluid, input.getAmount() * 81L) ? input :
+                new FluidStack(input.getFluid(), (int) (this.amountFor(fluid) / 81L));
+        } else if (fluidAction.execute()) {
+            long amount = this.consume(fluid, input.getAmount() * 81L);
+            return new FluidStack(input.getFluid(), (int) (amount / 81L));
+        } else {
+            return FluidStack.EMPTY;
+        }
     }
 
     @Override
-    public @NotNull FluidStack drain(int i, FluidAction fluidAction) {
-        Fluid fluid = this.fluidFor(i);
-        long amount = this.consume(i, fluid, this.capacityFor(i, fluid));
-        return new FluidStack(fluid, (int) (amount / 81L));
+    public @NotNull FluidStack drain(int amount, FluidAction fluidAction) {
+        if (this.size() < 1) return FluidStack.EMPTY;
+        FluidSpec fluid = this.fluidFor(0);
+        if (fluidAction.simulate()) {
+            long available = Math.min(this.amountFor(fluid), amount * 81L);
+            if (this.canConsume(fluid, available)) {
+                return ForgeFluidSpec.of(fluid, available);
+            }
+            return FluidStack.EMPTY;
+        } else if (fluidAction.execute()) {
+            long consumed = this.consume(fluid, amount * 81L);
+            return ForgeFluidSpec.of(fluid, (int) consumed);
+        } else {
+            return FluidStack.EMPTY;
+        }
     }
 }

@@ -1,7 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.material.Fluid;
+import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
 
 /**
  * <p>
@@ -11,6 +10,7 @@ import net.minecraft.world.level.material.Fluid;
  * <p>
  * Abstractly, this should be viewed as a composite of "fluid storage units"
  * </p>
+ * <p>We use fabric fluid unit here (81000 = 1 bucket)</p>
  */
 public interface FluidRepo {
     /**
@@ -30,7 +30,7 @@ public interface FluidRepo {
      * @param amount The amount to check
      * @return true if the total storage can consume the specified amount, false otherwise
      */
-    default boolean canConsume(Fluid fluid, long amount) {
+    default boolean canConsume(FluidSpec fluid, long amount) {
         long total = 0;
         for (int i = 0; i < size() && total < amount; i++) {
             total += amountFor(i, fluid);
@@ -46,7 +46,8 @@ public interface FluidRepo {
      * @param amount The amount to check
      * @return true if the fluid storage unit can consume the specified amount, false otherwise
      */
-    boolean canConsume(int i, Fluid fluid, long amount);
+    @Unreliable(reason = "only responsible for the remaining amount")
+    boolean canConsume(int i, FluidSpec fluid, long amount);
 
     /**
      * Whether the total space for the specified fluid is at or above the specified amount
@@ -55,7 +56,8 @@ public interface FluidRepo {
      * @param amount The amount to check
      * @return result
      */
-    default boolean canAccept(Fluid fluid, long amount) {
+    @Unreliable(value = "FABRIC", reason = "only responsible for the remaining space")
+    default boolean canAccept(FluidSpec fluid, long amount) {
         long total = 0;
         for (int i = 0; i < size() && total < amount; i++) {
             total += spaceFor(i, fluid);
@@ -72,7 +74,8 @@ public interface FluidRepo {
      * @param amount The amount to check
      * @return true if the fluid storage unit can accept the specified amount, false otherwise
      */
-    boolean canAccept(int i, Fluid fluid, long amount);
+    @Unreliable(value = "FABRIC", reason = "only responsible for the remaining space")
+    boolean canAccept(int i, FluidSpec fluid, long amount);
 
     /**
      * Consumes the specified amount of fluid from the total storage.
@@ -81,7 +84,7 @@ public interface FluidRepo {
      * @param amount The amount to consume
      * @return the amount actually consumed
      */
-    default long consume(Fluid fluid, long amount) {
+    default long consume(FluidSpec fluid, long amount) {
         long totalConsumed = 0;
         for (int i = 0; i < size() && totalConsumed < amount; i++) {
             long consumed = consume(i, fluid, amount - totalConsumed);
@@ -98,7 +101,8 @@ public interface FluidRepo {
      * @param amount The amount to consume
      * @return The amount actually consumed
      */
-    long consume(int i, Fluid fluid, long amount);
+    @Unreliable(value = "FORGE", reason = "consumed fluid might not be from the specified unit")
+    long consume(int i, FluidSpec fluid, long amount);
 
     /**
      * Accepts the specified amount of fluid into the total storage.
@@ -107,7 +111,7 @@ public interface FluidRepo {
      * @param amount The amount to accept
      * @return the amount actually accepted
      */
-    default long accept(Fluid fluid, long amount) {
+    default long accept(FluidSpec fluid, long amount) {
         long totalAccepted = 0;
         for (int i = 0; i < size() && totalAccepted < amount; i++) {
             long accepted = accept(i, fluid, amount - totalAccepted);
@@ -124,7 +128,9 @@ public interface FluidRepo {
      * @param amount The amount to accept
      * @return The amount actually accepted
      */
-    long accept(int i, Fluid fluid, long amount);
+    @Unreliable(value = "FORGE", reason = "inserted fluid might not be into the specified unit")
+    @Unreliable(value = "FABRIC", reason = "only insertable if specified StorageView extends Storage")
+    long accept(int i, FluidSpec fluid, long amount);
 
     /**
      * The total amount of fluid that can be accepted into the total storage.
@@ -132,7 +138,8 @@ public interface FluidRepo {
      * @param fluid The fluid to check
      * @return The total amount of fluid that can be accepted
      */
-    default long spaceFor(Fluid fluid) {
+    @Unreliable(value = "FABRIC", reason = "calculated from amount & capacity")
+    default long spaceFor(FluidSpec fluid) {
         long space = 0;
         for (int i = 0; i < size(); i++) {
             space += spaceFor(i, fluid);
@@ -143,11 +150,12 @@ public interface FluidRepo {
     /**
      * The amount of fluid that can be accepted into the specified fluid storage unit.
      *
-     * @param i      The index of the fluid storage unit to check
-     * @param fluid  The fluid to check
+     * @param i     The index of the fluid storage unit to check
+     * @param fluid The fluid to check
      * @return The amount of fluid that can be accepted
      */
-    long spaceFor(int i, Fluid fluid);
+    @Unreliable(value = "FABRIC", reason = "calculated from amount & capacity")
+    long spaceFor(int i, FluidSpec fluid);
 
     /**
      * Calculates the total capacity for the specified fluid across all fluid storage units.
@@ -155,7 +163,8 @@ public interface FluidRepo {
      * @param fluid The fluid to check
      * @return The total capacity for the specified fluid
      */
-    default long capacityFor(Fluid fluid) {
+    @Unreliable(value = "FABRIC", reason = "empty StorageView is counted as full capacity")
+    default long capacityFor(FluidSpec fluid) {
         long capacity = 0;
         for (int i = 0; i < size(); i++) {
             capacity += capacityFor(i, fluid);
@@ -166,11 +175,12 @@ public interface FluidRepo {
     /**
      * Calculates the capacity for the specified fluid in the specified fluid storage unit.
      *
-     * @param i      The index of the fluid storage unit to check
-     * @param fluid  The fluid to check
+     * @param i     The index of the fluid storage unit to check
+     * @param fluid The fluid to check
      * @return The capacity for the specified fluid
      */
-    long capacityFor(int i, Fluid fluid);
+    @Unreliable(value = "FABRIC", reason = "empty StorageView is counted as full capacity")
+    long capacityFor(int i, FluidSpec fluid);
 
     /**
      * Calculates the total amount of fluid across all fluid storage units.
@@ -178,7 +188,7 @@ public interface FluidRepo {
      * @param fluid The fluid to check
      * @return The total amount of fluid
      */
-    default long amountFor(Fluid fluid) {
+    default long amountFor(FluidSpec fluid) {
         long amount = 0;
         for (int i = 0; i < size(); i++) {
             amount += amountFor(i, fluid);
@@ -189,11 +199,11 @@ public interface FluidRepo {
     /**
      * Calculates the amount of fluid in the specified fluid storage unit.
      *
-     * @param i      The index of the fluid storage unit to check
-     * @param fluid  The fluid to check
+     * @param i     The index of the fluid storage unit to check
+     * @param fluid The fluid to check
      * @return The amount of fluid
      */
-    long amountFor(int i, Fluid fluid);
+    long amountFor(int i, FluidSpec fluid);
 
     /**
      * Retrieves the fluid stored in the specified fluid storage unit.
@@ -201,19 +211,5 @@ public interface FluidRepo {
      * @param i The index of the fluid storage unit
      * @return The fluid stored in the specified fluid storage unit
      */
-    Fluid fluidFor(int i);
-
-    /**
-     * Loads the fluid repository from the specified compound tag.
-     *
-     * @param tag The compound tag to load from
-     */
-    void load(CompoundTag tag);
-
-    /**
-     * Saves the fluid repository to the specified compound tag.
-     *
-     * @param tag The compound tag to save to
-     */
-    void save(CompoundTag tag);
+    FluidSpec fluidFor(int i);
 }

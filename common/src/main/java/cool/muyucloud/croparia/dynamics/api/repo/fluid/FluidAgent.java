@@ -1,8 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.material.Fluid;
 
 import java.util.function.Supplier;
 
@@ -13,13 +11,17 @@ import java.util.function.Supplier;
  * You need to implement {@link FluidRepoProvider} in your {@code BlockEntity}.<br>
  * If you want to make it work for fabric, use {@link FluidRepoProvider#register(FluidRepoProvider)}
  * to register your {@code BlockEntity}.
+ * <p>
+ * Use {@link #of(Supplier)} to create a {@link FluidAgent}. <br>
+ * <b>DO NOT INSTANTIATE THIS CLASS UNLESS YOU KNOW WHAT YOU ARE DOING</b>
+ * </p>
+ *
  * */
 public class FluidAgent implements FluidRepo {
     /**
      * Create a fluid agent from your customized {@link FluidRepo}. <br>
      * You should only create {@link FluidAgent} from this method,
      * and the implemented {@link FluidAgent} from fabric / forge module is returned.<br>
-     * <b>DO NOT EXTEND INSTANTIATE THIS CLASS UNLESS YOU KNOW WHAT YOU ARE DOING</b>
      *
      * @param repo the fluid repo
      * @return the fluid agent
@@ -50,87 +52,77 @@ public class FluidAgent implements FluidRepo {
     }
 
     @Override
-    public boolean canConsume(int i, Fluid fluid, long amount) {
+    public boolean canConsume(int i, FluidSpec fluid, long amount) {
         return this.get().canConsume(i, fluid, amount);
     }
 
     @Override
-    public boolean canConsume(Fluid fluid, long amount) {
+    public boolean canConsume(FluidSpec fluid, long amount) {
         return this.get().canConsume(fluid, amount);
     }
 
     @Override
-    public boolean canAccept(int i, Fluid fluid, long amount) {
+    public boolean canAccept(int i, FluidSpec fluid, long amount) {
         return this.get().canAccept(i, fluid, amount);
     }
 
     @Override
-    public boolean canAccept(Fluid fluid, long amount) {
+    public boolean canAccept(FluidSpec fluid, long amount) {
         return this.get().canAccept(fluid, amount);
     }
 
     @Override
-    public long consume(int i, Fluid fluid, long amount) {
+    public long consume(int i, FluidSpec fluid, long amount) {
         return this.get().consume(i, fluid, amount);
     }
 
     @Override
-    public long consume(Fluid fluid, long amount) {
+    public long consume(FluidSpec fluid, long amount) {
         return this.get().consume(fluid, amount);
     }
 
     @Override
-    public long accept(int i, Fluid fluid, long amount) {
+    public long accept(int i, FluidSpec fluid, long amount) {
         return this.get().accept(i, fluid, amount);
     }
 
     @Override
-    public long accept(Fluid fluid, long amount) {
+    public long accept(FluidSpec fluid, long amount) {
         return this.get().accept(fluid, amount);
     }
 
     @Override
-    public long spaceFor(int i, Fluid fluid) {
+    public long spaceFor(int i, FluidSpec fluid) {
         return this.get().spaceFor(i, fluid);
     }
 
     @Override
-    public long spaceFor(Fluid fluid) {
+    public long spaceFor(FluidSpec fluid) {
         return this.get().spaceFor(fluid);
     }
 
     @Override
-    public long capacityFor(int i, Fluid fluid) {
+    public long capacityFor(int i, FluidSpec fluid) {
         return this.get().capacityFor(i, fluid);
     }
 
     @Override
-    public long capacityFor(Fluid fluid) {
+    public long capacityFor(FluidSpec fluid) {
         return this.get().capacityFor(fluid);
     }
 
     @Override
-    public long amountFor(int i, Fluid fluid) {
+    public long amountFor(int i, FluidSpec fluid) {
         return this.get().amountFor(i, fluid);
     }
 
     @Override
-    public long amountFor(Fluid fluid) {
+    public long amountFor(FluidSpec fluid) {
         return this.get().amountFor(fluid);
     }
 
     @Override
-    public Fluid fluidFor(int i) {
+    public FluidSpec fluidFor(int i) {
         return this.get().fluidFor(i);
-    }
-
-    @Override
-    public void load(CompoundTag tag) {
-        this.get().load(tag);
-    }
-
-    @Override
-    public void save(CompoundTag tag) {
-        this.get().save(tag);
     }
 }
