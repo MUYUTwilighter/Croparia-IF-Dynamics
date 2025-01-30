@@ -13,11 +13,10 @@ import java.util.function.Supplier;
  * to register your {@code BlockEntity}.
  * <p>
  * Use {@link #of(Supplier)} to create a {@link FluidAgent}. <br>
- * <b>DO NOT INSTANTIATE THIS CLASS UNLESS YOU KNOW WHAT YOU ARE DOING</b>
+ * <b>DO NOT INSTANTIATE OR EXTEND THIS CLASS UNLESS YOU KNOW WHAT YOU ARE DOING</b>
  * </p>
- *
  * */
-public class FluidAgent implements FluidRepo {
+public abstract class FluidAgent implements FluidRepo {
     /**
      * Create a fluid agent from your customized {@link FluidRepo}. <br>
      * You should only create {@link FluidAgent} from this method,

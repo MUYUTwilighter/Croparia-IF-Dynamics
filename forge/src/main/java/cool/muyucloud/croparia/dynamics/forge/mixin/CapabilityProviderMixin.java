@@ -3,6 +3,8 @@ package cool.muyucloud.croparia.dynamics.forge.mixin;
 
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidAgent;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepoProvider;
+import cool.muyucloud.croparia.dynamics.api.repo.item.ItemAgent;
+import cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepoProvider;
 import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityProvider;
@@ -24,6 +26,14 @@ public abstract class CapabilityProviderMixin {
     public void onGetCapability(@NotNull Capability<Object> cap, @Nullable Direction side, CallbackInfoReturnable<LazyOptional<Object>> cir) {
         if (this instanceof FluidRepoProvider provider && Objects.equals(cap, ForgeCapabilities.FLUID_HANDLER)) {
             FluidAgent agent = provider.fluidAgent(side);
+            if (agent == null) {
+                cir.setReturnValue(LazyOptional.empty());
+            } else {
+                cir.setReturnValue(LazyOptional.of(() -> agent));
+            }
+            cir.cancel();
+        } else if (this instanceof ItemRepoProvider provider && Objects.equals(cap, ForgeCapabilities.ITEM_HANDLER)) {
+            ItemAgent agent = provider.itemAgent(side);
             if (agent == null) {
                 cir.setReturnValue(LazyOptional.empty());
             } else {
