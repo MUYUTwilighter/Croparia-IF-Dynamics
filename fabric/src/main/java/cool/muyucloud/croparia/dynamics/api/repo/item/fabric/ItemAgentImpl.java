@@ -23,15 +23,35 @@ public class ItemAgentImpl extends ItemAgent implements Storage<ItemVariant> {
     }
 
     @Override
-    public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-        ItemSpec item = FabricItemSpec.from(resource);
-        return this.accept(item, maxAmount);
+    public long insert(ItemVariant resource, long maxAmount, TransactionContext context) {
+        ItemSpec itemSpec = FabricItemSpec.from(resource);
+        if (context == null) {
+            return this.accept(itemSpec, maxAmount);
+        } else {
+            long amount = this.simAccept(itemSpec, maxAmount);
+            context.addCloseCallback((ignored, result) -> {
+                if (result == TransactionContext.Result.COMMITTED) {
+                    this.accept(itemSpec, amount);
+                }
+            });
+            return amount;
+        }
     }
 
     @Override
-    public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-        ItemSpec item = FabricItemSpec.from(resource);
-        return this.consume(item, maxAmount);
+    public long extract(ItemVariant resource, long maxAmount, TransactionContext context) {
+        ItemSpec itemSpec = FabricItemSpec.from(resource);
+        if (context == null) {
+            return this.consume(itemSpec, maxAmount);
+        } else {
+            long amount = this.simConsume(itemSpec, maxAmount);
+            context.addCloseCallback((ignored, result) -> {
+                if (result == TransactionContext.Result.COMMITTED) {
+                    this.consume(itemSpec, amount);
+                }
+            });
+            return amount;
+        }
     }
 
     @Override

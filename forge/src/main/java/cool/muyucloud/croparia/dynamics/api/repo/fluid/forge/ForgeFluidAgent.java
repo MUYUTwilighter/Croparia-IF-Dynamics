@@ -2,15 +2,18 @@ package cool.muyucloud.croparia.dynamics.api.repo.fluid.forge;
 
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.PlatformFluidAgent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+
+import java.util.Optional;
 
 /**
  * Wrapper for {@link IFluidHandler}.
  * The fluid unit for params & return values is {@code 81000 = 1 bucket}.
  */
-public class ForgeFluidAgent implements FluidRepo {
-    public static FluidRepo of(IFluidHandler handler) {
+public class ForgeFluidAgent implements PlatformFluidAgent {
+    public static PlatformFluidAgent of(IFluidHandler handler) {
         return new ForgeFluidAgent(handler);
     }
 
@@ -22,6 +25,11 @@ public class ForgeFluidAgent implements FluidRepo {
 
     public IFluidHandler get() {
         return this.handler;
+    }
+
+    @Override
+    public Optional<FluidRepo> extract() {
+        return this.get() instanceof FluidRepo repo ? Optional.of(repo) : Optional.empty();
     }
 
     @Override

@@ -1,7 +1,5 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item;
 
-import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
-
 public interface ItemRepo {
     /**
      * The amount of item slots
@@ -106,7 +104,6 @@ public interface ItemRepo {
      * @param amount The amount to accept
      * @return The amount actually accepted
      */
-    @Unreliable(value = "FABRIC", reason = "rely on Iterable<StorageView>")
     long accept(int i, ItemSpec item, long amount);
 
     /**
@@ -115,7 +112,6 @@ public interface ItemRepo {
      * @param item The fluid to check
      * @return The total capacity for the specified fluid
      */
-    @Unreliable(value = "FABRIC", reason = "no canAccept check")
     default long capacityFor(ItemSpec item) {
         long capacity = 0;
         for (int i = 0; i < size(); i++) {
@@ -131,7 +127,6 @@ public interface ItemRepo {
      * @param item The item to check
      * @return The capacity for the specified item
      */
-    @Unreliable(value = "FABRIC", reason = "no canAccept check")
     long capacityFor(int i, ItemSpec item);
 
     /**

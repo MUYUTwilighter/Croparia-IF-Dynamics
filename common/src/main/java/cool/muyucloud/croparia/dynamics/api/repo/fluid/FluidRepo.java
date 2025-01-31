@@ -1,7 +1,5 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
-import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
-
 /**
  * <p>
  * This is where you define the behavior of your fluid repository.<br>
@@ -54,7 +52,6 @@ public interface FluidRepo {
      * @param amount The amount to consume
      * @return The amount that can be consumed
      */
-    @Unreliable(value = "FORGE", reason = "consumption ignores the index")
     long simConsume(int i, FluidSpec fluid, long amount);
 
     /**
@@ -81,7 +78,6 @@ public interface FluidRepo {
      * @param amount The amount to consume
      * @return The amount actually consumed
      */
-    @Unreliable(value = "FORGE", reason = "consumption ignores the index")
     long consume(int i, FluidSpec fluid, long amount);
 
     /**
@@ -107,8 +103,6 @@ public interface FluidRepo {
      * @param amount The amount to accept
      * @return The amount that can be accepted
      */
-    @Unreliable(value = "FORGE", reason = "insertion ignores the index")
-    @Unreliable(value = "FABRIC", reason = "rely on Iterable<StorageView>")
     long simAccept(int i, FluidSpec fluid, long amount);
 
     /**
@@ -135,8 +129,6 @@ public interface FluidRepo {
      * @param amount The amount to accept
      * @return The amount actually accepted
      */
-    @Unreliable(value = "FORGE", reason = "insertion ignores the index")
-    @Unreliable(value = "FABRIC", reason = "rely on Iterable<StorageView>")
     long accept(int i, FluidSpec fluid, long amount);
 
     /**
@@ -145,7 +137,6 @@ public interface FluidRepo {
      * @param fluid The fluid to check
      * @return The total capacity for the specified fluid
      */
-    @Unreliable(value = "FABRIC", reason = "no canAccept check")
     default long capacityFor(FluidSpec fluid) {
         long capacity = 0;
         for (int i = 0; i < size(); i++) {
@@ -161,7 +152,6 @@ public interface FluidRepo {
      * @param fluid The fluid to check
      * @return The capacity for the specified fluid
      */
-    @Unreliable(value = "FABRIC", reason = "no canAccept check")
     long capacityFor(int i, FluidSpec fluid);
 
     /**

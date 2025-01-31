@@ -1,7 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item.forge;
 
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepoProvider;
+import cool.muyucloud.croparia.dynamics.api.repo.item.PlatformItemAgent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -14,7 +14,7 @@ public class ItemRepoProviderImpl {
     static void register(ItemRepoProvider provider) {
     }
 
-    static Optional<ItemRepo> find(Level world, BlockPos pos, Direction direction) {
+    static Optional<PlatformItemAgent> find(Level world, BlockPos pos, Direction direction) {
         BlockEntity be = world.getBlockEntity(pos);
         if (be == null) {
             return Optional.empty();

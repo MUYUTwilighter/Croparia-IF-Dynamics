@@ -2,10 +2,13 @@ package cool.muyucloud.croparia.dynamics.api.repo.item.forge;
 
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
+import cool.muyucloud.croparia.dynamics.api.repo.item.PlatformItemAgent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
-public class ForgeItemAgent implements ItemRepo {
+import java.util.Optional;
+
+public class ForgeItemAgent implements PlatformItemAgent {
     public static ForgeItemAgent of(IItemHandler handler) {
         return new ForgeItemAgent(handler);
     }
@@ -18,6 +21,11 @@ public class ForgeItemAgent implements ItemRepo {
 
     public IItemHandler get() {
         return this.handler;
+    }
+
+    @Override
+    public Optional<ItemRepo> extract() {
+        return this.get() instanceof ItemRepo repo ? Optional.of(repo) : Optional.empty();
     }
 
     @Override
@@ -61,11 +69,6 @@ public class ForgeItemAgent implements ItemRepo {
     }
 
     @Override
-    public long capacityFor(ItemSpec item) {
-        return ItemRepo.super.capacityFor(item);
-    }
-
-    @Override
     public long capacityFor(int i, ItemSpec item) {
         ItemStack stored = this.get().getStackInSlot(i);
         if ((stored.isEmpty() && this.get().insertItem(i, item.toStack(1), true).getCount() == 1)
@@ -74,11 +77,6 @@ public class ForgeItemAgent implements ItemRepo {
         } else {
             return 0;
         }
-    }
-
-    @Override
-    public long amountFor(ItemSpec item) {
-        return ItemRepo.super.amountFor(item);
     }
 
     @Override

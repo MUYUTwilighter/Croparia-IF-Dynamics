@@ -2,6 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.fluid.fabric;
 
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidAgent;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -22,13 +23,35 @@ public class FluidAgentImpl extends FluidAgent implements Storage<FluidVariant> 
     }
 
     @Override
-    public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-        return this.accept(FabricFluidSpec.from(resource), maxAmount);
+    public long insert(FluidVariant resource, long maxAmount, TransactionContext context) {
+        FluidSpec fluidSpec = FabricFluidSpec.from(resource);
+        if (context == null) {
+            return this.accept(fluidSpec, maxAmount);
+        } else {
+            long amount = this.simAccept(fluidSpec, maxAmount);
+            context.addCloseCallback((ignored, result) -> {
+                if (result == TransactionContext.Result.COMMITTED) {
+                    this.accept(fluidSpec, amount);
+                }
+            });
+            return amount;
+        }
     }
 
     @Override
-    public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-        return this.consume(FabricFluidSpec.from(resource), maxAmount);
+    public long extract(FluidVariant resource, long maxAmount, TransactionContext context) {
+        FluidSpec fluidSpec = FabricFluidSpec.from(resource);
+        if (context == null) {
+            return this.consume(fluidSpec, maxAmount);
+        } else {
+            long amount = this.simConsume(fluidSpec, maxAmount);
+            context.addCloseCallback((ignored, result) -> {
+                if (result == TransactionContext.Result.COMMITTED) {
+                    this.consume(fluidSpec, amount);
+                }
+            });
+            return amount;
+        }
     }
 
     @Override

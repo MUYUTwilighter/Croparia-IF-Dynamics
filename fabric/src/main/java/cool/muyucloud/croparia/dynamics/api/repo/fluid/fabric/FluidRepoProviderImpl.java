@@ -3,6 +3,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.fluid.fabric;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidAgent;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepoProvider;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.PlatformFluidAgent;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -23,9 +24,9 @@ public class FluidRepoProviderImpl {
         });
     }
 
-    static Optional<FluidRepo> find(Level world, BlockPos pos, Direction direction) {
+    static Optional<PlatformFluidAgent> find(Level world, BlockPos pos, Direction direction) {
         Storage<FluidVariant> storage = FluidStorage.SIDED.find(world, pos, direction);
-        if (storage instanceof FluidRepo repo) return Optional.of(repo);
+        if (storage == null) return Optional.empty();
         return Optional.of(FabricFluidAgent.of(storage));
     }
 }

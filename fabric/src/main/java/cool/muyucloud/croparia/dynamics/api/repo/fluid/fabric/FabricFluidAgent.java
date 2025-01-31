@@ -2,6 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.fluid.fabric;
 
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
+import cool.muyucloud.croparia.dynamics.api.repo.fluid.PlatformFluidAgent;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
@@ -11,9 +12,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 @SuppressWarnings({"UnstableApiUsage"})
-public class FabricFluidAgent implements FluidRepo {
+public class FabricFluidAgent implements PlatformFluidAgent {
     @NotNull
     public static FabricFluidAgent of(@NotNull Storage<FluidVariant> storage) {
         return new FabricFluidAgent(storage);
@@ -43,6 +45,11 @@ public class FabricFluidAgent implements FluidRepo {
         } else {
             return view;
         }
+    }
+
+    @Override
+    public Optional<FluidRepo> extract() {
+        return this.get() instanceof FluidRepo fluidRepo ? Optional.of(fluidRepo) : Optional.empty();
     }
 
     @Override

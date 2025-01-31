@@ -39,7 +39,7 @@ public interface FluidRepoProvider {
      * @return the fluid repo
      */
     @ExpectPlatform
-    static Optional<FluidRepo> find(Level world, BlockPos pos, Direction direction) {
+    static Optional<PlatformFluidAgent> find(Level world, BlockPos pos, Direction direction) {
         throw new AssertionError("Not implemented");
     }
 

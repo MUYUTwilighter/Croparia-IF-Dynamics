@@ -39,7 +39,7 @@ public interface ItemRepoProvider {
      * @return the item repo
      */
     @ExpectPlatform
-    static Optional<ItemRepo> find(Level world, BlockPos pos, Direction direction) {
+    static Optional<PlatformItemAgent> find(Level world, BlockPos pos, Direction direction) {
         throw new AssertionError("Not implemented");
     }
 

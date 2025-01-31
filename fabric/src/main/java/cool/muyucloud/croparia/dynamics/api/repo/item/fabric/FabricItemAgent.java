@@ -2,6 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.item.fabric;
 
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
+import cool.muyucloud.croparia.dynamics.api.repo.item.PlatformItemAgent;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
@@ -11,9 +12,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 @SuppressWarnings("UnstableApiUsage")
-public class FabricItemAgent implements ItemRepo {
+public class FabricItemAgent implements PlatformItemAgent {
     @NotNull
     public static FabricItemAgent of(@NotNull Storage<ItemVariant> storage) {
         return new FabricItemAgent(storage);
@@ -43,6 +45,11 @@ public class FabricItemAgent implements ItemRepo {
         } else {
             return view;
         }
+    }
+
+    @Override
+    public Optional<ItemRepo> extract() {
+        return this.get() instanceof ItemRepo repo ? Optional.of(repo) : Optional.empty();
     }
 
     @Override
