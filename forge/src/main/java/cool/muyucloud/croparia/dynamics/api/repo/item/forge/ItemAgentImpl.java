@@ -25,12 +25,12 @@ public class ItemAgentImpl extends ItemAgent implements IItemHandler {
 
     @Override
     public @NotNull ItemStack getStackInSlot(int i) {
-        return this.itemFor(i).toStack();
+        return this.resourceFor(i).toStack();
     }
 
     @Override
     public @NotNull ItemStack insertItem(int i, @NotNull ItemStack input, boolean simulate) {
-        ItemSpec item = this.itemFor(i);
+        ItemSpec item = this.resourceFor(i);
         ItemStack result = item.toStack();
         long accepted;
         if (simulate) {
@@ -44,7 +44,7 @@ public class ItemAgentImpl extends ItemAgent implements IItemHandler {
 
     @Override
     public @NotNull ItemStack extractItem(int i, int amount, boolean simulate) {
-        ItemSpec item = this.itemFor(i);
+        ItemSpec item = this.resourceFor(i);
         ItemStack result = item.toStack();
         long consumed;
         if (simulate) {
@@ -58,7 +58,7 @@ public class ItemAgentImpl extends ItemAgent implements IItemHandler {
 
     @Override
     public int getSlotLimit(int i) {
-        ItemSpec item = this.itemFor(i);
+        ItemSpec item = this.resourceFor(i);
         return (int) this.capacityFor(i, item);
     }
 

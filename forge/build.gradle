@@ -34,20 +34,19 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
+    // Croparia IF
+    modImplementation "cool.muyucloud:croparia-if-${minecraft_version}-forge:${croparia_if_version}"
     // REI
-//    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-forge:$rei_version"
-//    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-forge:$rei_version"
-//    modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-forge:$rei_version"
+    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-forge:$rei_version"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-forge:$rei_version"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-forge:$rei_version"
     // RER
-//    modRuntimeOnly "curse.maven:roughly-enough-resources-325625:4721546"
+    modRuntimeOnly "curse.maven:roughly-enough-resources-325625:4721546"
 
     // EMI
-//    modCompileOnly "dev.emi:emi-forge:${emi_version}:api"
-//    modCompileOnly "dev.emi:emi-forge:${emi_version}"
-//    modRuntimeOnly "dev.emi:emi-forge:${emi_version}"
-//    // KubeJS
-//    modImplementation "dev.latvian.mods:kubejs-forge:${kubejs_version}"
-//    modImplementation "dev.latvian.mods:rhino-forge:${rhino_version}"
+    modCompileOnly "dev.emi:emi-forge:${emi_version}:api"
+    modCompileOnly "dev.emi:emi-forge:${emi_version}"
+    modRuntimeOnly "dev.emi:emi-forge:${emi_version}"
 }
 
 processResources {

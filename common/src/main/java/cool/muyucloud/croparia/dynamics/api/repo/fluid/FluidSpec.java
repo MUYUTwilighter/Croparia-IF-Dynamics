@@ -6,6 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +18,7 @@ public class FluidSpec {
         ResourceLocation.CODEC.fieldOf("id").forGetter(fluid -> fluid.getFluid().arch$registryName()),
         CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(fluid -> Optional.ofNullable(fluid.getNbt()))
     ).apply(instance, (id, nbt) -> new FluidSpec(BuiltInRegistries.FLUID.get(id), nbt.orElse(null))));
+    public static final FluidSpec EMPTY = new FluidSpec(Fluids.EMPTY, null);
 
     private Fluid fluid;
     private CompoundTag nbt;
@@ -40,5 +42,9 @@ public class FluidSpec {
 
     public void setNbt(CompoundTag nbt) {
         this.nbt = nbt;
+    }
+
+    public boolean isEmpty() {
+        return this.getFluid() == Fluids.EMPTY;
     }
 }

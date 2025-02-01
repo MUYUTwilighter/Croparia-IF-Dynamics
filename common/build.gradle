@@ -18,6 +18,8 @@ dependencies {
 //    modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin:$rei_version"
 //    // EMI
 //    modCompileOnly "dev.emi:emi-xplat-intermediary:${emi_version}:api"
+
+    modImplementation "cool.muyucloud:croparia-if-${minecraft_version}:${croparia_if_version}"
 }
 
 publishing {

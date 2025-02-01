@@ -98,17 +98,17 @@ public class ItemAgentImpl extends ItemAgent implements Storage<ItemVariant> {
 
         @Override
         public ItemVariant getResource() {
-            return FabricItemSpec.of(this.repo.itemFor(i));
+            return FabricItemSpec.of(this.repo.resourceFor(i));
         }
 
         @Override
         public long getAmount() {
-            return this.repo.amountFor(i, this.repo.itemFor(i));
+            return this.repo.amountFor(i, this.repo.resourceFor(i));
         }
 
         @Override
         public long getCapacity() {
-            return this.repo.capacityFor(i, this.repo.itemFor(i));
+            return this.repo.capacityFor(i, this.repo.resourceFor(i));
         }
     }
 }

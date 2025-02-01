@@ -1,6 +1,8 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item;
 
-public interface ItemRepo {
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
+
+public interface ItemRepo extends Repo<ItemSpec> {
     /**
      * The amount of item slots
      */
@@ -17,7 +19,7 @@ public interface ItemRepo {
      * @param i The index of the item slot
      * @return The fluid stored in the specified item slot
      */
-    ItemSpec itemFor(int i);
+    ItemSpec resourceFor(int i);
 
     default long simConsume(ItemSpec item, long amount) {
         int i = 0;

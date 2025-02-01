@@ -210,7 +210,7 @@ public class FabricItemAgent implements PlatformItemAgent {
 
     @Nullable
     @Override
-    public ItemSpec itemFor(int i) {
+    public ItemSpec resourceFor(int i) {
         StorageView<ItemVariant> view = this.get(i);
         if (view == null) {
             return null;

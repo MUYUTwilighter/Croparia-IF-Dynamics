@@ -90,7 +90,7 @@ public class ForgeItemAgent implements PlatformItemAgent {
     }
 
     @Override
-    public ItemSpec itemFor(int i) {
+    public ItemSpec resourceFor(int i) {
         return ItemSpec.from(this.get().getStackInSlot(i));
     }
 }

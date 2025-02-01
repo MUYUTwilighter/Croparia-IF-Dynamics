@@ -69,7 +69,7 @@ public class FabricFluidAgent implements PlatformFluidAgent {
 
     @Nullable
     @Override
-    public FluidSpec fluidFor(int i) {
+    public FluidSpec resourceFor(int i) {
         StorageView<FluidVariant> view = this.get(i);
         if (view == null) {
             return null;
@@ -79,7 +79,7 @@ public class FabricFluidAgent implements PlatformFluidAgent {
     }
 
     @Override
-    public long simConsume(int i, FluidSpec fluid, long amount) {
+    public long simConsume(int i, FluidSpec resource, long amount) {
         if (!this.get().supportsExtraction()) {
             return 0L;
         }
@@ -87,20 +87,20 @@ public class FabricFluidAgent implements PlatformFluidAgent {
         if (view == null) {
             return 0L;
         } else {
-            return StorageUtil.simulateExtract(view, FabricFluidSpec.of(fluid), amount, null);
+            return StorageUtil.simulateExtract(view, FabricFluidSpec.of(resource), amount, null);
         }
     }
 
     @Override
-    public long consume(FluidSpec fluid, long amount) {
+    public long consume(FluidSpec resource, long amount) {
         if (!this.get().supportsExtraction()) {
             return 0L;
         }
-        return this.get().extract(FabricFluidSpec.of(fluid), amount, Transaction.openOuter());
+        return this.get().extract(FabricFluidSpec.of(resource), amount, Transaction.openOuter());
     }
 
     @Override
-    public long consume(int i, FluidSpec fluid, long amount) {
+    public long consume(int i, FluidSpec resource, long amount) {
         if (!this.get().supportsExtraction()) {
             return 0L;
         }
@@ -108,12 +108,12 @@ public class FabricFluidAgent implements PlatformFluidAgent {
         if (view == null) {
             return 0L;
         } else {
-            return view.extract(FabricFluidSpec.of(fluid), amount, Transaction.openOuter());
+            return view.extract(FabricFluidSpec.of(resource), amount, Transaction.openOuter());
         }
     }
 
     @Override
-    public long simAccept(int i, FluidSpec fluid, long amount) {
+    public long simAccept(int i, FluidSpec resource, long amount) {
         if (!this.get().supportsInsertion()) {
             return 0L;
         }
@@ -124,7 +124,7 @@ public class FabricFluidAgent implements PlatformFluidAgent {
             try {
                 @SuppressWarnings("unchecked")
                 Storage<FluidVariant> storage = (Storage<FluidVariant>) s;
-                return StorageUtil.simulateInsert(storage, FabricFluidSpec.of(fluid), amount, null);
+                return StorageUtil.simulateInsert(storage, FabricFluidSpec.of(resource), amount, null);
             } catch (ClassCastException e) {
                 return 0L;
             }

@@ -51,8 +51,8 @@ public abstract class FluidAgent implements FluidRepo {
     }
 
     @Override
-    public FluidSpec fluidFor(int i) {
-        return this.get().fluidFor(i);
+    public FluidSpec resourceFor(int i) {
+        return this.get().resourceFor(i);
     }
 
     @Override
@@ -61,28 +61,28 @@ public abstract class FluidAgent implements FluidRepo {
     }
 
     @Override
-    public long simConsume(int i, FluidSpec fluid, long amount) {
-        return this.get().simConsume(i, fluid, amount);
+    public long simConsume(int i, FluidSpec resource, long amount) {
+        return this.get().simConsume(i, resource, amount);
     }
 
     @Override
-    public long consume(int i, FluidSpec fluid, long amount) {
-        return this.get().consume(i, fluid, amount);
+    public long consume(int i, FluidSpec resource, long amount) {
+        return this.get().consume(i, resource, amount);
     }
 
     @Override
-    public long consume(FluidSpec fluid, long amount) {
-        return this.get().consume(fluid, amount);
+    public long consume(FluidSpec resource, long amount) {
+        return this.get().consume(resource, amount);
     }
 
     @Override
-    public long simAccept(FluidSpec fluid, long amount) {
-        return this.get().simAccept(fluid, amount);
+    public long simAccept(FluidSpec resource, long amount) {
+        return this.get().simAccept(resource, amount);
     }
 
     @Override
-    public long simAccept(int i, FluidSpec fluid, long amount) {
-        return this.get().simAccept(i, fluid, amount);
+    public long simAccept(int i, FluidSpec resource, long amount) {
+        return this.get().simAccept(i, resource, amount);
     }
 
     @Override

@@ -25,13 +25,13 @@ public class FluidAgentImpl extends FluidAgent implements IFluidHandler {
 
     @Override
     public @NotNull FluidStack getFluidInTank(int i) {
-        FluidSpec fluidSpec = this.fluidFor(i);
+        FluidSpec fluidSpec = this.resourceFor(i);
         return ForgeFluidSpec.of(fluidSpec, this.amountFor(i, fluidSpec));
     }
 
     @Override
     public int getTankCapacity(int i) {
-        return (int) (this.capacityFor(i, this.fluidFor(i)) / 81L);
+        return (int) (this.capacityFor(i, this.resourceFor(i)) / 81L);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class FluidAgentImpl extends FluidAgent implements IFluidHandler {
     @Override
     public @NotNull FluidStack drain(int amount, FluidAction fluidAction) {
         if (this.size() < 1) return FluidStack.EMPTY;
-        FluidSpec fluid = this.fluidFor(0);
+        FluidSpec fluid = this.resourceFor(0);
         if (fluidAction.simulate()) {
             long consumed = this.simConsume(fluid, amount * 81L);
             return ForgeFluidSpec.of(fluid, consumed);

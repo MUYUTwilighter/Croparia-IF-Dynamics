@@ -48,41 +48,41 @@ public class ForgeFluidAgent implements PlatformFluidAgent {
     }
 
     @Override
-    public long simConsume(int i, FluidSpec fluid, long amount) {
+    public long simConsume(int i, FluidSpec resource, long amount) {
         FluidStack stored = this.get().getFluidInTank(i);
-        FluidStack wanted = ForgeFluidSpec.of(fluid, Math.min(stored.getAmount(), amount));
-        if (ForgeFluidSpec.matches(fluid, stored)) {
+        FluidStack wanted = ForgeFluidSpec.of(resource, Math.min(stored.getAmount(), amount));
+        if (ForgeFluidSpec.matches(resource, stored)) {
             return this.get().drain(wanted, IFluidHandler.FluidAction.SIMULATE).getAmount() * 81L;
         }
         return 0;
     }
 
     @Override
-    public long consume(FluidSpec fluid, long amount) {
-        return this.get().drain(ForgeFluidSpec.of(fluid, amount), IFluidHandler.FluidAction.EXECUTE).getAmount() * 81L;
+    public long consume(FluidSpec resource, long amount) {
+        return this.get().drain(ForgeFluidSpec.of(resource, amount), IFluidHandler.FluidAction.EXECUTE).getAmount() * 81L;
     }
 
     @Override
-    public long consume(int i, FluidSpec fluid, long amount) {
+    public long consume(int i, FluidSpec resource, long amount) {
         FluidStack stored = this.get().getFluidInTank(i);
-        FluidStack wanted = ForgeFluidSpec.of(fluid, amount);
+        FluidStack wanted = ForgeFluidSpec.of(resource, amount);
         if (stored.containsFluid(wanted) && stored.getAmount() >= wanted.getAmount()) {
-            return this.consume(fluid, Math.min(amount, stored.getAmount() * 81L));
+            return this.consume(resource, Math.min(amount, stored.getAmount() * 81L));
         }
         return 0;
     }
 
     @Override
-    public long simAccept(FluidSpec fluid, long amount) {
-        return this.get().fill(ForgeFluidSpec.of(fluid, amount), IFluidHandler.FluidAction.SIMULATE) * 81L;
+    public long simAccept(FluidSpec resource, long amount) {
+        return this.get().fill(ForgeFluidSpec.of(resource, amount), IFluidHandler.FluidAction.SIMULATE) * 81L;
     }
 
     @Override
-    public long simAccept(int i, FluidSpec fluid, long amount) {
+    public long simAccept(int i, FluidSpec resource, long amount) {
         FluidStack stored = this.get().getFluidInTank(i);
         int capacity = this.get().getTankCapacity(i);
-        FluidStack wanted = ForgeFluidSpec.of(fluid, Math.min(capacity - stored.getAmount(), amount / 81L));
-        if (ForgeFluidSpec.matches(fluid, stored) || stored.isEmpty()) {
+        FluidStack wanted = ForgeFluidSpec.of(resource, Math.min(capacity - stored.getAmount(), amount / 81L));
+        if (ForgeFluidSpec.matches(resource, stored) || stored.isEmpty()) {
             return this.get().fill(wanted, IFluidHandler.FluidAction.SIMULATE) * 81L;
         } else {
             return 0;
@@ -123,7 +123,7 @@ public class ForgeFluidAgent implements PlatformFluidAgent {
     }
 
     @Override
-    public FluidSpec fluidFor(int i) {
+    public FluidSpec resourceFor(int i) {
         return ForgeFluidSpec.from(this.get().getFluidInTank(i));
     }
 }

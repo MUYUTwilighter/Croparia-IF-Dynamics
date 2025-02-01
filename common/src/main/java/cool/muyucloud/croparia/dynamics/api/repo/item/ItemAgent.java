@@ -91,7 +91,7 @@ public abstract class ItemAgent implements ItemRepo {
     }
 
     @Override
-    public ItemSpec itemFor(int i) {
-        return this.get().itemFor(i);
+    public ItemSpec resourceFor(int i) {
+        return this.get().resourceFor(i);
     }
 }

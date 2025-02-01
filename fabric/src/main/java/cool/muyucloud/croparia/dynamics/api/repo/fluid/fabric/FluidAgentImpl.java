@@ -97,17 +97,17 @@ public class FluidAgentImpl extends FluidAgent implements Storage<FluidVariant> 
 
         @Override
         public FluidVariant getResource() {
-            return FabricFluidSpec.of(this.repo.fluidFor(i));
+            return FabricFluidSpec.of(this.repo.resourceFor(i));
         }
 
         @Override
         public long getAmount() {
-            return this.repo.amountFor(i, this.repo.fluidFor(i));
+            return this.repo.amountFor(i, this.repo.resourceFor(i));
         }
 
         @Override
         public long getCapacity() {
-            return this.repo.capacityFor(i, this.repo.fluidFor(i));
+            return this.repo.capacityFor(i, this.repo.resourceFor(i));
         }
     }
 }

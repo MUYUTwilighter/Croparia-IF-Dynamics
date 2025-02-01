@@ -20,27 +20,27 @@ configurations {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modApi "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     // Remove the next line if you don't want to depend on the API
-    modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
+    modApi "dev.architectury:architectury-fabric:${architectury_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-//    // REI
-//    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:$rei_version"
-//    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:$rei_version"
-//    modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:$rei_version"
-//    // RER
-//    modRuntimeOnly "curse.maven:roughly-enough-resources-325625:4721545"
-//
-//    // EMI
-//    modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
-//    modLocalRuntime "dev.emi:emi-fabric:${emi_version}"
-//
-//    // KubeJS
-//    modImplementation "dev.latvian.mods:kubejs-fabric:${kubejs_version}"
+    // Croparia IF
+    modImplementation "cool.muyucloud:croparia-if-${minecraft_version}-fabric:${croparia_if_version}"
+
+    // REI
+    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:$rei_version"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:$rei_version"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:$rei_version"
+    // RER
+    modRuntimeOnly "curse.maven:roughly-enough-resources-325625:4721545"
+
+    // EMI
+    modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
+    modLocalRuntime "dev.emi:emi-fabric:${emi_version}"
 }
 
 processResources {

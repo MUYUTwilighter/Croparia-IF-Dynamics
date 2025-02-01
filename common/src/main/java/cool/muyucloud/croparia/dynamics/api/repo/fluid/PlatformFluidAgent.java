@@ -2,7 +2,6 @@ package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -12,33 +11,33 @@ public interface PlatformFluidAgent extends FluidRepo {
      * Simulates consuming the specified amount of fluid from the specified fluid storage unit.
      *
      * @param i      The index of the fluid storage unit to consume
-     * @param fluid  The fluid to consume
+     * @param resource  The fluid to consume
      * @param amount The amount to consume
      * @return The amount that can be consumed
      */
     @Override
     @ApiStatus.Experimental
     @Unreliable(value = "FORGE", reason = "consumption ignores the index")
-    long simConsume(int i, FluidSpec fluid, long amount);
+    long simConsume(int i, FluidSpec resource, long amount);
 
     /**
      * Consumes the specified amount of fluid from the specified fluid storage unit.
      *
      * @param i      The index of the fluid storage unit to consume
-     * @param fluid  The fluid to consume
+     * @param resource  The fluid to consume
      * @param amount The amount to consume
      * @return The amount actually consumed
      */
     @Override
     @ApiStatus.Experimental
     @Unreliable(value = "FORGE", reason = "consumption ignores the index")
-    long consume(int i, FluidSpec fluid, long amount);
+    long consume(int i, FluidSpec resource, long amount);
 
     /**
      * Simulates accepting the specified amount of fluid into the specified fluid storage.
      *
      * @param i      The index of the fluid storage unit to accept
-     * @param fluid  The fluid to accept
+     * @param resource  The fluid to accept
      * @param amount The amount to accept
      * @return The amount that can be accepted
      */
@@ -46,7 +45,7 @@ public interface PlatformFluidAgent extends FluidRepo {
     @ApiStatus.Experimental
     @Unreliable(value = "FORGE", reason = "insertion ignores the index")
     @Unreliable(value = "FABRIC", reason = "rely on Iterable<StorageView>")
-    long simAccept(int i, FluidSpec fluid, long amount);
+    long simAccept(int i, FluidSpec resource, long amount);
 
     /**
      * Accepts the specified amount of fluid into the specified fluid storage unit.

@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +19,7 @@ public class ItemSpec {
         ResourceLocation.CODEC.fieldOf("id").forGetter(item -> item.getItem().arch$registryName()),
         CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(item -> Optional.ofNullable(item.getNbt()))
     ).apply(instance, (id, nbt) -> new ItemSpec(BuiltInRegistries.ITEM.get(id), nbt.orElse(null))));
+    public static final ItemSpec EMPTY = new ItemSpec(Items.AIR, null);
 
     private Item item;
     private CompoundTag nbt;
@@ -45,6 +47,10 @@ public class ItemSpec {
 
     public void setNbt(CompoundTag nbt) {
         this.nbt = nbt;
+    }
+
+    public boolean isEmpty() {
+        return this.getItem() == Items.AIR;
     }
 
     public ItemStack toStack(long amount) {
