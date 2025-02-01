@@ -2,6 +2,8 @@ package cool.muyucloud.croparia.dynamics.api.repo.item;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import cool.muyucloud.croparia.CropariaIf;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -20,13 +22,14 @@ public class ItemSpec {
         CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(item -> Optional.ofNullable(item.getNbt()))
     ).apply(instance, (id, nbt) -> new ItemSpec(BuiltInRegistries.ITEM.get(id), nbt.orElse(null))));
     public static final ItemSpec EMPTY = new ItemSpec(Items.AIR, null);
-
-    private Item item;
-    private CompoundTag nbt;
+    public static final TypeToken<ItemSpec> TYPE = TypeToken.register(CropariaIf.of("item_spec"), EMPTY).orElseThrow();
 
     public static ItemSpec from(ItemStack stack) {
         return new ItemSpec(stack.getItem(), stack.getTag());
     }
+
+    private Item item;
+    private CompoundTag nbt;
 
     public ItemSpec(@NotNull Item item, @Nullable CompoundTag nbt) {
         this.item = item;
@@ -66,5 +69,9 @@ public class ItemSpec {
 
     public boolean matches(ItemStack stack) {
         return ItemStack.isSameItemSameTags(stack, this.toStack());
+    }
+
+    public TypeToken<ItemSpec> getType() {
+        return TYPE;
     }
 }

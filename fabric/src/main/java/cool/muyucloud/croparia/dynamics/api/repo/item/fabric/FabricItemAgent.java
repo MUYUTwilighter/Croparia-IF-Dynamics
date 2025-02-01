@@ -48,7 +48,7 @@ public class FabricItemAgent implements PlatformItemAgent {
     }
 
     @Override
-    public Optional<ItemRepo> extract() {
+    public Optional<ItemRepo> peel() {
         return this.get() instanceof ItemRepo repo ? Optional.of(repo) : Optional.empty();
     }
 
@@ -97,7 +97,11 @@ public class FabricItemAgent implements PlatformItemAgent {
         if (view == null) {
             return 0L;
         } else {
-            return view.extract(FabricItemSpec.of(item), amount, Transaction.openOuter());
+            try (Transaction transaction = Transaction.openOuter()) {
+                long result = view.extract(FabricItemSpec.of(item), amount, transaction);
+                transaction.commit();
+                return result;
+            }
         }
     }
 
@@ -106,7 +110,11 @@ public class FabricItemAgent implements PlatformItemAgent {
         if (!this.get().supportsExtraction()) {
             return 0L;
         }
-        return this.get().extract(FabricItemSpec.of(item), amount, Transaction.openOuter());
+        try (Transaction transaction = Transaction.openOuter()) {
+            long result = this.get().extract(FabricItemSpec.of(item), amount, transaction);
+            transaction.commit();
+            return result;
+        }
     }
 
     @Override
@@ -148,7 +156,11 @@ public class FabricItemAgent implements PlatformItemAgent {
             try {
                 @SuppressWarnings("unchecked")
                 Storage<ItemVariant> storage = (Storage<ItemVariant>) s;
-                return storage.insert(FabricItemSpec.of(item), amount, Transaction.openOuter());
+                try (Transaction transaction = Transaction.openOuter()) {
+                    long result = storage.insert(FabricItemSpec.of(item), amount, transaction);
+                    transaction.commit();
+                    return result;
+                }
             } catch (ClassCastException e) {
                 return 0L;
             }
@@ -160,7 +172,11 @@ public class FabricItemAgent implements PlatformItemAgent {
         if (!this.get().supportsInsertion()) {
             return 0L;
         }
-        return this.get().insert(FabricItemSpec.of(item), amount, Transaction.openOuter());
+        try (Transaction transaction = Transaction.openOuter()) {
+            long result = this.get().insert(FabricItemSpec.of(item), amount, transaction);
+            transaction.commit();
+            return result;
+        }
     }
 
     @Override

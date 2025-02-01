@@ -1,7 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid.fabric;
 
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidAgent;
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepoProvider;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.PlatformFluidAgent;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;

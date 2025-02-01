@@ -48,7 +48,7 @@ public class FabricFluidAgent implements PlatformFluidAgent {
     }
 
     @Override
-    public Optional<FluidRepo> extract() {
+    public Optional<FluidRepo> peel() {
         return this.get() instanceof FluidRepo fluidRepo ? Optional.of(fluidRepo) : Optional.empty();
     }
 
@@ -96,7 +96,11 @@ public class FabricFluidAgent implements PlatformFluidAgent {
         if (!this.get().supportsExtraction()) {
             return 0L;
         }
-        return this.get().extract(FabricFluidSpec.of(resource), amount, Transaction.openOuter());
+        try (Transaction transaction = Transaction.openOuter()) {
+            long result = this.get().extract(FabricFluidSpec.of(resource), amount, transaction);
+            transaction.commit();
+            return result;
+        }
     }
 
     @Override
@@ -108,7 +112,11 @@ public class FabricFluidAgent implements PlatformFluidAgent {
         if (view == null) {
             return 0L;
         } else {
-            return view.extract(FabricFluidSpec.of(resource), amount, Transaction.openOuter());
+            try (Transaction transaction = Transaction.openOuter()) {
+                long result = view.extract(FabricFluidSpec.of(resource), amount, transaction);
+                transaction.commit();
+                return result;
+            }
         }
     }
 
@@ -144,7 +152,11 @@ public class FabricFluidAgent implements PlatformFluidAgent {
             try {
                 @SuppressWarnings("unchecked")
                 Storage<FluidVariant> storage = (Storage<FluidVariant>) s;
-                return storage.insert(FabricFluidSpec.of(fluid), amount, Transaction.openOuter());
+                try (Transaction transaction = Transaction.openOuter()) {
+                    long result = storage.insert(FabricFluidSpec.of(fluid), amount, transaction);
+                    transaction.commit();
+                    return result;
+                }
             } catch (ClassCastException e) {
                 return 0L;
             }
@@ -156,7 +168,11 @@ public class FabricFluidAgent implements PlatformFluidAgent {
         if (!this.get().supportsInsertion()) {
             return 0L;
         }
-        return this.get().insert(FabricFluidSpec.of(fluid), amount, Transaction.openOuter());
+        try (Transaction transaction = Transaction.openOuter()) {
+            long result = this.get().insert(FabricFluidSpec.of(fluid), amount, transaction);
+            transaction.commit();
+            return result;
+        }
     }
 
     @Override

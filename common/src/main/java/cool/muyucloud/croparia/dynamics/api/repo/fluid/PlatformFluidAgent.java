@@ -10,9 +10,9 @@ public interface PlatformFluidAgent extends FluidRepo {
     /**
      * Simulates consuming the specified amount of fluid from the specified fluid storage unit.
      *
-     * @param i      The index of the fluid storage unit to consume
-     * @param resource  The fluid to consume
-     * @param amount The amount to consume
+     * @param i        The index of the fluid storage unit to consume
+     * @param resource The fluid to consume
+     * @param amount   The amount to consume
      * @return The amount that can be consumed
      */
     @Override
@@ -23,9 +23,9 @@ public interface PlatformFluidAgent extends FluidRepo {
     /**
      * Consumes the specified amount of fluid from the specified fluid storage unit.
      *
-     * @param i      The index of the fluid storage unit to consume
-     * @param resource  The fluid to consume
-     * @param amount The amount to consume
+     * @param i        The index of the fluid storage unit to consume
+     * @param resource The fluid to consume
+     * @param amount   The amount to consume
      * @return The amount actually consumed
      */
     @Override
@@ -36,9 +36,9 @@ public interface PlatformFluidAgent extends FluidRepo {
     /**
      * Simulates accepting the specified amount of fluid into the specified fluid storage.
      *
-     * @param i      The index of the fluid storage unit to accept
-     * @param resource  The fluid to accept
-     * @param amount The amount to accept
+     * @param i        The index of the fluid storage unit to accept
+     * @param resource The fluid to accept
+     * @param amount   The amount to accept
      * @return The amount that can be accepted
      */
     @Override
@@ -92,5 +92,5 @@ public interface PlatformFluidAgent extends FluidRepo {
      *
      * @return The proxied repo
      */
-    Optional<FluidRepo> extract();
+    Optional<FluidRepo> peel();
 }

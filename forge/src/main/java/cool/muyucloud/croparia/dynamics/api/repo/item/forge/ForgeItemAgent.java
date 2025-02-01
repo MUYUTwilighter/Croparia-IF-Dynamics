@@ -24,7 +24,7 @@ public class ForgeItemAgent implements PlatformItemAgent {
     }
 
     @Override
-    public Optional<ItemRepo> extract() {
+    public Optional<ItemRepo> peel() {
         return this.get() instanceof ItemRepo repo ? Optional.of(repo) : Optional.empty();
     }
 

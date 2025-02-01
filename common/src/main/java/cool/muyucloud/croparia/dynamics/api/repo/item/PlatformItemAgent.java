@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
+@SuppressWarnings("unused")
 public interface PlatformItemAgent extends ItemRepo {
     @Override
     @ApiStatus.Experimental
@@ -37,5 +38,5 @@ public interface PlatformItemAgent extends ItemRepo {
      * @return The proxied repo
      */
     @Nullable
-    Optional<ItemRepo> extract();
+    Optional<ItemRepo> peel();
 }

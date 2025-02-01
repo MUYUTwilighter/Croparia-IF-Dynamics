@@ -28,7 +28,7 @@ public class ForgeFluidAgent implements PlatformFluidAgent {
     }
 
     @Override
-    public Optional<FluidRepo> extract() {
+    public Optional<FluidRepo> peel() {
         return this.get() instanceof FluidRepo repo ? Optional.of(repo) : Optional.empty();
     }
 

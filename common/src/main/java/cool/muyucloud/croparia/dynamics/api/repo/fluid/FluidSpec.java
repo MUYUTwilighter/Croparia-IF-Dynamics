@@ -2,6 +2,8 @@ package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import cool.muyucloud.croparia.CropariaIf;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +21,7 @@ public class FluidSpec {
         CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(fluid -> Optional.ofNullable(fluid.getNbt()))
     ).apply(instance, (id, nbt) -> new FluidSpec(BuiltInRegistries.FLUID.get(id), nbt.orElse(null))));
     public static final FluidSpec EMPTY = new FluidSpec(Fluids.EMPTY, null);
+    public static final TypeToken<FluidSpec> TYPE = TypeToken.register(CropariaIf.of("fluid_spec"), EMPTY).orElseThrow();
 
     private Fluid fluid;
     private CompoundTag nbt;
@@ -46,5 +49,9 @@ public class FluidSpec {
 
     public boolean isEmpty() {
         return this.getFluid() == Fluids.EMPTY;
+    }
+
+    public TypeToken<FluidSpec> getType() {
+        return TYPE;
     }
 }
