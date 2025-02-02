@@ -100,7 +100,7 @@ public interface ElenetHub extends ElenetAccess {
         }
     }
 
-    default <T extends Type> long serveRequest(T resource, long amount) {
+    default <T extends Type> long serveRequest(T resource, long amount, ElenetAddress from) {
         if (this.isIdle() || !this.isTypeValid(resource.getType()) || this.isHubSuspended(resource.getType())) {
             return 0;
         }
@@ -112,19 +112,25 @@ public interface ElenetHub extends ElenetAccess {
         Iterator<ElenetPeer> peerIterator = peers.iterator();
         while (peerIterator.hasNext() && remained.get() > 0) {
             ElenetPeer peer = peerIterator.next();
+            if (peer.getAddress().equals(from)) {
+                continue;
+            }
             remained.set(remained.get() - peer.tryConsume(resource, remained.get()));
         }
         if (remained.get() <= 0) {
             return amount;
         }
         this.getElenet(resource.getType()).ifPresent(elenet -> elenet.forEachPeer(peer -> {
+            if (peer.getAddress().equals(from)) {
+                return true;
+            }
             remained.set(remained.get() - peer.tryConsume(resource, remained.get()));
             return remained.get() > 0;
         }));
         return amount - Math.max(0, remained.get());
     }
 
-    default <T extends Type> long serveAccept(T resource, long amount) {
+    default <T extends Type> long serveAccept(T resource, long amount, ElenetAddress from) {
         if (this.isIdle() || !this.isTypeValid(resource.getType()) || this.isHubSuspended(resource.getType())) {
             return 0;
         }
@@ -136,12 +142,18 @@ public interface ElenetHub extends ElenetAccess {
         Iterator<ElenetPeer> peerIterator = peers.iterator();
         while (peerIterator.hasNext() && remained.get() > 0) {
             ElenetPeer peer = peerIterator.next();
+            if (peer.getAddress().equals(from)) {
+                continue;
+            }
             remained.set(remained.get() - peer.tryAccept(resource, remained.get()));
         }
         if (remained.get() <= 0) {
             return amount;
         }
         this.getElenet(resource.getType()).ifPresent(elenet -> elenet.forEachPeer(peer -> {
+            if (peer.getAddress().equals(from)) {
+                return true;
+            }
             remained.set(remained.get() - peer.tryAccept(resource, remained.get()));
             return remained.get() > 0;
         }));
