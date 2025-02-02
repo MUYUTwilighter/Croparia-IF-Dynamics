@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public record ElenetAddress(Level world, BlockPos pos) {
@@ -71,6 +71,14 @@ public record ElenetAddress(Level world, BlockPos pos) {
         return Objects.hash(world, pos);
     }
 
+    public boolean isInRangeWith(ElenetAddress other, int range) {
+        return ElenetAddress.chebyshev(this, other) <= range;
+    }
+
+    public int chebyshev(ElenetAddress other) {
+        return ElenetAddress.chebyshev(this, other);
+    }
+
     @Override
     public String toString() {
         return this.worldId().getNamespace().toUpperCase() + ":" + this.worldId().getPath().toUpperCase()
@@ -79,7 +87,7 @@ public record ElenetAddress(Level world, BlockPos pos) {
             + ":" + (this.pos().getZ() < 0 ? "N" + Math.abs(this.pos().getZ()) : this.pos().getZ());
     }
 
-    public static int chebyshev(BlockPos a, BlockPos b) {
-        return Math.max(Math.max(Math.abs(a.getX() - b.getX()), Math.abs(a.getY() - b.getY())), Math.abs(a.getZ() - b.getZ()));
+    public static int chebyshev(ElenetAddress a, ElenetAddress b) {
+        return Objects.equals(a.world(), b.world()) ? Math.abs(a.pos().getX() - b.pos().getX()) + Math.abs(a.pos().getY() - b.pos().getY()) + Math.abs(a.pos().getZ() - b.pos().getZ()) : Integer.MAX_VALUE;
     }
 }

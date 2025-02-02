@@ -2,7 +2,6 @@ package cool.muyucloud.croparia.dynamics.api.elenet;
 
 import cool.muyucloud.croparia.dynamics.annotation.SuggestAccess;
 import cool.muyucloud.croparia.dynamics.api.typetoken.Type;
-
 import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -68,18 +67,30 @@ public interface ElenetHub extends ElenetAccess {
         int range = Math.max(this.getCoverage(), this.getRange());
         BlockPos lower = address.pos().offset(-range, -range, -range);
         BlockPos upper = address.pos().offset(range, range, range);
-        Set<ElenetHub> nodes = new HashSet<>();
+        Set<ElenetHub> scannedHubs = new HashSet<>();
+        Set<ElenetPeer> scannedPeers = new HashSet<>();
         for (int x = lower.getX(); x < upper.getX(); ++x) {
             for (int y = lower.getY(); y < upper.getY(); ++y) {
                 for (int z = lower.getZ(); z < upper.getZ(); ++z) {
                     try (Level world = address.world()) {
                         BlockPos pos = new BlockPos(x, y, z);
+                        ElenetAddress target = ElenetAddress.of(world, pos);
                         BlockEntity be = world.getBlockEntity(pos);
-                        if (hubConsumer != null && be instanceof ElenetHub hub && ElenetAddress.chebyshev(address.pos(), pos) <= this.getRange()) {
-                            hubConsumer.accept(hub);
+                        if (hubConsumer != null && be instanceof ElenetHubProvider provider) {
+                            provider.getHub(target).ifPresent(hub -> {
+                                if (!scannedHubs.contains(hub) && this.getAddress().isInRangeWith(hub.getAddress(), this.getRange())) {
+                                    hubConsumer.accept(hub);
+                                    scannedHubs.add(hub);
+                                }
+                            });
                         }
-                        if (peerConsumer != null && be instanceof ElenetPeer peer && ElenetAddress.chebyshev(address.pos(), pos) <= this.getCoverage()) {
-                            peerConsumer.accept(peer);
+                        if (peerConsumer != null && be instanceof ElenetPeerProvider provider) {
+                            provider.getPeer(target).ifPresent(peer -> {
+                                if (!scannedPeers.contains(peer) && this.getAddress().isInRangeWith(peer.getAddress(), this.getRange())) {
+                                    peerConsumer.accept(peer);
+                                    scannedPeers.add(peer);
+                                }
+                            });
                         }
                     } catch (Throwable t) {
                         throw new RuntimeException(t);
@@ -101,14 +112,14 @@ public interface ElenetHub extends ElenetAccess {
         Iterator<ElenetPeer> peerIterator = peers.iterator();
         while (peerIterator.hasNext() && remained.get() > 0) {
             ElenetPeer peer = peerIterator.next();
-            remained.set(peer.consume(resource, remained.get()));
+            remained.set(remained.get() - peer.tryConsume(resource, remained.get()));
         }
         if (remained.get() <= 0) {
             return amount;
         }
         this.getElenet(resource.getType()).ifPresent(elenet -> elenet.forEachPeer(peer -> {
-            remained.set(peer.consume(resource, remained.get()));
-            return remained.get() <= 0;
+            remained.set(remained.get() - peer.tryConsume(resource, remained.get()));
+            return remained.get() > 0;
         }));
         return amount - Math.max(0, remained.get());
     }
@@ -125,14 +136,14 @@ public interface ElenetHub extends ElenetAccess {
         Iterator<ElenetPeer> peerIterator = peers.iterator();
         while (peerIterator.hasNext() && remained.get() > 0) {
             ElenetPeer peer = peerIterator.next();
-            remained.set(peer.accept(resource, remained.get()));
+            remained.set(remained.get() - peer.tryAccept(resource, remained.get()));
         }
         if (remained.get() <= 0) {
             return amount;
         }
         this.getElenet(resource.getType()).ifPresent(elenet -> elenet.forEachPeer(peer -> {
-            remained.set(peer.accept(resource, remained.get()));
-            return remained.get() <= 0;
+            remained.set(remained.get() - peer.tryAccept(resource, remained.get()));
+            return remained.get() > 0;
         }));
         return amount - Math.max(0, remained.get());
     }
@@ -162,7 +173,7 @@ public interface ElenetHub extends ElenetAccess {
         }
         Optional<Elenet<T>> elenet = this.getElenet(type);
         if (elenet.isEmpty()) {
-            throw new IllegalArgumentException("");
+            throw new IllegalArgumentException("Unknown type %s of Elenet HUB %s".formatted(type, this.getAddress()));
         }
         return elenet.filter(ElenetTask::isSuspended).isPresent() && this.getElenet(type).isEmpty();
     }
@@ -177,19 +188,35 @@ public interface ElenetHub extends ElenetAccess {
         }
     }
 
-    default <T extends Type> void resonatePeer(ElenetPeer peer, TypeToken<T> type) {
+    default <T extends Type> boolean canServe(TypeToken<T> type) {
+        return this.isTypeValid(type) && !this.isIdle() && !this.isHubSuspended(type);
+    }
+
+    default <T extends Type> boolean canServe(ElenetPeer peer, TypeToken<T> type) {
+        return this.canServe(type) && !this.isHubSuspended(type);
+    }
+
+    default boolean canResonate(ElenetPeer peer) {
+        return ElenetAddress.chebyshev(this.getAddress(), peer.getAddress()) <= this.getCoverage();
+    }
+
+    default boolean canResonate(ElenetHub hub) {
+        return ElenetAddress.chebyshev(this.getAddress(), hub.getAddress()) <= this.getRange();
+    }
+
+    default <T extends Type> void resonate(ElenetPeer peer, TypeToken<T> type) {
         this.resonatedPeersOfType(type).ifPresent(peers -> peers.add(peer));
     }
 
-    default <T extends Type> void isolatePeer(ElenetPeer peer, TypeToken<T> type) {
+    default <T extends Type> void isolate(ElenetPeer peer, TypeToken<T> type) {
         this.resonatedPeersOfType(type).ifPresent(peers -> peers.remove(peer));
     }
 
-    default <T extends Type> void resonateHub(ElenetHub hub, TypeToken<T> type) {
+    default <T extends Type> void resonate(ElenetHub hub, TypeToken<T> type) {
         this.resonatedHubsOfType(type).ifPresent(hubs -> hubs.add(hub));
     }
 
-    default <T extends Type> void isolateHub(ElenetHub hub, TypeToken<T> type) {
+    default <T extends Type> void isolate(ElenetHub hub, TypeToken<T> type) {
         this.resonatedHubsOfType(type).ifPresent(hubs -> hubs.remove(hub));
     }
 }

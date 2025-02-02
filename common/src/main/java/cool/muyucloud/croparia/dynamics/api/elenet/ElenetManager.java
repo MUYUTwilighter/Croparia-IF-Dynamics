@@ -6,7 +6,9 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class ElenetManager {
@@ -54,8 +56,8 @@ public class ElenetManager {
     public static <T extends Type> void resonate(@NotNull ElenetHub a, @NotNull ElenetHub b) {
         for (TypeToken<?> type : a.getTypes()) {
             if (b.isTypeValid(type)) {
-                a.resonateHub(b, type);
-                b.resonateHub(a, type);
+                a.resonate(b, type);
+                b.resonate(a, type);
             }
         }
     }
@@ -66,9 +68,9 @@ public class ElenetManager {
     public static <T extends Type> void resonate(@NotNull ElenetHub hub, @NotNull ElenetPeer peer) {
         for (TypeToken<?> type : hub.getTypes()) {
             if (peer.isTypeValid(type)) {
-                peer.isolateHub(type);
-                peer.resonateHub(hub, type);
-                hub.resonatePeer(peer, type);
+                peer.isolateFrom(type);
+                peer.resonateWith(hub, type);
+                hub.resonate(peer, type);
             }
         }
     }
