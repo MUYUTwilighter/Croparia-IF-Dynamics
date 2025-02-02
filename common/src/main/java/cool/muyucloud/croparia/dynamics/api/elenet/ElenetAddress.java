@@ -7,7 +7,6 @@ import cool.muyucloud.croparia.dynamics.annotation.ServerOnly;
 import cool.muyucloud.croparia.dynamics.api.core.ServerProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -15,12 +14,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 @SuppressWarnings("unused")
-public record ElenetAddress(Level world, BlockPos pos, Direction side) {
+public record ElenetAddress(Level world, BlockPos pos) {
     public static final MapCodec<ElenetAddress> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ResourceLocation.CODEC.fieldOf("world").forGetter(address -> {
             try (Level world = address.world()) {
@@ -29,28 +27,27 @@ public record ElenetAddress(Level world, BlockPos pos, Direction side) {
                 throw new IllegalStateException("World not available", t);
             }
         }),
-        BlockPos.CODEC.fieldOf("pos").forGetter(ElenetAddress::pos),
-        Direction.CODEC.fieldOf("side").forGetter(ElenetAddress::side)
+        BlockPos.CODEC.fieldOf("pos").forGetter(ElenetAddress::pos)
     ).apply(instance, ElenetAddress::of));
 
     @ClientOnly
-    public static ElenetAddress ofClient(@NotNull BlockPos pos, @Nullable Direction side) {
-        return new ElenetAddress(Minecraft.getInstance().level, pos, side);
+    public static ElenetAddress ofClient(@NotNull BlockPos pos) {
+        return new ElenetAddress(Minecraft.getInstance().level, pos);
     }
 
     @ServerOnly
-    public static ElenetAddress of(@NotNull ResourceLocation worldId, @NotNull BlockPos pos, @Nullable Direction side) {
+    public static ElenetAddress of(@NotNull ResourceLocation worldId, @NotNull BlockPos pos) {
         try (MinecraftServer server = ServerProvider.getOrThrow()) {
             ServerLevel world = server.getLevel(ResourceKey.create(Registries.DIMENSION, worldId));
             if (world == null) {
                 throw new IllegalArgumentException("Unknown world: " + worldId);
             }
-            return new ElenetAddress(world, pos, side);
+            return new ElenetAddress(world, pos);
         }
     }
 
-    public static ElenetAddress of(@NotNull Level world, @NotNull BlockPos pos, @Nullable Direction side) {
-        return new ElenetAddress(world, pos, side);
+    public static ElenetAddress of(@NotNull Level world, @NotNull BlockPos pos) {
+        return new ElenetAddress(world, pos);
     }
 
     @NotNull
@@ -66,12 +63,12 @@ public record ElenetAddress(Level world, BlockPos pos, Direction side) {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ElenetAddress that)) return false;
-        return Objects.equals(pos, that.pos) && side == that.side && Objects.equals(world, that.world);
+        return Objects.equals(world, that.world) && Objects.equals(pos, that.pos);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(world, pos, side);
+        return Objects.hash(world, pos);
     }
 
     @Override
@@ -79,8 +76,7 @@ public record ElenetAddress(Level world, BlockPos pos, Direction side) {
         return this.worldId().getNamespace().toUpperCase() + ":" + this.worldId().getPath().toUpperCase()
             + ":" + (this.pos().getX() < 0 ? "N" + Math.abs(this.pos().getX()) : this.pos().getX())
             + ":" + (this.pos().getY() < 0 ? "N" + Math.abs(this.pos().getY()) : this.pos().getY())
-            + ":" + (this.pos().getZ() < 0 ? "N" + Math.abs(this.pos().getZ()) : this.pos().getZ())
-            + ":" + (this.side() == null ? "X" : this.side().name().toUpperCase().charAt(0));
+            + ":" + (this.pos().getZ() < 0 ? "N" + Math.abs(this.pos().getZ()) : this.pos().getZ());
     }
 
     public static int chebyshev(BlockPos a, BlockPos b) {

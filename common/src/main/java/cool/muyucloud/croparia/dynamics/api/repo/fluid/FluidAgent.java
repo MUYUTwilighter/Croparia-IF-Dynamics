@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 /**
  * Unified fluid interface for {@link net.minecraft.world.level.block.entity.BlockEntity}.<br>
  * It is used to connect your customized {@link FluidRepo} to the fluid API from fabric / forge.<br>
- *
+ * <p>
  * You need to implement {@link FluidRepoProvider} in your {@code BlockEntity}.<br>
  * If you want to make it work for fabric, use {@link FluidRepoProvider#register(FluidRepoProvider)}
  * to register your {@code BlockEntity}.
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * Use {@link #of(Supplier)} to create a {@link FluidAgent}. <br>
  * <b>DO NOT INSTANTIATE OR EXTEND THIS CLASS UNLESS YOU KNOW WHAT YOU ARE DOING</b>
  * </p>
- * */
+ */
 public abstract class FluidAgent implements FluidRepo {
     /**
      * Create a fluid agent from your customized {@link FluidRepo}. <br>
@@ -24,7 +24,7 @@ public abstract class FluidAgent implements FluidRepo {
      *
      * @param repo the fluid repo
      * @return the fluid agent
-     * */
+     */
     @ExpectPlatform
     public static FluidAgent of(Supplier<FluidRepo> repo) {
         throw new AssertionError("Not implemented");
