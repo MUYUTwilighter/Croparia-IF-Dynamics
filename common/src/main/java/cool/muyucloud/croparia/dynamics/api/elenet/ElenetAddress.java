@@ -15,6 +15,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -33,12 +34,12 @@ public record ElenetAddress(Level world, BlockPos pos, Direction side) {
     ).apply(instance, ElenetAddress::of));
 
     @ClientOnly
-    public static ElenetAddress ofClient(BlockPos pos, Direction side) {
+    public static ElenetAddress ofClient(@NotNull BlockPos pos, @Nullable Direction side) {
         return new ElenetAddress(Minecraft.getInstance().level, pos, side);
     }
 
     @ServerOnly
-    public static ElenetAddress of(ResourceLocation worldId, BlockPos pos, Direction side) {
+    public static ElenetAddress of(@NotNull ResourceLocation worldId, @NotNull BlockPos pos, @Nullable Direction side) {
         try (MinecraftServer server = ServerProvider.getOrThrow()) {
             ServerLevel world = server.getLevel(ResourceKey.create(Registries.DIMENSION, worldId));
             if (world == null) {
@@ -48,7 +49,7 @@ public record ElenetAddress(Level world, BlockPos pos, Direction side) {
         }
     }
 
-    public static ElenetAddress of(Level world, BlockPos pos, Direction side) {
+    public static ElenetAddress of(@NotNull Level world, @NotNull BlockPos pos, @Nullable Direction side) {
         return new ElenetAddress(world, pos, side);
     }
 
@@ -75,8 +76,14 @@ public record ElenetAddress(Level world, BlockPos pos, Direction side) {
 
     @Override
     public String toString() {
-        return this.worldId().getNamespace() + ":" + this.worldId().getPath()
-            + ":" + this.pos().getX() + ":" + this.pos().getY() + ":" + this.pos().getZ()
-            + ":" + this.side();
+        return this.worldId().getNamespace().toUpperCase() + ":" + this.worldId().getPath().toUpperCase()
+            + ":" + (this.pos().getX() < 0 ? "N" + Math.abs(this.pos().getX()) : this.pos().getX())
+            + ":" + (this.pos().getY() < 0 ? "N" + Math.abs(this.pos().getY()) : this.pos().getY())
+            + ":" + (this.pos().getZ() < 0 ? "N" + Math.abs(this.pos().getZ()) : this.pos().getZ())
+            + ":" + (this.side() == null ? "X" : this.side().name().toUpperCase().charAt(0));
+    }
+
+    public static int chebyshev(BlockPos a, BlockPos b) {
+        return Math.max(Math.max(Math.abs(a.getX() - b.getX()), Math.abs(a.getY() - b.getY())), Math.abs(a.getZ() - b.getZ()));
     }
 }

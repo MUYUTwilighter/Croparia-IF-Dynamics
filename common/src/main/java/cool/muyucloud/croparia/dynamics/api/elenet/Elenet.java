@@ -3,19 +3,18 @@ package cool.muyucloud.croparia.dynamics.api.elenet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import cool.muyucloud.croparia.dynamics.api.typetoken.Type;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeTokenAccess;
 import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.BiConsumer;
+import java.util.*;
+import java.util.function.Function;
 
 @SuppressWarnings("unused")
-public class Elenet<T> {
+public class Elenet<T extends Type> implements TypeTokenAccess {
     public static final MapCodec<Elenet<?>> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         TypeToken.CODEC.fieldOf("type").forGetter(Elenet::getType),
         ResourceLocation.CODEC.fieldOf("engrave").forGetter(Elenet::getEngrave),
@@ -23,9 +22,9 @@ public class Elenet<T> {
     ).apply(instance, (type, engrave, token) -> new Elenet<>(type, engrave, token.orElse(null))));
 
     @NotNull
-    private transient final Map<ElenetAddress, ElenetPeer> peers = new HashMap<>();
+    private transient final Set<ElenetPeer> peers = new HashSet<>();
     @NotNull
-    private transient final Map<ElenetAddress, ElenetNode> nodes = new HashMap<>();
+    private transient final Set<ElenetHub> hubs = new HashSet<>();
     @NotNull
     private final TypeToken<T> type;
     @NotNull
@@ -72,12 +71,12 @@ public class Elenet<T> {
         this.token = token;
     }
 
-    protected @NotNull Map<ElenetAddress, ElenetPeer> getPeers() {
+    protected @NotNull Set<ElenetPeer> getPeers() {
         return peers;
     }
 
-    protected @NotNull Map<ElenetAddress, ElenetNode> getNodes() {
-        return nodes;
+    protected @NotNull Set<ElenetHub> getHubs() {
+        return hubs;
     }
 
     public boolean canMergeTo(@NotNull Elenet<T> other) {
@@ -88,41 +87,39 @@ public class Elenet<T> {
         return other.getToken().isEmpty() || Objects.equals(this.getToken(), other.getToken());
     }
 
-    public void forEachPeer(@NotNull BiConsumer<ElenetAddress, ElenetPeer> consumer) {
-        this.getPeers().forEach(consumer);
-    }
-
-    public void forEachNode(@NotNull BiConsumer<ElenetAddress, ElenetNode> consumer) {
-        this.getNodes().forEach(consumer);
-    }
-
-    public boolean registerPeer(@NotNull ElenetAddress address, @NotNull ElenetPeer peer) {
-        ElenetPeer existing = this.getPeers().get(address);
-        if (existing != null && existing.isAccessibleFrom(address)) {
-            return false;
+    public void forEachPeer(@NotNull Function<ElenetPeer, Boolean> processor) {
+        for (ElenetPeer peer : this.getPeers()) {
+            if (!processor.apply(peer)) {
+                break;
+            }
         }
-        this.getPeers().put(address, peer);
-        return true;
     }
 
-    public boolean unregisterPeer(@NotNull ElenetAddress address) {
-        return this.getPeers().remove(address) != null;
-    }
-
-    public boolean registerNode(@NotNull ElenetAddress address, @NotNull ElenetNode node) {
-        ElenetNode existing = this.getNodes().get(address);
-        if (existing != null && existing.isAccessibleFrom(address)) {
-            return false;
+    public void forEachHub(@NotNull Function<ElenetHub, Boolean> consumer) {
+        for (ElenetHub hub : this.getHubs()) {
+            if (!consumer.apply(hub)) {
+                break;
+            }
         }
-        this.getNodes().put(address, node);
-        return true;
     }
 
-    public boolean unregisterNode(@NotNull ElenetAddress address) {
-        return this.getNodes().remove(address) != null;
+    public void registerPeer(@NotNull ElenetPeer peer) {
+        this.getPeers().add(peer);
+    }
+
+    public void unregisterPeer(@NotNull ElenetPeer peer) {
+        this.getPeers().remove(peer);
+    }
+
+    public void registerHub(@NotNull ElenetHub node) {
+        this.getHubs().add(node);
+    }
+
+    public void unregisterHub(@NotNull ElenetHub hub) {
+        this.getHubs().remove(hub);
     }
 
     public boolean shouldRemove() {
-        return this.getToken().isEmpty() && this.getNodes().isEmpty();
+        return this.getToken().isEmpty() && this.getHubs().isEmpty();
     }
 }

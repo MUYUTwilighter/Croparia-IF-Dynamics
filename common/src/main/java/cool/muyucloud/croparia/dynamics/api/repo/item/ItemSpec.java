@@ -3,6 +3,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.item;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import cool.muyucloud.croparia.CropariaIf;
+import cool.muyucloud.croparia.dynamics.api.typetoken.Type;
 import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public class ItemSpec {
+public class ItemSpec implements Type {
     public static final MapCodec<ItemSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ResourceLocation.CODEC.fieldOf("id").forGetter(item -> item.getItem().arch$registryName()),
         CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(item -> Optional.ofNullable(item.getNbt()))
@@ -71,6 +72,7 @@ public class ItemSpec {
         return ItemStack.isSameItemSameTags(stack, this.toStack());
     }
 
+    @Override
     public TypeToken<ItemSpec> getType() {
         return TYPE;
     }

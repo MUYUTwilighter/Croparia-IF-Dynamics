@@ -1,7 +1,6 @@
 package cool.muyucloud.croparia.dynamics.forge;
 
 import cool.muyucloud.croparia.dynamics.CropariaIfDynamics;
-import cool.muyucloud.croparia.dynamics.api.core.ServerProvider;
 import dev.architectury.platform.forge.EventBuses;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
@@ -19,11 +18,11 @@ public final class CropariaIfDynamicsForge {
 
     @SubscribeEvent
     public static void onServerStarting(ServerStartingEvent event) {
-        ServerProvider.set(event.getServer());
+        CropariaIfDynamics.onServerStarting(event.getServer());
     }
 
     @SubscribeEvent
     public static void onServerStopping(ServerStoppingEvent event) {
-        ServerProvider.set(null);
+        CropariaIfDynamics.onServerStopping(event.getServer());
     }
 }

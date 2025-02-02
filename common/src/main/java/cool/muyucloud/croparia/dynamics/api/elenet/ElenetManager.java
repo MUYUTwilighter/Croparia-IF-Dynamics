@@ -1,13 +1,12 @@
 package cool.muyucloud.croparia.dynamics.api.elenet;
 
+import cool.muyucloud.croparia.dynamics.api.typetoken.Type;
 import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class ElenetManager {
@@ -39,7 +38,7 @@ public class ElenetManager {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Optional<Elenet<T>> getNetwork(TypeToken<T> type, ResourceLocation id) {
+    public static <T extends Type> Optional<Elenet<T>> getNetwork(TypeToken<T> type, ResourceLocation id) {
         Elenet<?> elenet = NETWORKS.get(id);
         try {
             if (elenet.getType() == type) {
@@ -49,6 +48,28 @@ public class ElenetManager {
             }
         } catch (ClassCastException e) {
             return Optional.empty();
+        }
+    }
+
+    public static <T extends Type> void resonate(@NotNull ElenetHub a, @NotNull ElenetHub b) {
+        for (TypeToken<?> type : a.getTypes()) {
+            if (b.isTypeValid(type)) {
+                a.resonateHub(b, type);
+                b.resonateHub(a, type);
+            }
+        }
+    }
+
+    /**
+     * If type matches, force to isolate a peer from its original hub and resonate it with a new hub.<br>
+     */
+    public static <T extends Type> void resonate(@NotNull ElenetHub hub, @NotNull ElenetPeer peer) {
+        for (TypeToken<?> type : hub.getTypes()) {
+            if (peer.isTypeValid(type)) {
+                peer.isolateHub(type);
+                peer.resonateHub(hub, type);
+                hub.resonatePeer(peer, type);
+            }
         }
     }
 }

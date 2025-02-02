@@ -1,5 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.core;
 
+import cool.muyucloud.croparia.dynamics.annotation.ServerOnly;
 import net.minecraft.server.MinecraftServer;
 
 import java.util.Optional;
@@ -15,6 +16,7 @@ public class ServerProvider {
         }
     }
 
+    @ServerOnly
     public static MinecraftServer getOrThrow() {
         return get().orElseThrow(() -> new IllegalStateException("Server is not running, or I am in the client!"));
     }
