@@ -25,9 +25,9 @@ public class Elenet<T extends Type> implements TypeTokenAccess {
     ).apply(instance, (type, engrave, token) -> new Elenet<>(type, engrave, token.orElse(null))));
 
     @NotNull
-    private transient final Set<ElenetPeer> peers = new HashSet<>();
+    private transient final Set<ElenetAddress> peers = new HashSet<>();
     @NotNull
-    private transient final Set<ElenetHub> hubs = new HashSet<>();
+    private transient final Set<ElenetAddress> hubs = new HashSet<>();
     @NotNull
     private final TypeToken<T> type;
     @NotNull
@@ -74,11 +74,11 @@ public class Elenet<T extends Type> implements TypeTokenAccess {
         this.token = token;
     }
 
-    protected @NotNull Set<ElenetPeer> getPeers() {
+    protected @NotNull Set<ElenetAddress> getPeers() {
         return peers;
     }
 
-    protected @NotNull Set<ElenetHub> getHubs() {
+    protected @NotNull Set<ElenetAddress> getHubs() {
         return hubs;
     }
 
@@ -91,35 +91,35 @@ public class Elenet<T extends Type> implements TypeTokenAccess {
     }
 
     public void forEachPeer(@NotNull Function<ElenetPeer, Boolean> processor) {
-        for (ElenetPeer peer : this.getPeers()) {
-            if (!processor.apply(peer)) {
+        for (ElenetAddress address : this.getPeers()) {
+            if (!address.tryGetPeer().map(processor).orElse(false)) {
                 break;
             }
         }
     }
 
-    public void forEachHub(@NotNull Function<ElenetHub, Boolean> consumer) {
-        for (ElenetHub hub : this.getHubs()) {
-            if (!consumer.apply(hub)) {
+    public void forEachHub(@NotNull Function<ElenetHub, Boolean> processor) {
+        for (ElenetAddress address : this.getHubs()) {
+            if (!address.tryGetHub().map(processor).orElse(false)) {
                 break;
             }
         }
     }
 
-    public void registerPeer(@NotNull ElenetPeer peer) {
-        this.getPeers().add(peer);
+    public void registerPeer(@NotNull ElenetAddress address) {
+        this.getPeers().add(address);
     }
 
-    public void unregisterPeer(@NotNull ElenetPeer peer) {
-        this.getPeers().remove(peer);
+    public void unregisterPeer(@NotNull ElenetAddress address) {
+        this.getPeers().remove(address);
     }
 
-    public void registerHub(@NotNull ElenetHub node) {
-        this.getHubs().add(node);
+    public void registerHub(@NotNull ElenetAddress address) {
+        this.getHubs().add(address);
     }
 
-    public void unregisterHub(@NotNull ElenetHub hub) {
-        this.getHubs().remove(hub);
+    public void unregisterHub(@NotNull ElenetAddress address) {
+        this.getHubs().remove(address);
     }
 
     public boolean shouldRemove() {

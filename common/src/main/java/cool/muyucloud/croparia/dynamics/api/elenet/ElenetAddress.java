@@ -13,9 +13,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @SuppressWarnings("unused")
 public record ElenetAddress(Level world, BlockPos pos) {
@@ -77,6 +79,54 @@ public record ElenetAddress(Level world, BlockPos pos) {
 
     public int chebyshev(ElenetAddress other) {
         return ElenetAddress.chebyshev(this, other);
+    }
+
+    public Optional<ElenetHub> tryGetHub() {
+        try (Level world = this.world()) {
+            if (world.isLoaded(this.pos())) {
+                BlockEntity be = world.getBlockEntity(this.pos());
+                if (be instanceof ElenetHubProvider provider) {
+                    return provider.getHub(this);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return Optional.empty();
+    }
+
+    public Optional<ElenetHub> getHub() {
+        try (Level world = this.world()) {
+            BlockEntity be = world.getBlockEntity(this.pos());
+            if (be instanceof ElenetHubProvider provider) {
+                return provider.getHub(this);
+            }
+        } catch (Throwable ignored) {
+        }
+        return Optional.empty();
+    }
+
+    public Optional<ElenetPeer> tryGetPeer() {
+        try (Level world = this.world()) {
+            if (world.isLoaded(this.pos())) {
+                BlockEntity be = world.getBlockEntity(this.pos());
+                if (be instanceof ElenetPeerProvider provider) {
+                    return provider.getPeer(this);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return Optional.empty();
+    }
+
+    public Optional<ElenetPeer> getPeer() {
+        try (Level world = this.world()) {
+            BlockEntity be = world.getBlockEntity(this.pos());
+            if (be instanceof ElenetPeerProvider provider) {
+                return provider.getPeer(this);
+            }
+        } catch (Throwable ignored) {
+        }
+        return Optional.empty();
     }
 
     @Override

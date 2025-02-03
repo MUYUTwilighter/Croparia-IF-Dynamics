@@ -1,5 +1,10 @@
 package cool.muyucloud.croparia.dynamics.api.elenet;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
+import cool.muyucloud.croparia.dynamics.CropariaIfDynamics;
 import cool.muyucloud.croparia.dynamics.annotation.SuggestAccess;
 import cool.muyucloud.croparia.dynamics.api.typetoken.Type;
 import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
@@ -38,24 +43,20 @@ public interface ElenetHub extends ElenetAccess {
     boolean isIdle();
 
     @SuggestAccess
-    <T extends Type> Optional<Set<ElenetHub>> resonatedHubsOfType(TypeToken<T> type);
+    <T extends Type> Optional<Collection<ElenetAddress>> resonatedHubsOfType(TypeToken<T> type);
 
     @SuggestAccess
-    <T extends Type> Optional<Set<ElenetPeer>> resonatedPeersOfType(TypeToken<T> type);
+    <T extends Type> Optional<Collection<ElenetAddress>> resonatedPeersOfType(TypeToken<T> type);
 
     @SuggestAccess
     Map<TypeToken<?>, Elenet<?>> getElenets();
 
     default <T extends Type> void refreshNetwork(TypeToken<T> type) {
-        if (this.isIdle()) {
+        if (this.isIdle() || !ElenetTask.mayAccept((short) this.getRange())) {
             return;
         }
-        if (this.getElenets().get(type) == null) {
-            this.initElenet(type);
-            ElenetTask.createAndQueue(() -> {
-            }, () -> {
-            }, List.of(), List.of());
-        }
+        ElenetTask.subscribe(() -> {
+        }, (short) this.getRange(), List.of(), List.of());
     }
 
     @SuggestAccess
@@ -104,17 +105,19 @@ public interface ElenetHub extends ElenetAccess {
         if (this.isIdle() || !this.isTypeValid(resource.getType()) || this.isHubSuspended(resource.getType())) {
             return 0;
         }
-        Set<ElenetPeer> peers = this.resonatedPeersOfType(resource.getType()).orElse(null);
-        if (peers == null) {
+        Collection<ElenetAddress> addresses = this.resonatedPeersOfType(resource.getType()).orElse(null);
+        if (addresses == null) {
             return 0;
         }
         AtomicLong remained = new AtomicLong(amount);
-        Iterator<ElenetPeer> peerIterator = peers.iterator();
-        while (peerIterator.hasNext() && remained.get() > 0) {
-            ElenetPeer peer = peerIterator.next();
-            if (peer.getAddress().equals(from)) {
+        Iterator<ElenetAddress> addressIterator = addresses.iterator();
+        while (addressIterator.hasNext() && remained.get() > 0) {
+            ElenetAddress address = addressIterator.next();
+            Optional<ElenetPeer> optional = address.tryGetPeer();
+            if (optional.isEmpty()) {
                 continue;
             }
+            ElenetPeer peer = optional.get();
             remained.set(remained.get() - peer.tryConsume(resource, remained.get()));
         }
         if (remained.get() <= 0) {
@@ -134,17 +137,19 @@ public interface ElenetHub extends ElenetAccess {
         if (this.isIdle() || !this.isTypeValid(resource.getType()) || this.isHubSuspended(resource.getType())) {
             return 0;
         }
-        Set<ElenetPeer> peers = this.resonatedPeersOfType(resource.getType()).orElse(null);
-        if (peers == null) {
+        Collection<ElenetAddress> addresses = this.resonatedPeersOfType(resource.getType()).orElse(null);
+        if (addresses == null) {
             return 0;
         }
         AtomicLong remained = new AtomicLong(amount);
-        Iterator<ElenetPeer> peerIterator = peers.iterator();
-        while (peerIterator.hasNext() && remained.get() > 0) {
-            ElenetPeer peer = peerIterator.next();
-            if (peer.getAddress().equals(from)) {
+        Iterator<ElenetAddress> addressIterator = addresses.iterator();
+        while (addressIterator.hasNext() && remained.get() > 0) {
+            ElenetAddress address = addressIterator.next();
+            Optional<ElenetPeer> optional = address.tryGetPeer();
+            if (optional.isEmpty()) {
                 continue;
             }
+            ElenetPeer peer = optional.get();
             remained.set(remained.get() - peer.tryAccept(resource, remained.get()));
         }
         if (remained.get() <= 0) {
@@ -154,7 +159,7 @@ public interface ElenetHub extends ElenetAccess {
             if (peer.getAddress().equals(from)) {
                 return true;
             }
-            remained.set(remained.get() - peer.tryAccept(resource, remained.get()));
+            remained.set(remained.get() - peer.tryConsume(resource, remained.get()));
             return remained.get() > 0;
         }));
         return amount - Math.max(0, remained.get());
@@ -217,18 +222,54 @@ public interface ElenetHub extends ElenetAccess {
     }
 
     default <T extends Type> void resonate(ElenetPeer peer, TypeToken<T> type) {
-        this.resonatedPeersOfType(type).ifPresent(peers -> peers.add(peer));
+        this.resonatedPeersOfType(type).ifPresent(peers -> peers.add(peer.getAddress()));
     }
 
     default <T extends Type> void isolate(ElenetPeer peer, TypeToken<T> type) {
-        this.resonatedPeersOfType(type).ifPresent(peers -> peers.remove(peer));
+        this.resonatedPeersOfType(type).ifPresent(peers -> peers.remove(peer.getAddress()));
     }
 
     default <T extends Type> void resonate(ElenetHub hub, TypeToken<T> type) {
-        this.resonatedHubsOfType(type).ifPresent(hubs -> hubs.add(hub));
+        this.resonatedHubsOfType(type).ifPresent(hubs -> hubs.add(hub.getAddress()));
     }
 
     default <T extends Type> void isolate(ElenetHub hub, TypeToken<T> type) {
-        this.resonatedHubsOfType(type).ifPresent(hubs -> hubs.remove(hub));
+        this.resonatedHubsOfType(type).ifPresent(hubs -> hubs.remove(hub.getAddress()));
+    }
+
+    default void fromJson(JsonObject json) {
+
+    }
+
+    default JsonObject toJson() {
+        JsonObject root = new JsonObject();
+        for (TypeToken<?> type : this.getTypes()) {
+            JsonObject subRoot = new JsonObject();
+            root.addProperty("elenet", String.valueOf(this.getElenet(type).map(Elenet::getEngrave).orElse(null)));
+            JsonArray peers = new JsonArray();
+            for (ElenetAddress address : this.resonatedPeersOfType(type).orElse(List.of())) {
+                if (address.getPeer().map(
+                    peer -> peer.isTypeValid(type) && peer.resonatedHub(type).map(hub -> hub == this).orElse(false)
+                ).orElse(false)) {
+                    JsonElement element = ElenetAddress.CODEC.codec().encodeStart(JsonOps.INSTANCE, address).getOrThrow(
+                        false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode elenet peer address %s: %s".formatted(address, msg))
+                    );
+                    peers.add(element);
+                }
+            }
+            subRoot.add("peers", peers);
+            JsonArray hubs = new JsonArray();
+            for (ElenetAddress address : this.resonatedHubsOfType(type).orElse(List.of())) {
+                if (address.getHub().map(hub -> hub.isTypeValid(type)).orElse(false)) {
+                    JsonElement element = ElenetAddress.CODEC.codec().encodeStart(JsonOps.INSTANCE, address).getOrThrow(
+                        false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode elenet hub address %s: %s".formatted(address, msg))
+                    );
+                    hubs.add(element);
+                }
+            }
+            subRoot.add("hubs", hubs);
+            root.add(type.id().toString(), subRoot);
+        }
+        return root;
     }
 }

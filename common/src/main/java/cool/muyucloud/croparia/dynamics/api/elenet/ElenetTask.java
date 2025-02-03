@@ -1,21 +1,42 @@
 package cool.muyucloud.croparia.dynamics.api.elenet;
 
-import cool.muyucloud.croparia.dynamics.CropariaIfDynamics;
+import net.minecraft.util.SortedArraySet;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.*;
 
 @SuppressWarnings("unused")
-public class ElenetTask {
-    private static final ConcurrentLinkedQueue<ElenetTask> TASKS = new ConcurrentLinkedQueue<>();
-    private static final ConcurrentLinkedQueue<Runnable> CALLBACKS = new ConcurrentLinkedQueue<>();
+public class ElenetTask implements Comparable<ElenetTask> {
+    public static final short MAX_EXPENSE = 100;
+    private static final SortedArraySet<ElenetTask> TASKS = SortedArraySet.create();
 
-    public static void createAndQueue(Runnable task, Runnable callback, Collection<Elenet<?>> elenets, Collection<ElenetHub> hubs) {
-        ElenetTask task_ = new ElenetTask(task, callback, elenets, hubs);
-        task_.queue();
+    public static void subscribe(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs, short rank) {
+        ElenetTask task_ = new ElenetTask(task, expense, elenets, hubs, rank);
+        TASKS.add(task_);
+    }
+
+    public static void subscribe(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs) {
+        ElenetTask task_ = new ElenetTask(task, expense, elenets, hubs);
+        TASKS.add(task_);
+    }
+
+    public static short parseExpense(double expense) {
+        return (short) ((1D - 1D / (0.01D * expense + 1)) * MAX_EXPENSE);
+    }
+
+    /**
+     * Whether the specified expense will exceed the limit if the task is to be added<br>
+     * If false, it does not mean the task will not be executed, due to the random rank.
+     */
+    public static boolean mayAccept(short expense) {
+        long futural = expense;
+        for (ElenetTask task : TASKS) {
+            futural += task.expense();
+            if (futural > expense) {
+                return false;
+            }
+        }
+        return futural < MAX_EXPENSE;
     }
 
     public static boolean isSuspended(Elenet<?> elenet) {
@@ -42,48 +63,44 @@ public class ElenetTask {
     /**
      * Invoked at the end of a server tick
      */
-    public static void invokeCallback() {
-        while (!CALLBACKS.isEmpty()) {
-            CALLBACKS.poll().run();
+    public static void invoke() {
+        short expense = MAX_EXPENSE;
+        for (ElenetTask task : TASKS) {
+            if (expense > 0 && expense > task.expense() || task.rank == 0) {
+                expense -= task.expense();
+                task.run();
+            }
         }
     }
 
     public static void onServerStarting() {
         TASKS.clear();
-        CALLBACKS.clear();
-        ElenetTaskExecutor.getInstance().start();
     }
 
     public static void onServerStopping() {
-        ElenetTaskExecutor.getInstance().safeStop();
         TASKS.clear();
-        CALLBACKS.clear();
     }
 
     private final Set<Elenet<?>> elenets = new HashSet<>();
     private final Set<ElenetHub> hubs = new HashSet<>();
     private final Runnable task;
-    private final Runnable callback;
-    private volatile boolean active = false;
+    private final short rank;
+    private final short expense;
 
-    public ElenetTask(Runnable task, Runnable callback, Collection<Elenet<?>> elenets, Collection<ElenetHub> hubs) {
-        this.callback = () -> {
-            callback.run();
-            synchronized (ElenetTask.TASKS) {
-                if (ElenetTask.TASKS.peek() == this) {
-                    TASKS.poll();
-                }
-            }
-            this.active = false;
-            ElenetTaskExecutor.getInstance().safeNotify();
-        };
-        this.task = () -> {
-            this.active = true;
-            task.run();
-            CALLBACKS.add(this.callback);
-        };
+    public ElenetTask(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs) {
         this.elenets.addAll(elenets);
         this.hubs.addAll(hubs);
+        this.task = task;
+        this.expense = expense;
+        this.rank = (short) (Math.random() * 1000);
+    }
+
+    public ElenetTask(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs, short rank) {
+        this.elenets.addAll(elenets);
+        this.hubs.addAll(hubs);
+        this.task = task;
+        this.expense = expense;
+        this.rank = rank;
     }
 
     public boolean isSuspendedThis(Elenet<?> elenet) {
@@ -94,74 +111,16 @@ public class ElenetTask {
         return hubs.contains(hub);
     }
 
-    public void queue() {
-        TASKS.add(this);
-        ElenetTaskExecutor.getInstance().safeNotify();
+    public short expense() {
+        return expense;
     }
 
-    public boolean isActive() {
-        return active;
+    public void run() {
+        task.run();
     }
 
-    public static class ElenetTaskExecutor extends Thread {
-        private static final ElenetTaskExecutor INSTANCE = new ElenetTaskExecutor();
-        private final AtomicBoolean running = new AtomicBoolean(true);
-        private final AtomicBoolean paused = new AtomicBoolean(false);
-
-        private ElenetTaskExecutor() {
-            this.setName("ElenetTaskExecutor");
-            this.setDaemon(true);
-        }
-
-        public static ElenetTaskExecutor getInstance() {
-            return INSTANCE;
-        }
-
-        @Override
-        public void run() {
-            while (running.get()) {
-                synchronized (this) {
-                    while (paused.get() || ElenetTask.TASKS.isEmpty() || ElenetTask.TASKS.peek().isActive()) {
-                        try {
-                            this.wait();
-                        } catch (InterruptedException e) {
-                            return; // end of the thread
-                        }
-                    }
-                }
-                // No need to synchronize TASKS as the head task will only be inactive at the end of the callback
-                ElenetTask task = ElenetTask.TASKS.peek();
-                if (task != null && !task.isActive()) {
-                    try {
-                        task.task.run();
-                    } catch (Exception e) {
-                        CropariaIfDynamics.LOGGER.error("ElenetTaskExecutor error", e);
-                    }
-                }
-            }
-        }
-
-        public synchronized void safeNotify() {
-            if (!ElenetTask.TASKS.isEmpty()) {
-                this.notify();
-            }
-        }
-
-        public void safePause() {
-            paused.set(true);
-        }
-
-        public synchronized void safeResume() {
-            paused.set(false);
-            this.notify();
-        }
-
-        public void safeStop() {
-            running.set(false);
-            synchronized (this) {
-                this.notify();
-            }
-            this.interrupt();
-        }
+    @Override
+    public int compareTo(@NotNull ElenetTask o) {
+        return Short.compare(this.rank, o.rank);
     }
 }
