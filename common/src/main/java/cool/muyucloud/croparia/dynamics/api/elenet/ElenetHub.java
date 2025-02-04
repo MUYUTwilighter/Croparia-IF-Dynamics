@@ -113,12 +113,12 @@ public interface ElenetHub extends ElenetAccess {
         Iterator<ElenetAddress> addressIterator = addresses.iterator();
         while (addressIterator.hasNext() && remained.get() > 0) {
             ElenetAddress address = addressIterator.next();
-            Optional<ElenetPeer> optional = address.tryGetPeer();
-            if (optional.isEmpty()) {
+            if (address.equals(from)) {
                 continue;
             }
-            ElenetPeer peer = optional.get();
-            remained.set(remained.get() - peer.tryConsume(resource, remained.get()));
+            address.tryGetPeer().ifPresent(
+                peer -> remained.set(remained.get() - peer.tryConsume(resource, remained.get()))
+            );
         }
         if (remained.get() <= 0) {
             return amount;
@@ -133,6 +133,13 @@ public interface ElenetHub extends ElenetAccess {
         return amount - Math.max(0, remained.get());
     }
 
+    /**
+     * This ensures:
+     * - the hub is not idle
+     * - the type is valid
+     * - the hub is not suspended
+     * - Other peers are available (exists, accessible)
+     * */
     default <T extends Type> long serveAccept(T resource, long amount, ElenetAddress from) {
         if (this.isIdle() || !this.isTypeValid(resource.getType()) || this.isHubSuspended(resource.getType())) {
             return 0;
@@ -145,12 +152,13 @@ public interface ElenetHub extends ElenetAccess {
         Iterator<ElenetAddress> addressIterator = addresses.iterator();
         while (addressIterator.hasNext() && remained.get() > 0) {
             ElenetAddress address = addressIterator.next();
-            Optional<ElenetPeer> optional = address.tryGetPeer();
-            if (optional.isEmpty()) {
+            if (address.equals(from)) {
                 continue;
             }
-            ElenetPeer peer = optional.get();
-            remained.set(remained.get() - peer.tryAccept(resource, remained.get()));
+            Optional<ElenetPeer> optional = address.tryGetPeer();
+            address.tryGetPeer().ifPresent(
+                peer -> remained.set(remained.get() - peer.tryAccept(resource, remained.get()))
+            );
         }
         if (remained.get() <= 0) {
             return amount;
@@ -210,7 +218,7 @@ public interface ElenetHub extends ElenetAccess {
     }
 
     default <T extends Type> boolean canServe(ElenetPeer peer, TypeToken<T> type) {
-        return this.canServe(type) && !this.isHubSuspended(type);
+        return this.canServe(type) && !this.isHubSuspended(type) && this.canResonate(peer);
     }
 
     default boolean canResonate(ElenetPeer peer) {

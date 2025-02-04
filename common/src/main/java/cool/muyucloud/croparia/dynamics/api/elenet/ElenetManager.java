@@ -54,6 +54,7 @@ public class ElenetManager {
     }
 
     public static <T extends Type> void resonate(@NotNull ElenetHub a, @NotNull ElenetHub b) {
+        if (!a.canResonate(b)) return;
         for (TypeToken<?> type : a.getTypes()) {
             if (b.isTypeValid(type)) {
                 a.resonate(b, type);
@@ -66,6 +67,7 @@ public class ElenetManager {
      * If type matches, force to isolate a peer from its original hub and resonate it with a new hub.<br>
      */
     public static <T extends Type> void resonate(@NotNull ElenetHub hub, @NotNull ElenetPeer peer) {
+        if (!hub.canResonate(peer)) return;
         for (TypeToken<?> type : hub.getTypes()) {
             if (peer.isTypeValid(type)) {
                 peer.isolateOfType(type);
