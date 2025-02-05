@@ -9,7 +9,9 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public interface ElenetPeer extends ElenetAccess {
     /**
-     * Get the hub that this peer is resonated with the given type.
+     * Get the hub that this peer is resonated with the given type.<br>
+     * When implementing, you need to check the availability of the resonance via {@link #isResonanceValid(TypeToken)}.
+     * If not valid, return {@link Optional#empty()}.
      */
     <T extends Type> Optional<ElenetHub> resonatedHub(TypeToken<T> type);
 
@@ -25,19 +27,19 @@ public interface ElenetPeer extends ElenetAccess {
 
     /**
      * Consume the specified amount of resource from this peer to the elenet.<br>
-     * You should check {@link #isResonanceValid(TypeToken)} before you invoke this method.<br>
+     * You should check {@link #canBeServed(TypeToken)} before you invoke this method.<br>
      */
     @SuggestAccess
     <T extends Type> long consume(T resource, long amount);
 
     /**
      * Accept the specified amount of resource to this peer from the elenet.<br>
-     * You should check {@link #isResonanceValid(TypeToken)} before you invoke this method.<br>
+     * You should check {@link #canBeServed(TypeToken)} before you invoke this method.<br>
      */
     @SuggestAccess
     <T extends Type> long accept(T resource, long amount);
 
-    default void onDisable() {
+    default void onRemove() {
         for (TypeToken<?> type : this.getTypes()) {
             this.isolateOfType(type);
             this.resonatedHub(type).ifPresent(hub -> hub.isolate(this, type));
@@ -45,14 +47,18 @@ public interface ElenetPeer extends ElenetAccess {
     }
 
     default <T extends Type> long tryConsume(T resource, long amount) {
-        return this.isResonanceValid(resource.getType()) ? this.consume(resource, amount) : 0;
+        return this.canBeServed(resource.getType()) ? this.consume(resource, amount) : 0;
     }
 
     default <T extends Type> long tryAccept(T resource, long amount) {
-        return this.isResonanceValid(resource.getType()) ? this.accept(resource, amount) : 0;
+        return this.canBeServed(resource.getType()) ? this.accept(resource, amount) : 0;
+    }
+
+    default boolean canBeServed(TypeToken<?> type) {
+        return this.resonatedHub(type).map(hub -> hub.canServe(this, type)).orElse(false);
     }
 
     default boolean isResonanceValid(TypeToken<?> type) {
-        return this.resonatedHub(type).map(hub -> hub.canServe(this, type)).orElse(false);
+        return this.resonatedHub(type).map(hub -> hub.canResonate(this)).orElse(false);
     }
 }

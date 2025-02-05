@@ -92,7 +92,7 @@ public class ElenetTask implements Comparable<ElenetTask> {
         this.hubs.addAll(hubs);
         this.task = task;
         this.expense = expense;
-        this.rank = (short) (Math.random() * 1000);
+        this.rank = this.genRank();
     }
 
     public ElenetTask(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs, short rank) {
@@ -101,6 +101,31 @@ public class ElenetTask implements Comparable<ElenetTask> {
         this.task = task;
         this.expense = expense;
         this.rank = rank;
+    }
+
+    public short genRank() {
+        short least = (short) (Math.random() * 1000);
+        if (this.elenets.isEmpty() && this.hubs.isEmpty()) {
+            return least;
+        }
+        for (ElenetTask task : TASKS) {
+            boolean flag = false;
+            for (Elenet<?> elenet : this.elenets) {
+                if (task.isSuspendedThis(elenet)) {
+                    least = task.rank;
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) continue;
+            for (ElenetHub hub : this.hubs) {
+                if (task.isSuspendedThis(hub)) {
+                    least = task.rank;
+                    break;
+                }
+            }
+        }
+        return least;
     }
 
     public boolean isSuspendedThis(Elenet<?> elenet) {
