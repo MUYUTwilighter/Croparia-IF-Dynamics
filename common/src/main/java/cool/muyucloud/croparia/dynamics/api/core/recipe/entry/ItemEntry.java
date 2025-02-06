@@ -20,7 +20,7 @@ public class ItemEntry {
         TagKey.codec(Registries.ITEM).optionalFieldOf("tag").forGetter(ItemEntry::getTag),
         CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(ItemEntry::getNbt),
         Codec.LONG.fieldOf("amount").forGetter(ItemEntry::getAmount),
-        Codec.BOOL.fieldOf("elem_effect").forGetter(ItemEntry::canEffect)
+        Codec.BOOL.fieldOf("effect").forGetter(ItemEntry::canEffect)
     ).apply(instance, (id, tag, nbt, amount, elemEffect) -> new ItemEntry(id.orElse(null), tag.orElse(null), nbt.orElse(null), amount, elemEffect)));
 
     @Nullable

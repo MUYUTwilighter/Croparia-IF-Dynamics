@@ -7,8 +7,6 @@ import cool.muyucloud.croparia.dynamics.api.core.recipe.entry.ItemResult;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.input.EfrInput;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.serializer.EfrSerializer;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.type.EfrType;
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class ElemForgeRecipe implements Recipe<EfrInput> {
@@ -116,36 +114,25 @@ public class ElemForgeRecipe implements Recipe<EfrInput> {
      * @param itemAcceptCallback   The callback that provides the item result
      * @param fluidAcceptCallback  The callback that provides the fluid result
      */
-    public void craft(EfrInput input, BiConsumer<ItemSpec, Long> itemConsumeCallback, BiConsumer<FluidSpec, Long> fluidConsumeCallback, BiConsumer<ItemSpec, Long> itemAcceptCallback, BiConsumer<FluidSpec, Long> fluidAcceptCallback) {
+    public void craft(
+        EfrInput input, Consumer<ItemEntry> itemConsumeCallback, Consumer<FluidEntry> fluidConsumeCallback,
+        Consumer<ItemResult> itemAcceptCallback, Consumer<FluidResult> fluidAcceptCallback
+    ) {
         if (!this.itemEntries.isEmpty()) {
             for (ItemEntry entry : this.itemEntries) {
-                AtomicLong required = new AtomicLong(entry.getAmount());
-                input.visitItems((item, amount) -> {
-                    if (entry.match(item, amount)) {
-                        required.set(required.get() - amount);
-                        itemConsumeCallback.accept(item, Math.min(required.get(), amount));
-                    }
-                    return required.get() > 0;
-                });
+                itemConsumeCallback.accept(entry);
             }
         }
         if (!this.fluidEntries.isEmpty()) {
             for (FluidEntry entry : this.fluidEntries) {
-                AtomicLong required = new AtomicLong(entry.getAmount());
-                input.visitFluids((fluid, amount) -> {
-                    if (entry.match(fluid, amount)) {
-                        required.set(required.get() - amount);
-                        fluidConsumeCallback.accept(fluid, Math.min(required.get(), amount));
-                    }
-                    return required.get() > 0;
-                });
+                fluidConsumeCallback.accept(entry);
             }
         }
         for (ItemResult result : this.itemResults) {
-            itemAcceptCallback.accept(result.getItemSpec(), result.getAmount());
+            itemAcceptCallback.accept(result);
         }
         for (FluidResult result : this.fluidResults) {
-            fluidAcceptCallback.accept(result.getFluidSpec(), result.getAmount());
+            fluidAcceptCallback.accept(result);
         }
     }
 
