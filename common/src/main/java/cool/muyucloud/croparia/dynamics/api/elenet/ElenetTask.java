@@ -3,7 +3,9 @@ package cool.muyucloud.croparia.dynamics.api.elenet;
 import net.minecraft.util.SortedArraySet;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 public class ElenetTask implements Comparable<ElenetTask> {

@@ -20,7 +20,7 @@ import java.util.Optional;
 public class ItemSpec implements Type {
     public static final MapCodec<ItemSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ResourceLocation.CODEC.fieldOf("id").forGetter(item -> item.getItem().arch$registryName()),
-        CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(item -> Optional.ofNullable(item.getNbt()))
+        CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(ItemSpec::getNbt)
     ).apply(instance, (id, nbt) -> new ItemSpec(BuiltInRegistries.ITEM.get(id), nbt.orElse(null))));
     public static final ItemSpec EMPTY = new ItemSpec(Items.AIR, null);
     public static final TypeToken<ItemSpec> TYPE = TypeToken.register(CropariaIf.of("item_spec"), EMPTY).orElseThrow();
@@ -41,8 +41,8 @@ public class ItemSpec implements Type {
         return item;
     }
 
-    public CompoundTag getNbt() {
-        return nbt;
+    public Optional<CompoundTag> getNbt() {
+        return Optional.ofNullable(nbt);
     }
 
     public void setItem(Item item) {
@@ -59,7 +59,7 @@ public class ItemSpec implements Type {
 
     public ItemStack toStack(long amount) {
         ItemStack stack = new ItemStack(this.getItem());
-        stack.setTag(this.getNbt());
+        stack.setTag(this.getNbt().orElse(null));
         stack.setCount((int) Math.min(Integer.MAX_VALUE, amount));
         return stack;
     }

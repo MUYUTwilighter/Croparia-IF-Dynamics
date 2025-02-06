@@ -19,12 +19,13 @@ import java.util.Optional;
 public class FluidSpec implements Type {
     public static final MapCodec<FluidSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ResourceLocation.CODEC.fieldOf("id").forGetter(fluid -> fluid.getFluid().arch$registryName()),
-        CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(fluid -> Optional.ofNullable(fluid.getNbt()))
+        CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(FluidSpec::getNbt)
     ).apply(instance, (id, nbt) -> new FluidSpec(BuiltInRegistries.FLUID.get(id), nbt.orElse(null))));
     public static final FluidSpec EMPTY = new FluidSpec(Fluids.EMPTY, null);
     public static final TypeToken<FluidSpec> TYPE = TypeToken.register(CropariaIf.of("fluid_spec"), EMPTY).orElseThrow();
 
     private Fluid fluid;
+    @Nullable
     private CompoundTag nbt;
 
     public FluidSpec(@NotNull Fluid fluid, @Nullable CompoundTag nbt) {
@@ -36,15 +37,15 @@ public class FluidSpec implements Type {
         return fluid;
     }
 
-    public CompoundTag getNbt() {
-        return nbt;
+    public Optional<CompoundTag> getNbt() {
+        return Optional.ofNullable(nbt);
     }
 
     public void setFluid(Fluid fluid) {
         this.fluid = fluid;
     }
 
-    public void setNbt(CompoundTag nbt) {
+    public void setNbt(@Nullable CompoundTag nbt) {
         this.nbt = nbt;
     }
 

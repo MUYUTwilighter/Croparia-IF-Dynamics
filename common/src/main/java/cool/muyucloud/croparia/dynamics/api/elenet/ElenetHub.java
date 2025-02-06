@@ -31,18 +31,6 @@ public interface ElenetHub extends ElenetAccess {
 
     /**
      * <p>
-     * The radius that represents an area accessible to the <b>Elenet Nodes</b>, usually larger than {@link #getCoverage()}
-     * </p>
-     * <p>
-     * When the range changes, remember to invoke {@link #onRangeChange(int)}.
-     * </p>
-     */
-    default short getRange() {
-        return (short) (this.getCoverage() * 2 + 1);
-    }
-
-    /**
-     * <p>
      * Whether the current Elenet HUB is not exposed to elenet,
      * considering properties of the device itself, not type or elenet.
      * </p>
@@ -61,6 +49,18 @@ public interface ElenetHub extends ElenetAccess {
 
     @SuggestAccess
     Map<TypeToken<?>, Elenet<?>> getElenets();
+
+    /**
+     * <p>
+     * The radius that represents an area accessible to the <b>Elenet Nodes</b>, usually larger than {@link #getCoverage()}
+     * </p>
+     * <p>
+     * When the range changes, remember to invoke {@link #onRangeChange(int)}.
+     * </p>
+     */
+    default short getRange() {
+        return (short) (this.getCoverage() * 2 + 1);
+    }
 
     default void onRangeChange(int from) {
         if (from < this.getRange()) {
@@ -192,6 +192,9 @@ public interface ElenetHub extends ElenetAccess {
                     try (Level world = address.world()) {
                         BlockPos pos = new BlockPos(x, y, z);
                         ElenetAddress target = ElenetAddress.of(world, pos);
+                        if (target.equals(address)) {
+                            continue;
+                        }
                         @Nullable BlockEntity be = world.getBlockEntity(pos);
                         if (hubConsumer != null && be instanceof @NotNull ElenetHubProvider provider) {
                             provider.getHub(target).ifPresent(hub -> {
