@@ -37,7 +37,9 @@ public interface ElenetHub extends ElenetAccess {
      * When the range changes, remember to invoke {@link #onRangeChange(int)}.
      * </p>
      */
-    short getRange();
+    default short getRange() {
+        return (short) (this.getCoverage() * 2 + 1);
+    }
 
     /**
      * <p>
