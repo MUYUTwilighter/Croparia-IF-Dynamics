@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -80,14 +79,6 @@ public class Elenet<T extends Type> implements TypeTokenAccess {
 
     protected @NotNull Set<ElenetAddress> getHubs() {
         return hubs;
-    }
-
-    public boolean canMergeTo(@NotNull Elenet<T> other) {
-        return this.getToken().isEmpty() || Objects.equals(this.getToken(), other.getToken());
-    }
-
-    public boolean canMergeFrom(@NotNull Elenet<T> other) {
-        return other.getToken().isEmpty() || Objects.equals(this.getToken(), other.getToken());
     }
 
     public void forEachPeer(@NotNull Function<ElenetPeer, Boolean> processor) {
