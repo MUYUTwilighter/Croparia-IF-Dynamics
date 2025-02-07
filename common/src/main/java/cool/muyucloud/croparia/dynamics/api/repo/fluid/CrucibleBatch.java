@@ -13,10 +13,10 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class CrucibleBatch implements Repo<FluidSpec>, Iterable<FluidUnit> {
     private final Map<ElementsEnum, FluidUnit> units = ImmutableMap.of(
-        ElementsEnum.EARTH, FluidUnit.create(fluid -> fluid.is(Fluids.EARTH.get()), 81000 * 3),
-        ElementsEnum.WATER, FluidUnit.create(fluid -> fluid.is(Fluids.WATER.get()), 81000 * 3),
-        ElementsEnum.FIRE, FluidUnit.create(fluid -> fluid.is(Fluids.FIRE.get()), 81000 * 3),
-        ElementsEnum.AIR, FluidUnit.create(fluid -> fluid.is(Fluids.AIR.get()), 81000 * 4)
+        ElementsEnum.EARTH, FluidUnit.of(fluid -> fluid.is(Fluids.EARTH.get()), 81000 * 3),
+        ElementsEnum.WATER, FluidUnit.of(fluid -> fluid.is(Fluids.WATER.get()), 81000 * 3),
+        ElementsEnum.FIRE, FluidUnit.of(fluid -> fluid.is(Fluids.FIRE.get()), 81000 * 3),
+        ElementsEnum.AIR, FluidUnit.of(fluid -> fluid.is(Fluids.AIR.get()), 81000 * 4)
     );
 
     public void enable(ElementsEnum element) {
