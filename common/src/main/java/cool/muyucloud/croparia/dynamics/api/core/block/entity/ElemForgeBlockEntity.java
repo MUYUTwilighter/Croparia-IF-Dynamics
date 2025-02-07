@@ -59,7 +59,7 @@ public abstract class ElemForgeBlockEntity<F> extends BlockEntity implements Ele
     }
 
     public Optional<ElemCrucible> getCrucible() {
-        return this.getCrucibleSlot().getItem().getItem() instanceof ElemCrucible crucible ? Optional.of(crucible) : Optional.empty();
+        return this.getCrucibleSlot().getResource().getItem() instanceof ElemCrucible crucible ? Optional.of(crucible) : Optional.empty();
     }
 
     public RecipeProcessorUnit<F> addRecipeProcessorUnit(
