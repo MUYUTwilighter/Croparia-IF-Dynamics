@@ -1,12 +1,13 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public interface PlatformFluidAgent extends FluidRepo {
+public interface PlatformFluidAgent extends Repo<FluidSpec> {
     /**
      * Simulates consuming the specified amount of fluid from the specified fluid storage unit.
      *
@@ -71,7 +72,7 @@ public interface PlatformFluidAgent extends FluidRepo {
     @ApiStatus.Experimental
     @Unreliable(value = "FABRIC", reason = "no canAccept check")
     default long capacityFor(FluidSpec fluid) {
-        return FluidRepo.super.capacityFor(fluid);
+        return Repo.super.capacityFor(fluid);
     }
 
     /**
@@ -87,10 +88,10 @@ public interface PlatformFluidAgent extends FluidRepo {
     long capacityFor(int i, FluidSpec fluid);
 
     /**
-     * Get the proxied repo if it implements the {@link FluidRepo},
+     * Get the proxied repo if it implements the {@link Repo} of {@link FluidSpec},
      * which is probably implemented by Repo API here and have full function.
      *
      * @return The proxied repo
      */
-    Optional<FluidRepo> peel();
+    Optional<Repo<FluidSpec>> peel();
 }

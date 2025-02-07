@@ -13,11 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public class FluidResult {
-    public static final MapCodec<FluidResult> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        ResourceLocation.CODEC.fieldOf("id").forGetter(FluidResult::getId),
-        CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(FluidResult::getNbt),
-        Codec.LONG.fieldOf("amount").forGetter(FluidResult::getAmount)
-    ).apply(instance, (id, nbt, amount) -> new FluidResult(id, nbt.orElse(null), amount)));
+    public static final MapCodec<FluidResult> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(ResourceLocation.CODEC.fieldOf("id").forGetter(FluidResult::getId), CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(FluidResult::getNbt), Codec.LONG.fieldOf("amount").forGetter(FluidResult::getAmount)).apply(instance, (id, nbt, amount) -> new FluidResult(id, nbt.orElse(null), amount)));
 
     @NotNull
     private final ResourceLocation id;

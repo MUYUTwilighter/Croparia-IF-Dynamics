@@ -1,7 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid.forge;
 
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidAgent;
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 public class FluidAgentImpl extends FluidAgent implements IFluidHandler {
-    public static FluidAgent of(Supplier<FluidRepo> repo) {
+    public static FluidAgent of(Supplier<Repo<FluidSpec>> repo) {
         return new FluidAgentImpl(repo);
     }
 
-    public FluidAgentImpl(Supplier<FluidRepo> repo) {
+    public FluidAgentImpl(Supplier<Repo<FluidSpec>> repo) {
         super(repo);
     }
 

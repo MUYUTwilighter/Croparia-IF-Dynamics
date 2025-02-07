@@ -1,6 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid.forge;
 
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.PlatformFluidAgent;
 import net.minecraftforge.fluids.FluidStack;
@@ -28,8 +28,9 @@ public class ForgeFluidAgent implements PlatformFluidAgent {
     }
 
     @Override
-    public Optional<FluidRepo> peel() {
-        return this.get() instanceof FluidRepo repo ? Optional.of(repo) : Optional.empty();
+    @SuppressWarnings("unchecked")
+    public Optional<Repo<FluidSpec>> peel() {
+        return this.get() instanceof Repo<?> repo ? Optional.of((Repo<FluidSpec>) repo) : Optional.empty();
     }
 
     @Override

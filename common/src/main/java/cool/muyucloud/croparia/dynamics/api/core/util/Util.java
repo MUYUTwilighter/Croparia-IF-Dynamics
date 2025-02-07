@@ -61,4 +61,31 @@ public class Util {
         }
         return primaryStack.isEmpty();
     }
+
+    public static CompoundTag mergeNbt(@NotNull CompoundTag primary, @NotNull CompoundTag secondary) {
+        CompoundTag result = primary.copy();
+        Stack<CompoundTag> primaryStack = new Stack<>();
+        Stack<CompoundTag> secondaryStack = new Stack<>();
+        primaryStack.push(result);
+        secondaryStack.push(secondary);
+        while (!primaryStack.isEmpty() && !secondaryStack.isEmpty()) {
+            CompoundTag primaryTag = primaryStack.pop();
+            CompoundTag secondaryTag = secondaryStack.pop();
+            for (String key : secondaryTag.getAllKeys()) {
+                Tag primarySub = primaryTag.get(key);
+                Tag secondarySub = secondaryTag.get(key);
+                assert secondarySub != null;
+                if (primarySub == null) {
+                    result.put(key, secondarySub);
+                }
+                if (primarySub instanceof CompoundTag && secondarySub instanceof CompoundTag) {
+                    primaryStack.push((CompoundTag) primarySub);
+                    secondaryStack.push((CompoundTag) secondarySub);
+                    continue;
+                }
+                result.put(key, secondarySub);
+            }
+        }
+        return result;
+    }
 }

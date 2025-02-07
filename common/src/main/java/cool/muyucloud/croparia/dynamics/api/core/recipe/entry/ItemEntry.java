@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
+@SuppressWarnings("unused")
 public class ItemEntry {
     public static final MapCodec<ItemEntry> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ResourceLocation.CODEC.optionalFieldOf("id").forGetter(ItemEntry::getId),
@@ -69,16 +70,19 @@ public class ItemEntry {
     }
 
     public boolean match(ItemSpec item, long amount) {
-        boolean itemMatch;
-        if (this.getId().isPresent()) {
-            itemMatch = this.getId().get().equals(item.getItem().arch$registryName());
-        } else if (this.getTag().isPresent()) {
-            itemMatch = Util.isIn(this.getTag().get(), item.getItem());
-        } else {
-            return false;
-        }
+        boolean itemMatch = this.match(item);
         boolean nbtMatch = item.getNbt().isEmpty() ? this.getNbt().isEmpty() : Util.matchNbt(this.getNbt().orElse(null), item.getNbt().orElse(null));
         boolean amountMatch = this.getAmount() <= amount;
         return itemMatch && nbtMatch && amountMatch;
+    }
+
+    public boolean match(ItemSpec item) {
+        if (this.getId().isPresent()) {
+            return this.getId().get().equals(item.getItem().arch$registryName());
+        } else if (this.getTag().isPresent()) {
+            return Util.isIn(this.getTag().get(), item.getItem());
+        } else {
+            return false;
+        }
     }
 }

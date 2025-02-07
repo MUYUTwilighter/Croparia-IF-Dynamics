@@ -1,7 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item.fabric;
 
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemAgent;
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -14,11 +14,11 @@ import java.util.function.Supplier;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ItemAgentImpl extends ItemAgent implements Storage<ItemVariant> {
-    public static ItemAgent of(Supplier<ItemRepo> repo) {
+    public static ItemAgent of(Supplier<Repo<ItemSpec>> repo) {
         return new ItemAgentImpl(repo);
     }
 
-    public ItemAgentImpl(Supplier<ItemRepo> repo) {
+    public ItemAgentImpl(Supplier<Repo<ItemSpec>> repo) {
         super(repo);
     }
 
@@ -74,10 +74,10 @@ public class ItemAgentImpl extends ItemAgent implements Storage<ItemVariant> {
     }
 
     static class ItemView implements StorageView<ItemVariant> {
-        private final ItemRepo repo;
+        private final Repo<ItemSpec> repo;
         private final int i;
 
-        public ItemView(ItemRepo repo, int i) {
+        public ItemView(Repo<ItemSpec> repo, int i) {
             if (repo.size() <= i) {
                 throw new IllegalArgumentException("Index %s is out of bounds: %s".formatted(i, repo.size()));
             }

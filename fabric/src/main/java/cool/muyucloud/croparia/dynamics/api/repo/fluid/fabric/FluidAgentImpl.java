@@ -1,7 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid.fabric;
 
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidAgent;
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -14,11 +14,11 @@ import java.util.function.Supplier;
 
 @SuppressWarnings("UnstableApiUsage")
 public class FluidAgentImpl extends FluidAgent implements Storage<FluidVariant> {
-    public static FluidAgent of(Supplier<FluidRepo> repo) {
+    public static FluidAgent of(Supplier<Repo<FluidSpec>> repo) {
         return new FluidAgentImpl(repo);
     }
 
-    protected FluidAgentImpl(Supplier<FluidRepo> repo) {
+    protected FluidAgentImpl(Supplier<Repo<FluidSpec>> repo) {
         super(repo);
     }
 
@@ -74,10 +74,10 @@ public class FluidAgentImpl extends FluidAgent implements Storage<FluidVariant> 
     }
 
     static class FluidView implements StorageView<FluidVariant> {
-        private final FluidRepo repo;
+        private final Repo<FluidSpec> repo;
         private final int i;
 
-        public FluidView(FluidRepo repo, int i) {
+        public FluidView(Repo<FluidSpec> repo, int i) {
             if (repo.size() <= i) {
                 throw new IllegalArgumentException("Index %s is out of bounds: %s".formatted(i, repo.size()));
             }

@@ -1,22 +1,23 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item;
 
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 
 import java.util.function.Supplier;
 
-public abstract class ItemAgent implements ItemRepo {
+public abstract class ItemAgent implements Repo<ItemSpec> {
     @ExpectPlatform
-    public static ItemAgent of(Supplier<ItemRepo> repo) {
+    public static ItemAgent of(Supplier<Repo<ItemSpec>> repo) {
         throw new AssertionError("Not implemented");
     }
 
-    private final ItemRepo repo;
+    private final Repo<ItemSpec> repo;
 
-    public ItemAgent(Supplier<ItemRepo> repo) {
+    public ItemAgent(Supplier<Repo<ItemSpec>> repo) {
         this.repo = repo.get();
     }
 
-    public ItemRepo get() {
+    public Repo<ItemSpec> get() {
         return repo;
     }
 

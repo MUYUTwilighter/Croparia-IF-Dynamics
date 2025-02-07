@@ -14,14 +14,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
+@SuppressWarnings("unused")
 public class FluidEntry {
-    public static final MapCodec<FluidEntry> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        ResourceLocation.CODEC.optionalFieldOf("id").forGetter(FluidEntry::getId),
-        TagKey.codec(Registries.FLUID).optionalFieldOf("tag").forGetter(FluidEntry::getTag),
-        CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(FluidEntry::getNbt),
-        Codec.LONG.fieldOf("amount").forGetter(FluidEntry::getAmount),
-        Codec.BOOL.fieldOf("elem_effect").forGetter(FluidEntry::canEffect)
-    ).apply(instance, (id, tag, nbt, amount, elemEffect) -> new FluidEntry(id.orElse(null), tag.orElse(null), nbt.orElse(null), amount, elemEffect)));
+    public static final MapCodec<FluidEntry> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(ResourceLocation.CODEC.optionalFieldOf("id").forGetter(FluidEntry::getId), TagKey.codec(Registries.FLUID).optionalFieldOf("tag").forGetter(FluidEntry::getTag), CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(FluidEntry::getNbt), Codec.LONG.fieldOf("amount").forGetter(FluidEntry::getAmount), Codec.BOOL.fieldOf("elem_effect").forGetter(FluidEntry::canEffect)).apply(instance, (id, tag, nbt, amount, elemEffect) -> new FluidEntry(id.orElse(null), tag.orElse(null), nbt.orElse(null), amount, elemEffect)));
 
     @Nullable
     private final ResourceLocation id;
@@ -69,16 +64,19 @@ public class FluidEntry {
     }
 
     public boolean match(FluidSpec fluid, long amount) {
-        boolean fluidMatch;
-        if (this.getId().isPresent()) {
-            fluidMatch = this.getId().get().equals(fluid.getFluid().arch$registryName());
-        } else if (this.getTag().isPresent()) {
-            fluidMatch = Util.isIn(this.getTag().get(), fluid.getFluid());
-        } else {
-            return false;
-        }
+        boolean fluidMatch = this.match(fluid);
         boolean nbtMatch = fluid.getNbt().isEmpty() ? this.getNbt().isEmpty() : Util.matchNbt(this.getNbt().orElse(null), fluid.getNbt().orElse(null));
         boolean amountMatch = this.getAmount() <= amount;
         return fluidMatch && nbtMatch && amountMatch;
+    }
+
+    public boolean match(FluidSpec fluid) {
+        if (this.getId().isPresent()) {
+            return this.getId().get().equals(fluid.getFluid().arch$registryName());
+        } else if (this.getTag().isPresent()) {
+            return Util.isIn(this.getTag().get(), fluid.getFluid());
+        } else {
+            return false;
+        }
     }
 }

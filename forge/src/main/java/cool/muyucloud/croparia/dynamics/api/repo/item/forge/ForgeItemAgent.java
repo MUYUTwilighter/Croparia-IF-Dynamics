@@ -1,6 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item.forge;
 
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepo;
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.item.PlatformItemAgent;
 import net.minecraft.world.item.ItemStack;
@@ -24,8 +24,9 @@ public class ForgeItemAgent implements PlatformItemAgent {
     }
 
     @Override
-    public Optional<ItemRepo> peel() {
-        return this.get() instanceof ItemRepo repo ? Optional.of(repo) : Optional.empty();
+    @SuppressWarnings("unchecked")
+    public Optional<Repo<ItemSpec>> peel() {
+        return this.get() instanceof Repo<?> repo ? Optional.of((Repo<ItemSpec>) repo) : Optional.empty();
     }
 
     @Override

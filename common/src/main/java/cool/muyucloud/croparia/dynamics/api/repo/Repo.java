@@ -1,19 +1,22 @@
 package cool.muyucloud.croparia.dynamics.api.repo;
 
 /**
- * Abstraction of {@link cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo} and
- * {@link cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepo}<br>
- * <p>
- * Please do not implement this interface if you just want a repo with resource type {@link T} that is already implemented.
- * Use the provided {@link cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo} and
- * {@link cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepo} instead.<br>
- * </p>
+ * Abstraction of resource storage.<br>
  */
 public interface Repo<T> {
     /**
      * The amount of resource storage units
      */
     int size();
+
+    default boolean isEmpty() {
+        for (int i = 0; i < size(); i++) {
+            if (!isEmpty(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Whether the specified resource storage unit is empty
@@ -35,7 +38,12 @@ public interface Repo<T> {
      * @param amount   The amount to consume
      * @return The amount that can be consumed
      */
-    long simConsume(T resource, long amount);
+    default long simConsume(T resource, long amount) {
+        for (int i = 0; i < size() && amount > 0; i++) {
+            amount -= simConsume(i, resource, amount);
+        }
+        return amount;
+    }
 
     /**
      * Simulates consuming the specified amount of resource from the specified resource storage unit.
@@ -54,7 +62,12 @@ public interface Repo<T> {
      * @param amount   The amount to consume
      * @return the amount actually consumed
      */
-    long consume(T resource, long amount);
+    default long consume(T resource, long amount) {
+        for (int i = 0; i < size() && amount > 0; i++) {
+            amount -= consume(i, resource, amount);
+        }
+        return amount;
+    }
 
     /**
      * Consumes the specified amount of resource from the specified resource storage unit.
@@ -73,7 +86,12 @@ public interface Repo<T> {
      * @param amount   The amount to accept
      * @return The amount that can be accepted
      */
-    long simAccept(T resource, long amount);
+    default long simAccept(T resource, long amount) {
+        for (int i = 0; i < size() && amount > 0; i++) {
+            amount -= simAccept(i, resource, amount);
+        }
+        return amount;
+    }
 
     /**
      * Simulates accepting the specified amount of resource into the specified resource storage.
@@ -92,7 +110,12 @@ public interface Repo<T> {
      * @param amount   The amount to accept
      * @return the amount actually accepted
      */
-    long accept(T resource, long amount);
+    default long accept(T resource, long amount) {
+        for (int i = 0; i < size() && amount > 0; i++) {
+            amount -= accept(i, resource, amount);
+        }
+        return amount;
+    }
 
     /**
      * Accepts the specified amount of resource into the specified resource storage unit.
@@ -110,7 +133,13 @@ public interface Repo<T> {
      * @param resource The resource to check
      * @return The total capacity for the specified resource
      */
-    long capacityFor(T resource);
+    default long capacityFor(T resource) {
+        long amount = 0;
+        for (int i = 0; i < size(); i++) {
+            amount += capacityFor(i, resource);
+        }
+        return amount;
+    }
 
     /**
      * Calculates the capacity for the specified resource in the specified resource storage unit.
@@ -127,7 +156,13 @@ public interface Repo<T> {
      * @param resource The resource to check
      * @return The total amount of resource
      */
-    long amountFor(T resource);
+    default long amountFor(T resource) {
+        long amount = 0;
+        for (int i = 0; i < size(); i++) {
+            amount += amountFor(i, resource);
+        }
+        return amount;
+    }
 
     /**
      * Calculates the amount of resource in the specified resource storage unit.

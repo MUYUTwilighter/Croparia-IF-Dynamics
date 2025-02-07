@@ -1,6 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item.fabric;
 
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepo;
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.item.PlatformItemAgent;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -48,8 +48,9 @@ public class FabricItemAgent implements PlatformItemAgent {
     }
 
     @Override
-    public Optional<ItemRepo> peel() {
-        return this.get() instanceof ItemRepo repo ? Optional.of(repo) : Optional.empty();
+    @SuppressWarnings("unchecked")
+    public Optional<Repo<ItemSpec>> peel() {
+        return this.get() instanceof Repo<?> repo ? Optional.of((Repo<ItemSpec>) repo) : Optional.empty();
     }
 
     @Override

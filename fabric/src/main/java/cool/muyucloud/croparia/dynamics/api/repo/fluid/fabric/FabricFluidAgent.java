@@ -1,6 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid.fabric;
 
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidRepo;
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.PlatformFluidAgent;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -48,8 +48,9 @@ public class FabricFluidAgent implements PlatformFluidAgent {
     }
 
     @Override
-    public Optional<FluidRepo> peel() {
-        return this.get() instanceof FluidRepo fluidRepo ? Optional.of(fluidRepo) : Optional.empty();
+    @SuppressWarnings("unchecked")
+    public Optional<Repo<FluidSpec>> peel() {
+        return this.get() instanceof Repo<?> fluidRepo ? Optional.of((Repo<FluidSpec>) fluidRepo) : Optional.empty();
     }
 
     @Override

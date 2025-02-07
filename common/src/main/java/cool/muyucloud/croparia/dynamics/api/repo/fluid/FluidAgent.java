@@ -1,24 +1,25 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 
 import java.util.function.Supplier;
 
 /**
  * Unified fluid interface for {@link net.minecraft.world.level.block.entity.BlockEntity}.<br>
- * It is used to connect your customized {@link FluidRepo} to the fluid API from fabric / forge.<br>
+ * It is used to connect your customized {@link Repo<FluidSpec>} to the fluid API from fabric / forge.<br>
  * <p>
- * You need to implement {@link FluidRepoProvider} in your {@code BlockEntity}.<br>
- * If you want to make it work for fabric, use {@link FluidRepoProvider#register(FluidRepoProvider)}
+ * You need to implement {@link Repo<FluidSpec>Provider} in your {@code BlockEntity}.<br>
+ * If you want to make it work for fabric, use {@link Repo<FluidSpec>Provider#register(Repo<FluidSpec>Provider)}
  * to register your {@code BlockEntity}.
  * <p>
  * Use {@link #of(Supplier)} to create a {@link FluidAgent}. <br>
  * <b>DO NOT INSTANTIATE OR EXTEND THIS CLASS UNLESS YOU KNOW WHAT YOU ARE DOING</b>
  * </p>
  */
-public abstract class FluidAgent implements FluidRepo {
+public abstract class FluidAgent implements Repo<FluidSpec> {
     /**
-     * Create a fluid agent from your customized {@link FluidRepo}. <br>
+     * Create a fluid agent from your customized {@link Repo<FluidSpec>}. <br>
      * You should only create {@link FluidAgent} from this method,
      * and the implemented {@link FluidAgent} from fabric / forge module is returned.<br>
      *
@@ -26,17 +27,17 @@ public abstract class FluidAgent implements FluidRepo {
      * @return the fluid agent
      */
     @ExpectPlatform
-    public static FluidAgent of(Supplier<FluidRepo> repo) {
+    public static FluidAgent of(Supplier<Repo<FluidSpec>> repo) {
         throw new AssertionError("Not implemented");
     }
 
-    private final FluidRepo repo;
+    private final Repo<FluidSpec> repo;
 
-    protected FluidAgent(Supplier<FluidRepo> repo) {
+    protected FluidAgent(Supplier<Repo<FluidSpec>> repo) {
         this.repo = repo.get();
     }
 
-    public FluidRepo get() {
+    public Repo<FluidSpec> get() {
         return this.repo;
     }
 

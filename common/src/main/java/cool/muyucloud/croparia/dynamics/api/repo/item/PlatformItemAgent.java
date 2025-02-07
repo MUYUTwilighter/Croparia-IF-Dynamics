@@ -1,5 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item;
 
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -7,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public interface PlatformItemAgent extends ItemRepo {
+public interface PlatformItemAgent extends Repo<ItemSpec> {
     @Override
     @ApiStatus.Experimental
     @Unreliable(value = "FABRIC", reason = "rely on Iterable<StorageView>")
@@ -32,11 +33,11 @@ public interface PlatformItemAgent extends ItemRepo {
     long capacityFor(int i, ItemSpec item);
 
     /**
-     * Get the proxied repo if it implements the {@link ItemRepo},
+     * Get the proxied repo if it implements the {@link Repo<ItemSpec>},
      * which is probably implemented by Repo API here and have full function.
      *
      * @return The proxied repo
      */
     @Nullable
-    Optional<ItemRepo> peel();
+    Optional<Repo<ItemSpec>> peel();
 }

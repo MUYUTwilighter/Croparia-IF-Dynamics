@@ -1,5 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item;
 
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
+import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,10 +29,10 @@ public interface ItemRepoProvider {
 
     /**
      * <p>
-     * Find a {@link ItemRepo} in world.
+     * Find a {@link Repo} in world.
      * </p>
      * <p>
-     * The return value might not be fully reliable. See methods in {@link ItemRepo} with annotation {@link cool.muyucloud.croparia.dynamics.api.repo.Unreliable}
+     * The return value might not be fully reliable. See methods in {@link Repo} with annotation {@link Unreliable}
      * </p>
      *
      * @param world     the world

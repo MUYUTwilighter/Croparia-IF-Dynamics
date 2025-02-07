@@ -1,7 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item.forge;
 
+import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemAgent;
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 public class ItemAgentImpl extends ItemAgent implements IItemHandler {
-    public static ItemAgent of(Supplier<ItemRepo> repo) {
+    public static ItemAgent of(Supplier<Repo<ItemSpec>> repo) {
         return new ItemAgentImpl(repo);
     }
 
-    public ItemAgentImpl(Supplier<ItemRepo> repo) {
+    public ItemAgentImpl(Supplier<Repo<ItemSpec>> repo) {
         super(repo);
     }
 

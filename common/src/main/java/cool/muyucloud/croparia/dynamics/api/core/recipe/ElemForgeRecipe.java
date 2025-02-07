@@ -4,7 +4,7 @@ import cool.muyucloud.croparia.dynamics.api.core.recipe.entry.FluidEntry;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.entry.FluidResult;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.entry.ItemEntry;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.entry.ItemResult;
-import cool.muyucloud.croparia.dynamics.api.core.recipe.input.EfrInput;
+import cool.muyucloud.croparia.dynamics.api.core.recipe.input.EfrContainer;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.serializer.EfrSerializer;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.type.EfrType;
 import net.minecraft.core.RegistryAccess;
@@ -16,11 +16,9 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public class ElemForgeRecipe implements Recipe<EfrInput> {
+public class ElemForgeRecipe implements Recipe<EfrContainer> {
     @NotNull
     private final ResourceLocation id;
     @NotNull
@@ -73,71 +71,18 @@ public class ElemForgeRecipe implements Recipe<EfrInput> {
     }
 
     @Override
-    public boolean matches(EfrInput input, Level level) {
-        if (!this.itemEntries.isEmpty()) {
-            for (ItemEntry entry : this.itemEntries) {
-                AtomicLong required = new AtomicLong(entry.getAmount());
-                input.visitItems((item, amount) -> {
-                    if (entry.match(item, amount)) {
-                        required.set(required.get() - amount);
-                    }
-                    return required.get() > 0;
-                });
-                if (required.get() > 0) {
-                    return false;
-                }
-            }
-        }
-        if (!this.fluidEntries.isEmpty()) {
-            for (FluidEntry entry : this.fluidEntries) {
-                AtomicLong required = new AtomicLong(entry.getAmount());
-                input.visitFluids((fluid, amount) -> {
-                    if (entry.match(fluid, amount)) {
-                        required.set(required.get() - amount);
-                    }
-                    return required.get() > 0;
-                });
-                if (required.get() > 0) {
-                    return false;
-                }
-            }
-        }
-        return true;
+    public boolean matches(EfrContainer input, Level level) {
+        return input.canConsumeItems(this.itemEntries) && input.canConsumeFluids(this.fluidEntries)
+            && input.canAcceptItems(this.itemResults) && input.canAcceptFluids(this.fluidResults);
     }
 
-    /**
-     * Perform the recipe crafting.
-     *
-     * @param input                The recipe input
-     * @param itemConsumeCallback  The callback for consuming items
-     * @param fluidConsumeCallback The callback for consuming fluids
-     * @param itemAcceptCallback   The callback that provides the item result
-     * @param fluidAcceptCallback  The callback that provides the fluid result
-     */
-    public void craft(
-        EfrInput input, Consumer<ItemEntry> itemConsumeCallback, Consumer<FluidEntry> fluidConsumeCallback,
-        Consumer<ItemResult> itemAcceptCallback, Consumer<FluidResult> fluidAcceptCallback
-    ) {
-        if (!this.itemEntries.isEmpty()) {
-            for (ItemEntry entry : this.itemEntries) {
-                itemConsumeCallback.accept(entry);
-            }
-        }
-        if (!this.fluidEntries.isEmpty()) {
-            for (FluidEntry entry : this.fluidEntries) {
-                fluidConsumeCallback.accept(entry);
-            }
-        }
-        for (ItemResult result : this.itemResults) {
-            itemAcceptCallback.accept(result);
-        }
-        for (FluidResult result : this.fluidResults) {
-            fluidAcceptCallback.accept(result);
-        }
+    public void assemble(EfrContainer container) {
+        container.acceptItems(this.itemResults);
+        container.acceptFluids(this.fluidResults);
     }
 
     @Override
-    public @NotNull ItemStack assemble(EfrInput container, RegistryAccess registryAccess) {
+    public @NotNull ItemStack assemble(EfrContainer container, RegistryAccess registryAccess) {
         return ItemStack.EMPTY;
     }
 
