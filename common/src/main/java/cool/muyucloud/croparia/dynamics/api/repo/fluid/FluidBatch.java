@@ -8,10 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 @SuppressWarnings("unused")
-public class FluidBatch implements Repo<FluidSpec>, Iterable<Map.Entry<FluidSpec, Long>> {
+public class FluidBatch implements Repo<FluidSpec>, Iterable<FluidUnit> {
     protected final ArrayList<FluidUnit> units = new ArrayList<>();
 
     public FluidBatch(FluidUnit... units) {
@@ -103,22 +102,7 @@ public class FluidBatch implements Repo<FluidSpec>, Iterable<Map.Entry<FluidSpec
 
     @NotNull
     @Override
-    public Iterator<Map.Entry<FluidSpec, Long>> iterator() {
-        return new BatchIterator();
-    }
-
-    class BatchIterator implements Iterator<Map.Entry<FluidSpec, Long>> {
-        private final Iterator<FluidUnit> iterator = units.iterator();
-
-        @Override
-        public boolean hasNext() {
-            return iterator.hasNext();
-        }
-
-        @Override
-        public Map.Entry<FluidSpec, Long> next() {
-            FluidUnit unit = iterator.next();
-            return Map.entry(unit.getFluid(), unit.getAmount());
-        }
+    public Iterator<FluidUnit> iterator() {
+        return units.iterator();
     }
 }

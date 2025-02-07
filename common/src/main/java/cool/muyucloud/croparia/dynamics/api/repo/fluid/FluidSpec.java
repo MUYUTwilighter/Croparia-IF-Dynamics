@@ -27,6 +27,14 @@ public class FluidSpec implements Type {
     @Nullable
     private final CompoundTag nbt;
 
+    public static FluidSpec of(@NotNull Fluid fluid) {
+        return new FluidSpec(fluid, null);
+    }
+
+    public static FluidSpec of(@NotNull Fluid fluid, @Nullable CompoundTag nbt) {
+        return new FluidSpec(fluid, nbt);
+    }
+
     public FluidSpec(@NotNull Fluid fluid, @Nullable CompoundTag nbt) {
         this.fluid = fluid;
         this.nbt = nbt;

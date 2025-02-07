@@ -19,6 +19,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EfrContainer implements Container {
+    @NotNull
+    public static EfrContainer of(ItemBatch itemInputs, FluidBatch fluidInputs, ItemBatch itemOutputs, FluidBatch fluidOutputs) {
+        return new EfrContainer(itemInputs, fluidInputs, itemOutputs, fluidOutputs);
+    }
+
     @Nullable
     private final ItemBatch itemInputs;
     @Nullable

@@ -8,14 +8,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 @SuppressWarnings("unused")
-public class ItemBatch implements Repo<ItemSpec>, Iterable<Map.Entry<ItemSpec, Long>> {
+public class ItemBatch implements Repo<ItemSpec>, Iterable<ItemUnit> {
+    public static ItemBatch of(ItemUnit... units) {
+        return new ItemBatch(units);
+    }
+
     private final ArrayList<ItemUnit> units = new ArrayList<>();
 
-    public ItemBatch(List<ItemUnit> units) {
-        this.units.addAll(units);
+    public ItemBatch(ItemUnit... units) {
+        this.units.addAll(List.of(units));
         this.units.trimToSize();
     }
 
@@ -103,22 +106,7 @@ public class ItemBatch implements Repo<ItemSpec>, Iterable<Map.Entry<ItemSpec, L
 
     @NotNull
     @Override
-    public Iterator<Map.Entry<ItemSpec, Long>> iterator() {
-        return new BatchIterator();
-    }
-
-    class BatchIterator implements Iterator<Map.Entry<ItemSpec, Long>> {
-        private final Iterator<ItemUnit> iterator = units.iterator();
-
-        @Override
-        public boolean hasNext() {
-            return iterator.hasNext();
-        }
-
-        @Override
-        public Map.Entry<ItemSpec, Long> next() {
-            ItemUnit unit = iterator.next();
-            return Map.entry(unit.getItem(), unit.getAmount());
-        }
+    public Iterator<ItemUnit> iterator() {
+        return units.iterator();
     }
 }

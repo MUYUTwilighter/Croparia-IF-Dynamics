@@ -9,6 +9,7 @@ import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -71,6 +72,14 @@ public class ItemSpec implements Type {
 
     public ItemStack toStack() {
         return toStack(1);
+    }
+
+    public boolean is(Item item) {
+        return this.getItem() == item;
+    }
+
+    public boolean isOf(ResourceLocation tag) {
+        return Util.isIn(TagKey.create(BuiltInRegistries.ITEM.key(), tag), this.getItem());
     }
 
     public boolean matches(ItemStack stack) {

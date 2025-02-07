@@ -5,11 +5,13 @@ import com.google.gson.JsonObject;
 import cool.muyucloud.croparia.api.element.ElementsEnum;
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.registry.Fluids;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
 import java.util.Map;
 
 @SuppressWarnings("unused")
-public class CrucibleBatch implements Repo<FluidSpec> {
+public class CrucibleBatch implements Repo<FluidSpec>, Iterable<FluidUnit> {
     private final Map<ElementsEnum, FluidUnit> units = ImmutableMap.of(
         ElementsEnum.EARTH, FluidUnit.create(fluid -> fluid.is(Fluids.EARTH.get()), 81000 * 3),
         ElementsEnum.WATER, FluidUnit.create(fluid -> fluid.is(Fluids.WATER.get()), 81000 * 3),
@@ -118,5 +120,11 @@ public class CrucibleBatch implements Repo<FluidSpec> {
     @Override
     public long amountFor(int i, FluidSpec resource) {
         return 0;
+    }
+
+    @NotNull
+    @Override
+    public Iterator<FluidUnit> iterator() {
+        return units.values().iterator();
     }
 }
