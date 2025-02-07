@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings("unused")
 public class RecipeProcessorUnit<F> {
@@ -85,23 +86,35 @@ public class RecipeProcessorUnit<F> {
     }
 
     public void onComplete() {
-        boolean itemEffect = crucible.getItemEffect() > Math.random() && crucible.getItemEffect() != 0;
-        boolean fluidEffect = crucible.getFluidEffect() > Math.random() && crucible.getFluidEffect() != 0;
+        boolean itemEffect = crucible.canAffectItem();
+        boolean fluidEffect = crucible.canAffectFluid();
         assert recipe != null;
+        AtomicBoolean itemAffected = new AtomicBoolean(false);
+        AtomicBoolean fluidAffected = new AtomicBoolean(false);
         recipe.getItemEntries().forEach(entry -> {
             if (!entry.canEffect() || !itemEffect) {
                 container.consumeItem(entry);
+            } else {
+                itemAffected.set(true);
             }
         });
         recipe.getFluidEntries().forEach(entry -> {
             if (!entry.canEffect() || !fluidEffect) {
                 container.consumeFluid(entry);
+            } else {
+                fluidAffected.set(true);
             }
         });
+        if (itemAffected.get()) {
+            crucible.onItemAffected();
+        }
+        if (fluidAffected.get()) {
+            crucible.onFluidAffected();
+        }
         recipe.assemble(container);
     }
 
-    public boolean isProcessing() {
+    public boolean isRunning() {
         return this.recipe != null || fuel.isEnoughFor(crucible.getFuelEffect());
     }
 

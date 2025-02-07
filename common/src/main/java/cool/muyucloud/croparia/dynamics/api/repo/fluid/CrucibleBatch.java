@@ -77,6 +77,22 @@ public class CrucibleBatch implements Repo<FluidSpec>, Iterable<FluidUnit> {
         return unit.getAmount() / 81000F / 8F;
     }
 
+    public boolean canAffectItem() {
+        return this.isEnabled(ElementsEnum.EARTH) && this.units.get(ElementsEnum.EARTH).getAmount() >= 20250 && this.getItemEffect() > Math.random();
+    }
+
+    public boolean canAffectFluid() {
+        return this.isEnabled(ElementsEnum.WATER) && this.units.get(ElementsEnum.WATER).getAmount() >= 20250 && this.getFluidEffect() > Math.random();
+    }
+
+    public void onItemAffected() {
+        this.consume(FluidSpec.of(Fluids.EARTH.get()), 20250);
+    }
+
+    public void onFluidAffected() {
+        this.consume(FluidSpec.of(Fluids.WATER.get()), 20250);
+    }
+
     @Override
     public int size() {
         return 0;

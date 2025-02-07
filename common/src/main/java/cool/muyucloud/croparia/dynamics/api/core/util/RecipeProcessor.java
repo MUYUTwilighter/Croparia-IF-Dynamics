@@ -25,9 +25,9 @@ public class RecipeProcessor<F> implements Iterable<RecipeProcessorUnit<F>> {
         }
     }
 
-    public boolean isProcessing() {
+    public boolean isRunning() {
         for (RecipeProcessorUnit<F> unit : units) {
-            if (unit.isProcessing()) {
+            if (unit.isRunning()) {
                 return true;
             }
         }

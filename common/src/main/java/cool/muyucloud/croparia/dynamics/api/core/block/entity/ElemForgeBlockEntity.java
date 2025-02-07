@@ -19,6 +19,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.Objects;
+
+import static cool.muyucloud.croparia.dynamics.api.core.block.ElemForgeBlock.RUNNING;
+
 @SuppressWarnings("unused")
 public abstract class ElemForgeBlockEntity<F> extends BlockEntity {
     private final RecipeProcessor<F> recipeProcessor = new RecipeProcessor<>();
@@ -75,5 +79,8 @@ public abstract class ElemForgeBlockEntity<F> extends BlockEntity {
     public void tick(MinecraftServer server) {
         this.updateCrucible();
         this.getRecipeProcessor().tick(server);
+        if (this.getRecipeProcessor().isRunning()) {
+            Objects.requireNonNull(this.getLevel()).setBlock(this.getBlockPos(), this.getBlockState().setValue(RUNNING, true), 3);
+        }
     }
 }
