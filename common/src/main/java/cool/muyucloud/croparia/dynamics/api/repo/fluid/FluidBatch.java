@@ -8,9 +8,18 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
 @SuppressWarnings("unused")
 public class FluidBatch implements Repo<FluidSpec>, Iterable<FluidUnit> {
+    public static FluidBatch of(FluidUnit... units) {
+        return new FluidBatch(units);
+    }
+
+    public static FluidBatch of(Predicate<FluidSpec> fluidFilter, long capacity, int count) {
+        return new FluidBatch(FluidUnit.of(fluidFilter, capacity, count));
+    }
+
     protected final ArrayList<FluidUnit> units = new ArrayList<>();
 
     public FluidBatch(FluidUnit... units) {

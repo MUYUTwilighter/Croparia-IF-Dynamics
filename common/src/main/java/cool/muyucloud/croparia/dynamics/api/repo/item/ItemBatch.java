@@ -8,9 +8,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
 @SuppressWarnings("unused")
 public class ItemBatch implements Repo<ItemSpec>, Iterable<ItemUnit> {
+    public static ItemBatch of(Predicate<ItemSpec> itemFilter, long capacity, int count) {
+        return new ItemBatch(ItemUnit.create(itemFilter, capacity, count));
+    }
+
     public static ItemBatch of(ItemUnit... units) {
         return new ItemBatch(units);
     }

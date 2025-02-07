@@ -11,6 +11,18 @@ import java.util.function.Predicate;
 
 @SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
 public class ItemUnit implements Repo<ItemSpec> {
+    public static ItemUnit create(Predicate<ItemSpec> itemFilter, long capacity) {
+        return new ItemUnit(itemFilter, capacity);
+    }
+
+    public static ItemUnit[] create(Predicate<ItemSpec> itemFilter, long capacity, int count) {
+        ItemUnit[] units = new ItemUnit[count];
+        for (int i = 0; i < count; i++) {
+            units[i] = create(itemFilter, capacity);
+        }
+        return units;
+    }
+
     @NotNull
     private ItemSpec item = ItemSpec.EMPTY;
     private final transient Predicate<ItemSpec> itemFilter;
@@ -20,10 +32,6 @@ public class ItemUnit implements Repo<ItemSpec> {
     private boolean acceptable = false;
     private boolean locked = false;
     private boolean recipeUpdate = true;
-
-    public static ItemUnit create(Predicate<ItemSpec> itemFilter, long capacity) {
-        return new ItemUnit(itemFilter, capacity);
-    }
 
     public ItemUnit(Predicate<ItemSpec> itemFilter, long capacity) {
         this.itemFilter = itemFilter;

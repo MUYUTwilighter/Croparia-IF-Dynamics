@@ -11,6 +11,18 @@ import java.util.function.Predicate;
 
 @SuppressWarnings("unused")
 public class FluidUnit implements Repo<FluidSpec> {
+    public static FluidUnit of(Predicate<FluidSpec> fluidFilter, long capacity) {
+        return new FluidUnit(fluidFilter, capacity);
+    }
+
+    public static FluidUnit[] of(Predicate<FluidSpec> fluidFilter, long capacity, int count) {
+        FluidUnit[] units = new FluidUnit[count];
+        for (int i = 0; i < count; i++) {
+            units[i] = new FluidUnit(fluidFilter, capacity);
+        }
+        return units;
+    }
+
     @NotNull
     private FluidSpec fluid = FluidSpec.EMPTY;
     private final transient Predicate<FluidSpec> fluidFilter;
@@ -20,10 +32,6 @@ public class FluidUnit implements Repo<FluidSpec> {
     private boolean acceptable = false;
     private boolean locked = false;
     private boolean recipeUpdate = true;
-
-    public static FluidUnit create(Predicate<FluidSpec> fluidFilter, long capacity) {
-        return new FluidUnit(fluidFilter, capacity);
-    }
 
     public FluidUnit(Predicate<FluidSpec> fluidFilter, long capacity) {
         this.fluidFilter = fluidFilter;

@@ -6,6 +6,7 @@ import cool.muyucloud.croparia.dynamics.api.core.recipe.input.EfrContainer;
 import cool.muyucloud.croparia.dynamics.api.core.util.Constants;
 import cool.muyucloud.croparia.dynamics.api.core.util.RecipeProcessor;
 import cool.muyucloud.croparia.dynamics.api.core.util.RecipeProcessorUnit;
+import cool.muyucloud.croparia.dynamics.api.elenet.ElenetPeer;
 import cool.muyucloud.croparia.dynamics.api.repo.FuelUnit;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.CrucibleBatch;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidBatch;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -25,7 +27,7 @@ import java.util.Optional;
 import static cool.muyucloud.croparia.dynamics.api.core.block.ElemForgeBlock.RUNNING;
 
 @SuppressWarnings("unused")
-public abstract class ElemForgeBlockEntity<F> extends BlockEntity {
+public abstract class ElemForgeBlockEntity<F> extends BlockEntity implements ElenetPeer {
     private final RecipeProcessor<F> recipeProcessor = new RecipeProcessor<>();
     private final RecipeType<? extends ElemForgeRecipe> recipeType;
     private final CrucibleBatch crucibleBatch = new CrucibleBatch();
@@ -60,7 +62,10 @@ public abstract class ElemForgeBlockEntity<F> extends BlockEntity {
         return this.getCrucibleSlot().getItem().getItem() instanceof ElemCrucible crucible ? Optional.of(crucible) : Optional.empty();
     }
 
-    public RecipeProcessorUnit<F> addRecipeProcessorUnit(ItemBatch itemInputs, FluidBatch fluidBatch, ItemBatch itemOutputs, FluidBatch fluidOutputs) {
+    public RecipeProcessorUnit<F> addRecipeProcessorUnit(
+        @Nullable ItemBatch itemInputs, @Nullable FluidBatch fluidBatch,
+        @Nullable ItemBatch itemOutputs, @Nullable FluidBatch fluidOutputs
+    ) {
         EfrContainer container = EfrContainer.of(itemInputs, fluidBatch, itemOutputs, fluidOutputs);
         RecipeProcessorUnit<F> unit = new RecipeProcessorUnit<>(this.getRecipeType(), this.getCrucibleBatch(), container, this.getFuelUnit());
         this.getRecipeProcessor().add(unit);
