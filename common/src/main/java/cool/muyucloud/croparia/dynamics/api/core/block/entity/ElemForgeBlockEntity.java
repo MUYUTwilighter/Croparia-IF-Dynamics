@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static cool.muyucloud.croparia.dynamics.api.core.block.ElemForgeBlock.RUNNING;
 
@@ -55,6 +56,10 @@ public abstract class ElemForgeBlockEntity<F> extends BlockEntity {
         return crucibleSlot;
     }
 
+    public Optional<ElemCrucible> getCrucible() {
+        return this.getCrucibleSlot().getItem().getItem() instanceof ElemCrucible crucible ? Optional.of(crucible) : Optional.empty();
+    }
+
     public RecipeProcessorUnit<F> addRecipeProcessorUnit(ItemBatch itemInputs, FluidBatch fluidBatch, ItemBatch itemOutputs, FluidBatch fluidOutputs) {
         EfrContainer container = EfrContainer.of(itemInputs, fluidBatch, itemOutputs, fluidOutputs);
         RecipeProcessorUnit<F> unit = new RecipeProcessorUnit<>(this.getRecipeType(), this.getCrucibleBatch(), container, this.getFuelUnit());
@@ -63,7 +68,7 @@ public abstract class ElemForgeBlockEntity<F> extends BlockEntity {
     }
 
     protected void updateCrucible() {
-        int tier = crucibleSlot.getItem().getItem() instanceof ElemCrucible crucible ? crucible.getTier() : 0;
+        int tier = this.getCrucible().map(ElemCrucible::getTier).orElse(0);
         for (FluidUnit unit : crucibleBatch) {
             if (tier <= 0) {
                 unit.setAcceptable(false);
