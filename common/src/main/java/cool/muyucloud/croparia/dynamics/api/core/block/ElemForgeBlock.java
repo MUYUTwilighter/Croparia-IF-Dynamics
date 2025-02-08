@@ -31,6 +31,7 @@ public class ElemForgeBlock extends BaseEntityBlock {
         return blockEntityType.create(blockPos, blockState);
     }
 
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(RUNNING);
     }

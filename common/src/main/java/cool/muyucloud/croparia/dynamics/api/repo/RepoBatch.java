@@ -10,6 +10,22 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class RepoBatch<T> implements Repo<T>, Iterable<RepoUnit<T>> {
+    @SafeVarargs
+    public static <T> RepoBatch<T> of(RepoUnit<T>... units) {
+        return new RepoBatch<>(units);
+    }
+
+    @SafeVarargs
+    public static <T> RepoBatch<T> of(RepoBatch<T>... batches) {
+        RepoBatch<T> result = new RepoBatch<>();
+        for (RepoBatch<T> batch : batches) {
+            for (RepoUnit<T> unit : batch) {
+                result.add(unit);
+            }
+        }
+        return result;
+    }
+
     private final ArrayList<RepoUnit<T>> units = new ArrayList<>();
 
     @SafeVarargs

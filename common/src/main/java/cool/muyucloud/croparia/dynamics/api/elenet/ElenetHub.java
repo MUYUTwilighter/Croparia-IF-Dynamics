@@ -364,15 +364,14 @@ public interface ElenetHub extends ElenetAccess {
         this.resonatedHubsOfType(type).ifPresent(hubs -> hubs.remove(hub.getAddress()));
     }
 
-    default void fromJson(JsonObject json) {
+    default void load(JsonObject json) {
 
     }
 
-    default JsonObject toJson() {
-        JsonObject root = new JsonObject();
+    default void save(JsonObject json) {
         for (TypeToken<?> type : this.getTypes()) {
             JsonObject subRoot = new JsonObject();
-            root.addProperty("elenet", String.valueOf(this.getElenet(type).map(Elenet::getEngrave).orElse(null)));
+            json.addProperty("elenet", String.valueOf(this.getElenet(type).map(Elenet::getEngrave).orElse(null)));
             JsonArray peers = new JsonArray();
             for (ElenetAddress address : this.resonatedPeersOfType(type).orElse(List.of())) {
                 if (address.getPeer().map(peer -> peer.isTypeValid(type) && peer.resonatedHub(type).map(hub -> hub == this).orElse(false)).orElse(false)) {
@@ -389,8 +388,7 @@ public interface ElenetHub extends ElenetAccess {
                 }
             }
             subRoot.add("hubs", hubs);
-            root.add(type.id().toString(), subRoot);
+            json.add(type.id().toString(), subRoot);
         }
-        return root;
     }
 }

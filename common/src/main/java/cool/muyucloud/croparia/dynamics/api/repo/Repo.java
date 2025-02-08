@@ -172,4 +172,14 @@ public interface Repo<T> {
      * @return The amount of resource
      */
     long amountFor(int i, T resource);
+
+    /**
+     * Calculates the amount of whatever resource is in the specified resource storage unit.
+     *
+     * @param i The index of the resource storage unit to check
+     * @return The amount of resource
+     */
+    default long amountFor(int i) {
+        return this.amountFor(i, this.resourceFor(i));
+    }
 }

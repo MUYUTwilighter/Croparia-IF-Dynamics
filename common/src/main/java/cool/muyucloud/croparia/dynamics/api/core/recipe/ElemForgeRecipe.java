@@ -34,11 +34,12 @@ public class ElemForgeRecipe implements Recipe<EfrContainer> {
     @NotNull
     private final List<FluidResult> fluidResults;
     private final int duration;
+    private final int fuel;
 
     public ElemForgeRecipe(
         @NotNull ResourceLocation id, @NotNull EfrType type, @NotNull EfrSerializer serializer,
         @NotNull List<ItemEntry> itemEntries, @NotNull List<FluidEntry> fluidEntries, @NotNull List<ItemResult> itemResults, @NotNull List<FluidResult> fluidResults,
-        int duration
+        int duration, int fuel
     ) {
         this.id = id;
         this.type = type;
@@ -48,6 +49,7 @@ public class ElemForgeRecipe implements Recipe<EfrContainer> {
         this.itemResults = itemResults;
         this.fluidResults = fluidResults;
         this.duration = duration;
+        this.fuel = fuel;
     }
 
     public @NotNull List<ItemEntry> getItemEntries() {
@@ -64,6 +66,10 @@ public class ElemForgeRecipe implements Recipe<EfrContainer> {
 
     public @NotNull List<FluidResult> getFluidResults() {
         return fluidResults;
+    }
+
+    public int getFuel() {
+        return fuel;
     }
 
     public int getDuration() {

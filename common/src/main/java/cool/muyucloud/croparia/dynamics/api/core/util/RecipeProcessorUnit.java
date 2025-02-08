@@ -75,8 +75,8 @@ public class RecipeProcessorUnit<F> {
                 this.recipe = null;
             });
         }
-        if (recipe != null && fuel.isEnoughFor(crucible.getFuelEffect())) {
-            fuel.burn(crucible.getFuelEffect());
+        if (recipe != null && fuel.isEnoughFor(this.calcFuel())) {
+            fuel.burn((long) (crucible.getFuelEffect() * recipe.getFuel()));
             progress += crucible.getSpeedEffect();
             if (progress >= 1F) {
                 progress = 0F;
@@ -114,8 +114,13 @@ public class RecipeProcessorUnit<F> {
         recipe.assemble(container);
     }
 
+    public long calcFuel() {
+        if (recipe == null) return 0L;
+        return (long) Math.max(crucible.getFuelEffect() * recipe.getFuel(), 1);
+    }
+
     public boolean isRunning() {
-        return this.recipe != null || fuel.isEnoughFor(crucible.getFuelEffect());
+        return this.recipe != null && fuel.isEnoughFor(this.calcFuel());
     }
 
     @ServerOnly

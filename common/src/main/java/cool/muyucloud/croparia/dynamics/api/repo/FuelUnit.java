@@ -1,34 +1,37 @@
 package cool.muyucloud.croparia.dynamics.api.repo;
 
-import java.util.function.Predicate;
+import com.google.gson.JsonObject;
+import net.minecraft.util.GsonHelper;
 
+@SuppressWarnings("unused")
 public class FuelUnit<T> implements Repo<T> {
-    private final T resource;
-    private final long capacity;
-    private long amount = 0;
-    private final float mod;
-    private final transient Predicate<T> filter;
+    private final transient T resource;
+    private final transient long capacity;
+    private transient long amount = 0;
 
-    public FuelUnit(T resource, long capacity, float mod, Predicate<T> filter) {
+    public FuelUnit(T resource, long capacity) {
         this.resource = resource;
         this.capacity = capacity;
-        this.mod = mod;
-        this.filter = filter;
+    }
+
+    public void load(JsonObject json) {
+        this.amount = GsonHelper.getAsLong(json, "amount", 0L);
+    }
+
+    public void save(JsonObject json) {
+        json.addProperty("amount", this.amount);
     }
 
     public boolean isResourceValid(T resource) {
-        if (this.isEmpty()) return this.filter.test(resource);
-        else return this.resource.equals(resource);
+        return this.resource.equals(resource);
     }
 
-    public boolean isEnoughFor(float effect) {
-        long required = (long) (effect * this.mod);
+    public boolean isEnoughFor(long required) {
         return this.amount >= required;
     }
 
-    public void burn(float effect) {
-        long required = (long) (effect * this.mod);
-        this.amount -= required;
+    public void burn(long required) {
+        this.amount -= Math.min(required, this.amount);
     }
 
     public long getAmount() {

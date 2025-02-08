@@ -4,9 +4,8 @@ import cool.muyucloud.croparia.dynamics.api.core.recipe.entry.FluidEntry;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.entry.FluidResult;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.entry.ItemEntry;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.entry.ItemResult;
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidBatch;
+import cool.muyucloud.croparia.dynamics.api.repo.RepoBatch;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemBatch;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -20,22 +19,22 @@ import java.util.Map;
 
 public class EfrContainer implements Container {
     @NotNull
-    public static EfrContainer of(ItemBatch itemInputs, FluidBatch fluidInputs, ItemBatch itemOutputs, FluidBatch fluidOutputs) {
+    public static EfrContainer of(RepoBatch<ItemSpec> itemInputs, RepoBatch<FluidSpec> fluidInputs, RepoBatch<ItemSpec> itemOutputs, RepoBatch<FluidSpec> fluidOutputs) {
         return new EfrContainer(itemInputs, fluidInputs, itemOutputs, fluidOutputs);
     }
 
     @Nullable
-    private final ItemBatch itemInputs;
+    private final RepoBatch<ItemSpec> itemInputs;
     @Nullable
-    private final FluidBatch fluidInputs;
+    private final RepoBatch<FluidSpec> fluidInputs;
     @Nullable
-    private final ItemBatch itemOutputs;
+    private final RepoBatch<ItemSpec> itemOutputs;
     @Nullable
-    private final FluidBatch fluidOutputs;
+    private final RepoBatch<FluidSpec> fluidOutputs;
 
     public EfrContainer(
-        @Nullable ItemBatch itemInputs, @Nullable FluidBatch fluidInputs,
-        @Nullable ItemBatch itemOutputs, @Nullable FluidBatch fluidOutputs
+        @Nullable RepoBatch<ItemSpec> itemInputs, @Nullable RepoBatch<FluidSpec> fluidInputs,
+        @Nullable RepoBatch<ItemSpec> itemOutputs, @Nullable RepoBatch<FluidSpec> fluidOutputs
     ) {
         this.itemInputs = itemInputs;
         this.fluidInputs = fluidInputs;

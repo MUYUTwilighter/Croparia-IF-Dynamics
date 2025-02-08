@@ -36,7 +36,8 @@ public record EfrSerializer(
         List<ItemResult> itemResults = readList(json.getAsJsonArray("itemResults"), ItemResult.CODEC, this.itemResultSize());
         List<FluidResult> fluidResults = readList(json.getAsJsonArray("fluidResults"), FluidResult.CODEC, this.fluidResultSize());
         int duration = json.get("duration").getAsInt();
-        return new ElemForgeRecipe(id, recipeType, this, itemEntries, fluidEntries, itemResults, fluidResults, duration);
+        int fuel = json.get("fuel").getAsInt();
+        return new ElemForgeRecipe(id, recipeType, this, itemEntries, fluidEntries, itemResults, fluidResults, duration, fuel);
     }
 
     public <E> List<E> readList(@Nullable JsonElement json, MapCodec<E> elemCodec, int maxSize) {
@@ -65,7 +66,8 @@ public record EfrSerializer(
         List<ItemResult> itemResults = this.itemResultSize() > 0 ? friendlyByteBuf.readJsonWithCodec(ItemResult.CODEC.codec().listOf()) : Collections.emptyList();
         List<FluidResult> fluidResults = this.fluidResultSize() > 0 ? friendlyByteBuf.readJsonWithCodec(FluidResult.CODEC.codec().listOf()) : Collections.emptyList();
         int duration = friendlyByteBuf.readInt();
-        return new ElemForgeRecipe(id, recipeType, this, itemEntries, fluidEntries, itemResults, fluidResults, duration);
+        int fuel = friendlyByteBuf.readInt();
+        return new ElemForgeRecipe(id, recipeType, this, itemEntries, fluidEntries, itemResults, fluidResults, duration, fuel);
     }
 
     @Override
