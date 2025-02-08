@@ -8,6 +8,7 @@ import cool.muyucloud.croparia.dynamics.api.core.recipe.ElemForgeRecipe;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.input.EfrContainer;
 import cool.muyucloud.croparia.dynamics.api.repo.FuelUnit;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.CrucibleBatch;
+import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.GsonHelper;
@@ -19,8 +20,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings("unused")
-public class RecipeProcessorUnit<F> {
-    public static <F> RecipeProcessorUnit<F> of(
+public class RecipeProcessorUnit<F extends ResourceType> {
+    public static <F extends ResourceType> RecipeProcessorUnit<F> of(
         RecipeType<? extends ElemForgeRecipe> recipeType, CrucibleBatch crucible, EfrContainer container, FuelUnit<F> fuel
     ) {
         return new RecipeProcessorUnit<>(recipeType, crucible, container, fuel);

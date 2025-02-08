@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import cool.muyucloud.croparia.CropariaIf;
 import cool.muyucloud.croparia.dynamics.api.core.util.Util;
-import cool.muyucloud.croparia.dynamics.api.typetoken.Type;
+import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
 import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public class FluidSpec implements Type {
+public class FluidSpec implements ResourceType {
     public static final MapCodec<FluidSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(ResourceLocation.CODEC.fieldOf("id").forGetter(fluid -> fluid.getFluid().arch$registryName()), CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(FluidSpec::getNbt)).apply(instance, (id, nbt) -> new FluidSpec(BuiltInRegistries.FLUID.get(id), nbt.orElse(null))));
     public static final FluidSpec EMPTY = new FluidSpec(Fluids.EMPTY, null);
     public static final TypeToken<FluidSpec> TYPE = TypeToken.register(CropariaIf.of("fluid_spec"), EMPTY).orElseThrow();

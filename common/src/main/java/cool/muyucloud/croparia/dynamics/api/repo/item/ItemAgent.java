@@ -1,6 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 
 import java.util.function.Supplier;
@@ -15,6 +16,11 @@ public abstract class ItemAgent implements Repo<ItemSpec> {
 
     public ItemAgent(Supplier<Repo<ItemSpec>> repo) {
         this.repo = repo.get();
+    }
+
+    @Override
+    public TypeToken<ItemSpec> getType() {
+        return ItemSpec.TYPE;
     }
 
     public Repo<ItemSpec> get() {

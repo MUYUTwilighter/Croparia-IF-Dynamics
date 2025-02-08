@@ -1,9 +1,12 @@
 package cool.muyucloud.croparia.dynamics.api.repo;
 
+import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeTokenAccess;
+
 /**
  * Abstraction of resource storage.<br>
  */
-public interface Repo<T> {
+public interface Repo<T extends ResourceType> extends TypeTokenAccess {
     /**
      * The amount of resource storage units
      */

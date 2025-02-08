@@ -1,6 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.elenet;
 
-import cool.muyucloud.croparia.dynamics.api.typetoken.Type;
+import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
 import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public class ElenetManager {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Type> Optional<Elenet<T>> getNetwork(TypeToken<T> type, ResourceLocation id) {
+    public static <T extends ResourceType> Optional<Elenet<T>> getNetwork(TypeToken<T> type, ResourceLocation id) {
         Elenet<?> elenet = NETWORKS.get(id);
         try {
             if (elenet.getType() == type) {
@@ -63,12 +63,12 @@ public class ElenetManager {
         return Optional.ofNullable(NETWORKS.get(id));
     }
 
-    public static void resonate(@NotNull ElenetHub a, @NotNull ElenetHub b) {
+    public static void resonate(@NotNull ElenetHub<?> a, @NotNull ElenetHub<?> b) {
         if (!a.canResonate(b)) return;
         a.forEachType(type -> resonate(a, b, type));
     }
 
-    public static <T extends Type> void resonate(@NotNull ElenetHub a, @NotNull ElenetHub b, @NotNull TypeToken<T> type) {
+    public static <T extends ResourceType> void resonate(@NotNull ElenetHub<?> a, @NotNull ElenetHub<?> b, @NotNull TypeToken<T> type) {
         if (a.isTypeValid(type) && b.isTypeValid(type) && a.canResonate(b)) {
             Optional<Elenet<T>> optionalElenetA = a.getElenet(type);
             Optional<Elenet<T>> optionalElenetB = b.getElenet(type);
@@ -105,7 +105,7 @@ public class ElenetManager {
     /**
      * If type match, peer is reachable by hub and peer is isolated of type, resonate.
      */
-    public static <T extends Type> void resonate(@NotNull ElenetHub hub, @NotNull ElenetPeer peer) {
+    public static <T extends ResourceType> void resonate(@NotNull ElenetHub<?> hub, @NotNull ElenetPeer peer) {
         if (!hub.canResonate(peer)) return;
         hub.forEachType(type -> {
             if (peer.isTypeValid(type) && !peer.isResonanceValid(type)) {
@@ -116,7 +116,7 @@ public class ElenetManager {
         });
     }
 
-    public static <T extends Type> void resonate(@NotNull ElenetHub hub, @NotNull ElenetPeer peer, @NotNull TypeToken<T> type) {
+    public static <T extends ResourceType> void resonate(@NotNull ElenetHub<?> hub, @NotNull ElenetPeer peer, @NotNull TypeToken<T> type) {
         if (hub.isTypeValid(type) && hub.canResonate(peer) && peer.isTypeValid(type) && !peer.isResonanceValid(type)) {
             peer.isolateOfType(type);
             peer.resonateWith(hub, type);
@@ -127,18 +127,18 @@ public class ElenetManager {
         }
     }
 
-    public static <T extends Type> void isolate(@NotNull ElenetHub hub, @NotNull ElenetPeer peer, @NotNull TypeToken<T> type) {
+    public static <T extends ResourceType> void isolate(@NotNull ElenetHub<?> hub, @NotNull ElenetPeer peer, @NotNull TypeToken<T> type) {
         if (peer.resonatedHub(type).map(pHub -> pHub == hub).orElse(false)) {
             peer.isolateOfType(type);
             hub.isolate(peer, type);
         }
     }
 
-    public static <T extends Type> void updateNetwork(@NotNull ElenetHub root, @NotNull Elenet<T> newElenet) {
-        Stack<ElenetHub> hubs = new Stack<>();
+    public static <T extends ResourceType> void updateNetwork(@NotNull ElenetHub<?> root, @NotNull Elenet<T> newElenet) {
+        Stack<ElenetHub<?>> hubs = new Stack<>();
         hubs.push(root);
         while (!hubs.isEmpty()) {
-            ElenetHub hub = hubs.pop();
+            ElenetHub<?> hub = hubs.pop();
             hub.setNetwork(newElenet);
             hub.resonatedHubsOfType(newElenet.getType()).ifPresent(
                 addresses -> addresses.forEach(address -> address.getHub().ifPresent(hubs::push))

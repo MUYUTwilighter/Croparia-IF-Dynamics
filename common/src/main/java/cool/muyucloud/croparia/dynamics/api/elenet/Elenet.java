@@ -3,7 +3,7 @@ package cool.muyucloud.croparia.dynamics.api.elenet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import cool.muyucloud.croparia.dynamics.api.typetoken.Type;
+import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
 import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import cool.muyucloud.croparia.dynamics.api.typetoken.TypeTokenAccess;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.function.Function;
 
 @SuppressWarnings("unused")
-public class Elenet<T extends Type> implements TypeTokenAccess {
+public class Elenet<T extends ResourceType> implements TypeTokenAccess {
     public static final MapCodec<Elenet<?>> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         TypeToken.CODEC.fieldOf("type").forGetter(Elenet::getType),
         ResourceLocation.CODEC.fieldOf("engrave").forGetter(Elenet::getEngrave),
@@ -87,9 +87,9 @@ public class Elenet<T extends Type> implements TypeTokenAccess {
         }
     }
 
-    public void forEachHub(@NotNull Function<ElenetHub, Boolean> processor) {
+    public void forEachHub(@NotNull Function<ElenetHub<?>, Boolean> processor) {
         for (ElenetAddress address : this.getHubs()) {
-            Optional<ElenetHub> hubOptional = address.tryGetHub();
+            Optional<ElenetHub<?>> hubOptional = address.tryGetHub();
             if (hubOptional.isPresent()) {
                 if (!processor.apply(hubOptional.get())) {
                     break;

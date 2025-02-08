@@ -14,6 +14,7 @@ import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidUnit;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemUnit;
+import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -28,7 +29,7 @@ import java.util.Optional;
 import static cool.muyucloud.croparia.dynamics.api.core.block.ElemForgeBlock.RUNNING;
 
 @SuppressWarnings("unused")
-public abstract class ElemForgeBlockEntity<F> extends BlockEntity implements ElenetPeerProvider {
+public abstract class ElemForgeBlockEntity<F extends ResourceType> extends BlockEntity implements ElenetPeerProvider {
     private final RecipeProcessor<F> recipeProcessor = new RecipeProcessor<>();
     private final RecipeType<? extends ElemForgeRecipe> recipeType;
     private final CrucibleBatch crucibleBatch = new CrucibleBatch();

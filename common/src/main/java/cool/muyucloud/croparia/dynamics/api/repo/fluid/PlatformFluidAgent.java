@@ -2,6 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Optional;
@@ -20,6 +21,11 @@ public interface PlatformFluidAgent extends Repo<FluidSpec> {
     @ApiStatus.Experimental
     @Unreliable(value = "FORGE", reason = "consumption ignores the index")
     long simConsume(int i, FluidSpec resource, long amount);
+
+    @Override
+    default TypeToken<FluidSpec> getType() {
+        return FluidSpec.TYPE;
+    }
 
     /**
      * Consumes the specified amount of fluid from the specified fluid storage unit.

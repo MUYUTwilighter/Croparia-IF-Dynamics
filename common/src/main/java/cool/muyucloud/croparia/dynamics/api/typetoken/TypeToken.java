@@ -12,9 +12,9 @@ import java.util.Optional;
 
 @ApiStatus.Experimental
 @SuppressWarnings("unused")
-public record TypeToken<T extends Type>(@NotNull ResourceLocation id, @NotNull T empty) {
+public record TypeToken<T extends ResourceType>(@NotNull ResourceLocation id, @NotNull T empty) {
     public static final Codec<TypeToken<?>> CODEC = ResourceLocation.CODEC.comapFlatMap(id -> {
-        Optional<TypeToken<Type>> type = get(id);
+        Optional<TypeToken<ResourceType>> type = get(id);
         if (type.isEmpty()) {
             return DataResult.error(() -> "Undefined SpecType: %s".formatted(id));
         } else {
@@ -25,7 +25,7 @@ public record TypeToken<T extends Type>(@NotNull ResourceLocation id, @NotNull T
     private static final Map<ResourceLocation, TypeToken<?>> REGISTRY_BY_ID = new HashMap<>();
     private static final Map<Object, TypeToken<?>> REGISTRY_BY_TOKEN = new HashMap<>();
 
-    public static <T extends Type> Optional<TypeToken<T>> register(ResourceLocation id, T empty) {
+    public static <T extends ResourceType> Optional<TypeToken<T>> register(ResourceLocation id, T empty) {
         if (REGISTRY_BY_ID.containsKey(id) || REGISTRY_BY_TOKEN.containsKey(empty)) {
             return Optional.empty();
         }
@@ -35,13 +35,13 @@ public record TypeToken<T extends Type>(@NotNull ResourceLocation id, @NotNull T
         return Optional.of(type);
     }
 
-    public static <T extends Type> TypeToken<T> registerOrThrow(ResourceLocation id, T empty) {
+    public static <T extends ResourceType> TypeToken<T> registerOrThrow(ResourceLocation id, T empty) {
         return register(id, empty).orElseThrow(() -> new IllegalArgumentException("Duplicate TypeToken: %s".formatted(id)));
     }
 
 
     @SuppressWarnings("unchecked")
-    public static <T extends Type> Optional<TypeToken<T>> get(ResourceLocation id) {
+    public static <T extends ResourceType> Optional<TypeToken<T>> get(ResourceLocation id) {
         TypeToken<?> type = REGISTRY_BY_ID.get(id);
         try {
             return Optional.of((TypeToken<T>) type);
@@ -51,7 +51,7 @@ public record TypeToken<T extends Type>(@NotNull ResourceLocation id, @NotNull T
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Type> Optional<TypeToken<T>> get(T token) {
+    public static <T extends ResourceType> Optional<TypeToken<T>> get(T token) {
         TypeToken<?> type = REGISTRY_BY_TOKEN.get(token);
         try {
             return Optional.of((TypeToken<T>) type);

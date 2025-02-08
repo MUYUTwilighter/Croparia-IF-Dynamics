@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 import cool.muyucloud.croparia.api.element.ElementsEnum;
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import cool.muyucloud.croparia.registry.Fluids;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +19,11 @@ public class CrucibleBatch implements Repo<FluidSpec>, Iterable<FluidUnit> {
         ElementsEnum.FIRE, FluidUnit.of(fluid -> fluid.is(Fluids.FIRE.get()), 81000 * 3),
         ElementsEnum.AIR, FluidUnit.of(fluid -> fluid.is(Fluids.AIR.get()), 81000 * 4)
     );
+
+    @Override
+    public TypeToken<?> getType() {
+        return FluidSpec.TYPE;
+    }
 
     public void enable(ElementsEnum element) {
         units.get(element).setAcceptable(true);

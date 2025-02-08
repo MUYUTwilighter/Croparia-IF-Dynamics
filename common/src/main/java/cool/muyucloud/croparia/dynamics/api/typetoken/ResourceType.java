@@ -1,4 +1,4 @@
 package cool.muyucloud.croparia.dynamics.api.typetoken;
 
-public interface Type extends TypeTokenAccess {
+public interface ResourceType extends TypeTokenAccess {
 }

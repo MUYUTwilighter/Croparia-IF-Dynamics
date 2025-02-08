@@ -81,7 +81,7 @@ public record ElenetAddress(Level world, BlockPos pos) {
         return ElenetAddress.chebyshev(this, other);
     }
 
-    public Optional<ElenetHub> tryGetHub() {
+    public Optional<ElenetHub<?>> tryGetHub() {
         try (Level world = this.world()) {
             if (world.isLoaded(this.pos())) {
                 BlockEntity be = world.getBlockEntity(this.pos());
@@ -94,7 +94,7 @@ public record ElenetAddress(Level world, BlockPos pos) {
         return Optional.empty();
     }
 
-    public Optional<ElenetHub> getHub() {
+    public Optional<ElenetHub<?>> getHub() {
         try (Level world = this.world()) {
             BlockEntity be = world.getBlockEntity(this.pos());
             if (be instanceof ElenetHubProvider provider) {

@@ -1,6 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 
 import java.util.function.Supplier;
@@ -35,6 +36,11 @@ public abstract class FluidAgent implements Repo<FluidSpec> {
 
     protected FluidAgent(Supplier<Repo<FluidSpec>> repo) {
         this.repo = repo.get();
+    }
+
+    @Override
+    public TypeToken<FluidSpec> getType() {
+        return FluidSpec.TYPE;
     }
 
     public Repo<FluidSpec> get() {

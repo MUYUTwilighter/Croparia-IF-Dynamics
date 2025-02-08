@@ -1,13 +1,14 @@
 package cool.muyucloud.croparia.dynamics.api.repo;
 
 import com.google.gson.JsonObject;
+import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
 import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
 
 @SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
-public abstract class RepoUnit<T> implements Repo<T> {
+public abstract class RepoUnit<T extends ResourceType> implements Repo<T> {
     private final transient Predicate<T> fluidFilter;
     private long amount = 0;
     private transient long capacity;

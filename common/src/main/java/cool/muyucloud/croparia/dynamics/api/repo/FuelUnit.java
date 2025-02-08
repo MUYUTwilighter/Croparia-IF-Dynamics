@@ -1,17 +1,25 @@
 package cool.muyucloud.croparia.dynamics.api.repo;
 
 import com.google.gson.JsonObject;
+import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import net.minecraft.util.GsonHelper;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
-public class FuelUnit<T> implements Repo<T> {
+public class FuelUnit<T extends ResourceType> implements Repo<T> {
     private final transient T resource;
     private final transient long capacity;
     private transient long amount = 0;
 
-    public FuelUnit(T resource, long capacity) {
+    public FuelUnit(@NotNull T resource, long capacity) {
         this.resource = resource;
         this.capacity = capacity;
+    }
+
+    @Override
+    public TypeToken<?> getType() {
+        return this.resource.getType();
     }
 
     public void load(JsonObject json) {

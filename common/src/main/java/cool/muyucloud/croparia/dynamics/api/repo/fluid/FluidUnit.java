@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import cool.muyucloud.croparia.dynamics.CropariaIfDynamics;
 import cool.muyucloud.croparia.dynamics.api.repo.RepoUnit;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
@@ -27,6 +28,11 @@ public class FluidUnit extends RepoUnit<FluidSpec> {
 
     public FluidUnit(Predicate<FluidSpec> fluidFilter, long capacity) {
         super(fluidFilter, capacity);
+    }
+
+    @Override
+    public TypeToken<FluidSpec> getType() {
+        return FluidSpec.TYPE;
     }
 
     public void load(JsonObject json) {

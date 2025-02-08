@@ -2,6 +2,8 @@ package cool.muyucloud.croparia.dynamics.api.repo;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -9,15 +11,15 @@ import java.util.Iterator;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class RepoBatch<T> implements Repo<T>, Iterable<RepoUnit<T>> {
+public class RepoBatch<T extends ResourceType> implements Repo<T>, Iterable<RepoUnit<T>> {
     @SafeVarargs
-    public static <T> RepoBatch<T> of(RepoUnit<T>... units) {
-        return new RepoBatch<>(units);
+    public static <T extends ResourceType> RepoBatch<T> of(TypeToken<T> type, RepoUnit<T>... units) {
+        return new RepoBatch<>(type, units);
     }
 
     @SafeVarargs
-    public static <T> RepoBatch<T> of(RepoBatch<T>... batches) {
-        RepoBatch<T> result = new RepoBatch<>();
+    public static <T extends ResourceType> RepoBatch<T> of(TypeToken<T> type, RepoBatch<T>... batches) {
+        RepoBatch<T> result = new RepoBatch<>(type);
         for (RepoBatch<T> batch : batches) {
             for (RepoUnit<T> unit : batch) {
                 result.add(unit);
@@ -27,21 +29,28 @@ public class RepoBatch<T> implements Repo<T>, Iterable<RepoUnit<T>> {
     }
 
     private final ArrayList<RepoUnit<T>> units = new ArrayList<>();
+    private final TypeToken<T> type;
 
     @SafeVarargs
-    public RepoBatch(RepoUnit<T>... units) {
+    public RepoBatch(@NotNull TypeToken<T> type, @NotNull RepoUnit<T>... units) {
         this.units.addAll(List.of(units));
         this.units.trimToSize();
+        this.type = type;
     }
 
-    public void load(JsonArray json) {
+    @Override
+    public TypeToken<T> getType() {
+        return type;
+    }
+
+    public void load(@NotNull JsonArray json) {
         for (int i = 0; i < json.size(); i++) {
             JsonObject unit = json.get(i).getAsJsonObject();
             units.get(i).load(unit);
         }
     }
 
-    public void save(JsonArray json) {
+    public void save(@NotNull JsonArray json) {
         for (int i = 0; i < json.size(); i++) {
             JsonObject unit = new JsonObject();
             units.get(i).save(unit);

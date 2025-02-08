@@ -2,6 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.item;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
+import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +14,11 @@ public interface PlatformItemAgent extends Repo<ItemSpec> {
     @ApiStatus.Experimental
     @Unreliable(value = "FABRIC", reason = "rely on Iterable<StorageView>")
     long simAccept(int i, ItemSpec item, long amount);
+
+    @Override
+    default TypeToken<ItemSpec> getType() {
+        return ItemSpec.TYPE;
+    }
 
     @ApiStatus.Experimental
     @Unreliable(value = "FABRIC", reason = "rely on Iterable<StorageView>")
