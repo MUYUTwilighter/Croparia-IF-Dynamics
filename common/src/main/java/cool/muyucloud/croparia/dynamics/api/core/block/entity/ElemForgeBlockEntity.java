@@ -14,7 +14,7 @@ import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidUnit;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemUnit;
-import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
+import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.crafting.RecipeType;

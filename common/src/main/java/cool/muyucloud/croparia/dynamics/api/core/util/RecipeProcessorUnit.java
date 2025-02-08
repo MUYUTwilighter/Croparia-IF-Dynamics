@@ -8,7 +8,7 @@ import cool.muyucloud.croparia.dynamics.api.core.recipe.ElemForgeRecipe;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.input.EfrContainer;
 import cool.muyucloud.croparia.dynamics.api.repo.FuelUnit;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.CrucibleBatch;
-import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
+import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.GsonHelper;

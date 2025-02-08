@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import cool.muyucloud.croparia.dynamics.CropariaIfDynamics;
 import cool.muyucloud.croparia.dynamics.api.repo.RepoUnit;
-import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
+import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;

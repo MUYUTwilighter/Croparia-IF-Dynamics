@@ -2,8 +2,8 @@ package cool.muyucloud.croparia.dynamics.api.repo;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
-import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
+import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
+import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

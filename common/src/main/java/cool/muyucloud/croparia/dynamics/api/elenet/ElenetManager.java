@@ -1,7 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.elenet;
 
-import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
-import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
+import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
+import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

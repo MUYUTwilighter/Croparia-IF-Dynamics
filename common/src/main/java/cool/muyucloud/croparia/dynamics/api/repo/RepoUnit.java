@@ -1,7 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo;
 
 import com.google.gson.JsonObject;
-import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
+import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
 import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.NotNull;
 

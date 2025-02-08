@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 import cool.muyucloud.croparia.api.element.ElementsEnum;
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
-import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
+import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
 import cool.muyucloud.croparia.registry.Fluids;
 import org.jetbrains.annotations.NotNull;
 

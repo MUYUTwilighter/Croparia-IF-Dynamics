@@ -2,7 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
-import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
+import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Optional;

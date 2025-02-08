@@ -1,7 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo;
 
-import cool.muyucloud.croparia.dynamics.api.typetoken.ResourceType;
-import cool.muyucloud.croparia.dynamics.api.typetoken.TypeTokenAccess;
+import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
+import cool.muyucloud.croparia.dynamics.api.resource.TypeTokenAccess;
 
 /**
  * Abstraction of resource storage.<br>

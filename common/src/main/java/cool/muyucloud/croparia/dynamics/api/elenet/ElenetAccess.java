@@ -1,6 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.elenet;
 
-import cool.muyucloud.croparia.dynamics.api.typetoken.TypeRepo;
+import cool.muyucloud.croparia.dynamics.api.resource.TypeRepo;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")

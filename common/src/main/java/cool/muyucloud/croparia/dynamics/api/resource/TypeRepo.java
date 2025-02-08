@@ -1,4 +1,4 @@
-package cool.muyucloud.croparia.dynamics.api.typetoken;
+package cool.muyucloud.croparia.dynamics.api.resource;
 
 import java.util.function.Consumer;
 
