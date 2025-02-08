@@ -37,7 +37,6 @@ public class ElenetHub<F extends ResourceType> implements ElenetAccess {
     protected final Map<TypeToken<?>, Collection<ElenetAddress>> resonatedHubs = new HashMap<>();
     @NotNull
     protected final Map<TypeToken<?>, Collection<ElenetAddress>> resonatedPeers = new HashMap<>();
-    protected final Collection<TypeToken<?>> validTypes = new HashSet<>();
     protected short coverage;
     protected boolean autoRefresh = true;
     private transient boolean removed = false;
@@ -53,14 +52,14 @@ public class ElenetHub<F extends ResourceType> implements ElenetAccess {
     }
 
     public void addType(TypeToken<?> type) {
-        if (this.validTypes.contains(type)) return;
-        this.validTypes.add(type);
+        if (this.elenets.containsKey(type)) return;
+        this.initElenet(type);
         ElenetTask.subscribe(() -> this.onRefresh(type), this.getRange(), List.of(), List.of());
     }
 
     public void removeType(TypeToken<?> type) {
-        if (!this.validTypes.contains(type)) return;
-        this.validTypes.remove(type);
+        if (!this.elenets.containsKey(type)) return;
+        this.elenets.remove(type);
         // onDisable will handle elenet topologies.
         ElenetTask.subscribe(() -> this.onDisable(type), this.getRange(), this.getElenets(), List.of(this));
     }
@@ -145,12 +144,12 @@ public class ElenetHub<F extends ResourceType> implements ElenetAccess {
 
     @Override
     public void forEachType(Consumer<TypeToken<?>> consumer) {
-        this.validTypes.forEach(consumer);
+        this.elenets.keySet().forEach(consumer);
     }
 
     @Override
     public boolean isTypeValid(TypeToken<?> type) {
-        return this.validTypes.contains(type);
+        return this.elenets.containsKey(type);
     }
 
     public void load(JsonObject json) {
@@ -161,7 +160,6 @@ public class ElenetHub<F extends ResourceType> implements ElenetAccess {
             TypeToken<?> type = TypeToken.get(ResourceLocation.tryParse(entry.getKey())).orElse(null);
             if (type == null)
                 throw new IllegalArgumentException("Unknown type %s of Elenet HUB %s".formatted(entry.getKey(), this.getAddress()));
-            this.validTypes.add(type);
             JsonObject subRoot = entry.getValue().getAsJsonObject();
             this.elenets.put(type, ResourceLocation.CODEC.decode(JsonOps.INSTANCE, subRoot.get("elenet")).getOrThrow(
                 false, msg -> CropariaIfDynamics.LOGGER.error("Failed to decode elenet: %s".formatted(msg))

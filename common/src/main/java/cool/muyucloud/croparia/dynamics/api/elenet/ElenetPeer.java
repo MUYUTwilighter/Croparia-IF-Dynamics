@@ -29,22 +29,18 @@ public class ElenetPeer implements ElenetAccess {
 
     public void load(JsonObject json) {
         this.hubs.clear();
-        this.hubs.putAll(Codec.unboundedMap(TypeToken.CODEC, ElenetAddress.CODEC.codec()).decode(JsonOps.INSTANCE, json.get("hubs")).getOrThrow(
-            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to decode hub addresses: %s".formatted(msg))
-        ).getFirst());
+        this.hubs.putAll(Codec.unboundedMap(TypeToken.CODEC, ElenetAddress.CODEC.codec()).decode(JsonOps.INSTANCE, json.get("hubs")).getOrThrow(false, msg -> CropariaIfDynamics.LOGGER.error("Failed to decode hub addresses: %s".formatted(msg))).getFirst());
     }
 
     public void save(JsonObject json) {
-        json.add("hubs", Codec.unboundedMap(TypeToken.CODEC, ElenetAddress.CODEC.codec()).encodeStart(JsonOps.INSTANCE, this.hubs).getOrThrow(
-            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode hub addresses: %s".formatted(msg))
-        ));
+        json.add("hubs", Codec.unboundedMap(TypeToken.CODEC, ElenetAddress.CODEC.codec()).encodeStart(JsonOps.INSTANCE, this.hubs).getOrThrow(false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode hub addresses: %s".formatted(msg))));
     }
 
     public void setAddress(@NotNull ElenetAddress address) {
         this.address = address;
     }
 
-    public void addRepo(@NotNull Repo<?> repo) {
+    public void setRepo(@NotNull Repo<?> repo) {
         this.repos.put(repo.getType(), repo);
     }
 
@@ -125,7 +121,7 @@ public class ElenetPeer implements ElenetAccess {
     }
 
     public boolean isResonanceValid(TypeToken<?> type) {
-        return this.resonatedHub(type).map(hub -> hub.canResonate(this)).orElse(false);
+        return this.isTypeValid(type) && this.resonatedHub(type).map(hub -> hub.canResonate(this)).orElse(false);
     }
 
     @Override
