@@ -1,10 +1,5 @@
 package cool.muyucloud.croparia.dynamics.api.elenet;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.serialization.JsonOps;
-import cool.muyucloud.croparia.dynamics.CropariaIfDynamics;
 import cool.muyucloud.croparia.dynamics.annotation.SuggestAccess;
 import cool.muyucloud.croparia.dynamics.api.typetoken.Type;
 import cool.muyucloud.croparia.dynamics.api.typetoken.TypeToken;
@@ -47,8 +42,15 @@ public interface ElenetHub extends ElenetAccess {
     @SuggestAccess
     <T extends Type> Optional<Collection<ElenetAddress>> resonatedPeersOfType(TypeToken<T> type);
 
-    @SuggestAccess
-    Map<TypeToken<?>, Elenet<?>> getElenets();
+    <T extends Type> Optional<Elenet<T>> getElenet(@NotNull TypeToken<T> type);
+
+    <T extends Type> void setNetwork(@NotNull Elenet<T> elenet);
+
+    default Collection<Elenet<?>> getElenets() {
+        List<Elenet<?>> elenets = new ArrayList<>();
+        this.forEachType(type -> this.getElenet(type).ifPresent(elenets::add));
+        return elenets;
+    }
 
     /**
      * <p>
@@ -76,7 +78,7 @@ public interface ElenetHub extends ElenetAccess {
                 Map<TypeToken<?>, Set<ElenetHub>> emptyHubs = new HashMap<>();
                 this.discover(hub -> {
                     if (!this.getAddress().isInRangeWith(hub.getAddress(), from)) {
-                        hub.getTypes().forEach(type -> hub.getElenet(type).ifPresentOrElse(elenet -> {
+                        hub.forEachType(type -> hub.getElenet(type).ifPresentOrElse(elenet -> {
                             Map<Elenet<?>, ElenetHub> resonatedHubs = elenetAccess.computeIfAbsent(type, k -> new HashMap<>());
                             resonatedHubs.put(elenet, hub);
                         }, () -> {
@@ -86,7 +88,7 @@ public interface ElenetHub extends ElenetAccess {
                     }
                 }, peer -> {
                 });
-                this.getTypes().forEach(type -> {
+                this.forEachType(type -> {
                     for (ElenetHub hub : elenetAccess.getOrDefault(type, phMap).values()) {
                         ElenetManager.resonate(this, hub, type);
                     }
@@ -97,7 +99,7 @@ public interface ElenetHub extends ElenetAccess {
                         ElenetManager.resonate(this, hub);
                     }
                 });
-            }, this.getRange(), this.getElenets().values(), List.of(this));
+            }, this.getRange(), this.getElenets(), List.of(this));
         }
     }
 
@@ -107,7 +109,7 @@ public interface ElenetHub extends ElenetAccess {
             }, peer -> ElenetManager.resonate(this, peer));
         } else if (from > this.getCoverage()) {
             Map<TypeToken<?>, Set<ElenetAddress>> toRemove = new HashMap<>();
-            this.getTypes().forEach(type -> this.resonatedPeersOfType(type).ifPresent(addresses -> addresses.forEach(address -> {
+            this.forEachType(type -> this.resonatedPeersOfType(type).ifPresent(addresses -> addresses.forEach(address -> {
                 if (this.getAddress().isInRangeWith(address, this.getCoverage())) {
                     toRemove.computeIfAbsent(type, k -> new HashSet<>()).add(address);
                 }
@@ -117,25 +119,26 @@ public interface ElenetHub extends ElenetAccess {
     }
 
     default void onRefresh() {
-        Map<Elenet<?>, ElenetHub> phMap = new HashMap<>();
-        Set<ElenetHub> phSet = new HashSet<>();
+        Map<Elenet<?>, ElenetHub> emptyMap = new HashMap<>();
+        Set<ElenetHub> emptySet = new HashSet<>();
+        Set<ElenetAddress> validHubs = new HashSet<>();
         Map<TypeToken<?>, Map<Elenet<?>, ElenetHub>> elenetAccess = new HashMap<>();
         Map<TypeToken<?>, Set<ElenetHub>> emptyHubs = new HashMap<>();
-        discover(hub -> hub.getTypes().forEach(type -> hub.getElenet(type).ifPresentOrElse(elenet -> {
+        discover(hub -> hub.forEachType(type -> hub.getElenet(type).ifPresentOrElse(elenet -> {
             Map<Elenet<?>, ElenetHub> resonatedHubs = elenetAccess.computeIfAbsent(type, k -> new HashMap<>());
             resonatedHubs.put(elenet, hub);
         }, () -> {
             Set<ElenetHub> hubs = emptyHubs.computeIfAbsent(type, k -> new HashSet<>());
             hubs.add(hub);
         })), peer -> ElenetManager.resonate(this, peer));
-        this.getTypes().forEach(type -> {
-            for (ElenetHub hub : elenetAccess.getOrDefault(type, phMap).values()) {
+        this.forEachType(type -> {
+            for (ElenetHub hub : elenetAccess.getOrDefault(type, emptyMap).values()) {
                 ElenetManager.resonate(this, hub, type);
             }
             if (this.getElenet(type).isEmpty()) {
                 this.initElenet(type);
             }
-            for (ElenetHub hub : emptyHubs.getOrDefault(type, phSet)) {
+            for (ElenetHub hub : emptyHubs.getOrDefault(type, emptySet)) {
                 ElenetManager.resonate(this, hub);
             }
         });
@@ -157,22 +160,28 @@ public interface ElenetHub extends ElenetAccess {
     }
 
     default void onDisable() {
-        this.getTypes().forEach(this::onDisable);
+        this.forEachType(this::onDisable);
     }
 
     default <T extends Type> void onDisable(TypeToken<T> type) {
         AtomicBoolean flag = new AtomicBoolean(false);
-        this.resonatedHubsOfType(type).ifPresent(addresses -> addresses.forEach(address -> address.getHub().ifPresent(hub -> {
-            hub.isolate(this, type);
-            if (flag.get()) {
-                Elenet<T> elenet = new Elenet<>(type);
-                ElenetManager.updateNetwork(hub, elenet);
-            } else {
-                flag.set(true);
-            }
-        })));
+        this.resonatedHubsOfType(type).ifPresent(addresses -> {
+            addresses.forEach(address -> address.getHub().ifPresent(hub -> {
+                hub.isolate(this, type);
+                if (flag.get()) {
+                    Elenet<T> elenet = new Elenet<>(type);
+                    ElenetManager.updateNetwork(hub, elenet);
+                } else {
+                    flag.set(true);
+                }
+            }));
+            addresses.clear();
+        });
         this.getElenet(type).ifPresent(elenet -> elenet.unregisterHub(this.getAddress()));
-        this.resonatedPeersOfType(type).ifPresent(addresses -> addresses.forEach(address -> address.getPeer().ifPresent(peer -> ElenetManager.isolate(this, peer, type))));
+        this.resonatedPeersOfType(type).ifPresent(addresses -> {
+            addresses.forEach(address -> address.getPeer().ifPresent(peer -> ElenetManager.isolate(this, peer, type)));
+            addresses.clear();
+        });
     }
 
     @SuggestAccess
@@ -211,7 +220,7 @@ public interface ElenetHub extends ElenetAccess {
                                         peerConsumer.accept(peer);
                                         scannedPeers.add(peer);
                                     } else {
-                                        this.getTypes().forEach(type -> ElenetManager.isolate(this, peer, type));
+                                        this.forEachType(type -> ElenetManager.isolate(this, peer, type));
                                     }
                                 }
                             });
@@ -225,7 +234,7 @@ public interface ElenetHub extends ElenetAccess {
     }
 
     default <T extends Type> long serveRequest(T resource, long amount, ElenetAddress from) {
-        if (this.isIdle() || !this.isTypeValid(resource.getType()) || this.isHubSuspended(resource.getType())) {
+        if (!this.canServe(resource.getType())) {
             return 0;
         }
         Collection<ElenetAddress> addresses = this.resonatedPeersOfType(resource.getType()).orElse(null);
@@ -262,7 +271,7 @@ public interface ElenetHub extends ElenetAccess {
      * - Other peers are available (exists, accessible)
      */
     default <T extends Type> long serveAccept(T resource, long amount, ElenetAddress from) {
-        if (this.isIdle() || !this.isTypeValid(resource.getType()) || this.isHubSuspended(resource.getType())) {
+        if (!this.canServe(resource.getType())) {
             return 0;
         }
         Collection<ElenetAddress> addresses = this.resonatedPeersOfType(resource.getType()).orElse(null);
@@ -295,22 +304,19 @@ public interface ElenetHub extends ElenetAccess {
     /**
      * Force to initiate an elenet of specified type.
      */
-    default <T extends Type> void initElenet(TypeToken<T> type) {
+    @NotNull
+    default <T extends Type> Elenet<T> initElenet(TypeToken<T> type) {
         Elenet<T> elenet = new Elenet<>(type);
         this.setNetwork(elenet);
-    }
-
-    default <T extends Type> void setNetwork(Elenet<T> elenet) {
-        if (!this.isTypeValid(elenet.getType())) {
-            return;
-        }
-        this.getElenets().put(elenet.getType(), elenet);
+        ElenetManager.register(elenet);
+        return elenet;
     }
 
     /**
      * Whether the current Elenet HUB is suspended.<br>
      * Note that empty elenet is also viewed as suspended.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     default <T extends Type> boolean isHubSuspended(TypeToken<T> type) {
         if (ElenetTask.isSuspended(this)) {
             return true;
@@ -320,16 +326,6 @@ public interface ElenetHub extends ElenetAccess {
             throw new IllegalArgumentException("Unknown type %s of Elenet HUB %s".formatted(type, this.getAddress()));
         }
         return elenet.filter(ElenetTask::isSuspended).isPresent() && this.getElenet(type).isEmpty();
-    }
-
-    @SuppressWarnings("unchecked")
-    default <T extends Type> Optional<Elenet<T>> getElenet(TypeToken<T> type) {
-        Elenet<?> elenet = this.getElenets().get(type);
-        if (elenet.getType() == type) {
-            return Optional.of((Elenet<T>) elenet);
-        } else {
-            return Optional.empty();
-        }
     }
 
     default <T extends Type> boolean canServe(TypeToken<T> type) {
@@ -362,33 +358,5 @@ public interface ElenetHub extends ElenetAccess {
 
     default <T extends Type> void isolate(ElenetHub hub, TypeToken<T> type) {
         this.resonatedHubsOfType(type).ifPresent(hubs -> hubs.remove(hub.getAddress()));
-    }
-
-    default void load(JsonObject json) {
-
-    }
-
-    default void save(JsonObject json) {
-        for (TypeToken<?> type : this.getTypes()) {
-            JsonObject subRoot = new JsonObject();
-            json.addProperty("elenet", String.valueOf(this.getElenet(type).map(Elenet::getEngrave).orElse(null)));
-            JsonArray peers = new JsonArray();
-            for (ElenetAddress address : this.resonatedPeersOfType(type).orElse(List.of())) {
-                if (address.getPeer().map(peer -> peer.isTypeValid(type) && peer.resonatedHub(type).map(hub -> hub == this).orElse(false)).orElse(false)) {
-                    JsonElement element = ElenetAddress.CODEC.codec().encodeStart(JsonOps.INSTANCE, address).getOrThrow(false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode elenet peer address %s: %s".formatted(address, msg)));
-                    peers.add(element);
-                }
-            }
-            subRoot.add("peers", peers);
-            JsonArray hubs = new JsonArray();
-            for (ElenetAddress address : this.resonatedHubsOfType(type).orElse(List.of())) {
-                if (address.getHub().map(hub -> hub.isTypeValid(type)).orElse(false)) {
-                    JsonElement element = ElenetAddress.CODEC.codec().encodeStart(JsonOps.INSTANCE, address).getOrThrow(false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode elenet hub address %s: %s".formatted(address, msg)));
-                    hubs.add(element);
-                }
-            }
-            subRoot.add("hubs", hubs);
-            json.add(type.id().toString(), subRoot);
-        }
     }
 }

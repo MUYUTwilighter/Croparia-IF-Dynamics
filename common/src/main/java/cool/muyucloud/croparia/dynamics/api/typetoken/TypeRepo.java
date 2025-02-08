@@ -1,11 +1,9 @@
 package cool.muyucloud.croparia.dynamics.api.typetoken;
 
-import java.util.Set;
+import java.util.function.Consumer;
 
 public interface TypeRepo {
-    Set<TypeToken<?>> getTypes();
+    void forEachType(Consumer<TypeToken<?>> consumer);
 
-    default boolean isTypeValid(TypeToken<?> type) {
-        return this.getTypes().contains(type);
-    }
+    boolean isTypeValid(TypeToken<?> type);
 }

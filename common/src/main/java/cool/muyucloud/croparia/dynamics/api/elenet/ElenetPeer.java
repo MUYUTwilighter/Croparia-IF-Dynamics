@@ -40,10 +40,10 @@ public interface ElenetPeer extends ElenetAccess {
     <T extends Type> long accept(T resource, long amount);
 
     default void onRemove() {
-        for (TypeToken<?> type : this.getTypes()) {
+        this.forEachType(type -> {
             this.isolateOfType(type);
             this.resonatedHub(type).ifPresent(hub -> hub.isolate(this, type));
-        }
+        });
     }
 
     default <T extends Type> long tryConsume(T resource, long amount) {

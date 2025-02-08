@@ -10,9 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 @SuppressWarnings("unused")
@@ -23,8 +21,6 @@ public class Elenet<T extends Type> implements TypeTokenAccess {
         Codec.STRING.optionalFieldOf("token").forGetter(Elenet::getToken)
     ).apply(instance, (type, engrave, token) -> new Elenet<>(type, engrave, token.orElse(null))));
 
-    @NotNull
-    private transient final Set<ElenetAddress> peers = new HashSet<>();
     @NotNull
     private transient final Set<ElenetAddress> hubs = new HashSet<>();
     @NotNull
@@ -73,36 +69,33 @@ public class Elenet<T extends Type> implements TypeTokenAccess {
         this.token = token;
     }
 
-    protected @NotNull Set<ElenetAddress> getPeers() {
-        return peers;
-    }
-
     protected @NotNull Set<ElenetAddress> getHubs() {
         return hubs;
     }
 
     public void forEachPeer(@NotNull Function<ElenetPeer, Boolean> processor) {
-        for (ElenetAddress address : this.getPeers()) {
-            if (!address.tryGetPeer().map(processor).orElse(false)) {
-                break;
+        for (ElenetAddress address : this.getHubs()) {
+            Collection<ElenetAddress> peers = address.tryGetHub().flatMap(hub -> hub.resonatedPeersOfType(this.type)).orElse(List.of());
+            for (ElenetAddress peer : peers) {
+                Optional<ElenetPeer> peerOptional = peer.tryGetPeer();
+                if (peerOptional.isPresent()) {
+                    if (!processor.apply(peerOptional.get())) {
+                        break;
+                    }
+                }
             }
         }
     }
 
     public void forEachHub(@NotNull Function<ElenetHub, Boolean> processor) {
         for (ElenetAddress address : this.getHubs()) {
-            if (!address.tryGetHub().map(processor).orElse(false)) {
-                break;
+            Optional<ElenetHub> hubOptional = address.tryGetHub();
+            if (hubOptional.isPresent()) {
+                if (!processor.apply(hubOptional.get())) {
+                    break;
+                }
             }
         }
-    }
-
-    public void registerPeer(@NotNull ElenetAddress address) {
-        this.getPeers().add(address);
-    }
-
-    public void unregisterPeer(@NotNull ElenetAddress address) {
-        this.getPeers().remove(address);
     }
 
     public void registerHub(@NotNull ElenetAddress address) {
@@ -111,6 +104,7 @@ public class Elenet<T extends Type> implements TypeTokenAccess {
 
     public void unregisterHub(@NotNull ElenetAddress address) {
         this.getHubs().remove(address);
+        if (this.getHubs().isEmpty()) ElenetManager.remove(this);
     }
 
     public boolean shouldRemove() {

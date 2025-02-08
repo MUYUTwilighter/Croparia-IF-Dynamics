@@ -25,6 +25,11 @@ public class ElenetManager {
         return true;
     }
 
+    public static void remove(Elenet<?> elenet) {
+        ResourceLocation id = elenet.getEngrave();
+        NETWORKS.remove(id);
+    }
+
     @NotNull
     public static ResourceLocation randomId() {
         int i = (int) (Math.random() * NETWORKS.size());
@@ -54,11 +59,13 @@ public class ElenetManager {
         }
     }
 
+    public static Optional<Elenet<?>> getNetwork(ResourceLocation id) {
+        return Optional.ofNullable(NETWORKS.get(id));
+    }
+
     public static void resonate(@NotNull ElenetHub a, @NotNull ElenetHub b) {
         if (!a.canResonate(b)) return;
-        for (TypeToken<?> type : a.getTypes()) {
-            resonate(a, b, type);
-        }
+        a.forEachType(type -> resonate(a, b, type));
     }
 
     public static <T extends Type> void resonate(@NotNull ElenetHub a, @NotNull ElenetHub b, @NotNull TypeToken<T> type) {
@@ -84,11 +91,6 @@ public class ElenetManager {
                         hub.setNetwork(elenetA);
                         return true;
                     });
-                    elenetB.forEachPeer(peer -> {
-                        elenetA.registerPeer(peer.getAddress());
-                        elenetB.unregisterHub(peer.getAddress());
-                        return true;
-                    });
                 }
             } else if (optionalElenetB.isPresent()) {
                 Elenet<T> elenetB = optionalElenetB.get();
@@ -105,13 +107,13 @@ public class ElenetManager {
      */
     public static <T extends Type> void resonate(@NotNull ElenetHub hub, @NotNull ElenetPeer peer) {
         if (!hub.canResonate(peer)) return;
-        for (TypeToken<?> type : hub.getTypes()) {
+        hub.forEachType(type -> {
             if (peer.isTypeValid(type) && !peer.isResonanceValid(type)) {
                 peer.isolateOfType(type);
                 peer.resonateWith(hub, type);
                 hub.resonate(peer, type);
             }
-        }
+        });
     }
 
     public static <T extends Type> void resonate(@NotNull ElenetHub hub, @NotNull ElenetPeer peer, @NotNull TypeToken<T> type) {
@@ -122,7 +124,6 @@ public class ElenetManager {
         } else if (peer.resonatedHub(type).map(pHub -> hub == pHub).orElse(false)) {
             peer.isolateOfType(type);
             hub.isolate(peer, type);
-            hub.getElenet(type).ifPresent(elenet -> elenet.unregisterPeer(peer.getAddress()));
         }
     }
 
@@ -130,13 +131,12 @@ public class ElenetManager {
         if (peer.resonatedHub(type).map(pHub -> pHub == hub).orElse(false)) {
             peer.isolateOfType(type);
             hub.isolate(peer, type);
-            hub.getElenet(type).ifPresent(elenet -> elenet.unregisterPeer(peer.getAddress()));
         }
     }
 
-    public static <T extends Type> void updateNetwork(@NotNull ElenetHub from, @NotNull Elenet<T> newElenet) {
+    public static <T extends Type> void updateNetwork(@NotNull ElenetHub root, @NotNull Elenet<T> newElenet) {
         Stack<ElenetHub> hubs = new Stack<>();
-        hubs.push(from);
+        hubs.push(root);
         while (!hubs.isEmpty()) {
             ElenetHub hub = hubs.pop();
             hub.setNetwork(newElenet);

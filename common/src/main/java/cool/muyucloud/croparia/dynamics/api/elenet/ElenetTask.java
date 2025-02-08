@@ -22,6 +22,12 @@ public class ElenetTask implements Comparable<ElenetTask> {
         TASKS.add(task_);
     }
 
+    public static void subscribeIfAvailable(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs) {
+        if (mayAccept(expense)) {
+            subscribe(task, expense, elenets, hubs);
+        }
+    }
+
     public static short parseExpense(double expense) {
         return (short) ((1D - 1D / (0.01D * expense + 1)) * MAX_EXPENSE);
     }
