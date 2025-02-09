@@ -1,8 +1,8 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid.forge;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.PlatformFluidAgent;
+import cool.muyucloud.croparia.dynamics.api.resource.type.FluidSpec;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 

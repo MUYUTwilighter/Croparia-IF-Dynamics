@@ -37,6 +37,15 @@ public class RecipeProcessor<F extends ResourceType> implements Iterable<RecipeP
         return false;
     }
 
+    public boolean isReady() {
+        for (RecipeProcessorUnit<F> unit : units) {
+            if (!unit.isReady()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @SafeVarargs
     public final void add(RecipeProcessorUnit<F>... units) {
         this.units.addAll(List.of(units));

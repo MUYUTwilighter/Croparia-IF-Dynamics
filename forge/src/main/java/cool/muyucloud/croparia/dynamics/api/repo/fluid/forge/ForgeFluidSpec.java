@@ -1,6 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid.forge;
 
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
+import cool.muyucloud.croparia.dynamics.api.resource.type.FluidSpec;
 import net.minecraftforge.fluids.FluidStack;
 
 public class ForgeFluidSpec {

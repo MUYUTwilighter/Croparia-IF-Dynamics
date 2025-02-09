@@ -1,6 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid.fabric;
 
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
+import cool.muyucloud.croparia.dynamics.api.resource.type.FluidSpec;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 
 @SuppressWarnings("UnstableApiUsage")

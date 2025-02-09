@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import cool.muyucloud.croparia.dynamics.api.core.util.Util;
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
+import cool.muyucloud.croparia.dynamics.api.resource.type.ItemSpec;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;

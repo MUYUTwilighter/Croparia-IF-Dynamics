@@ -1,6 +1,8 @@
 package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
+import cool.muyucloud.croparia.dynamics.api.repo.annotation.Unreliable;
+import cool.muyucloud.croparia.dynamics.api.resource.type.FluidSpec;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,7 +33,7 @@ public interface FluidRepoProvider {
      * Find a {@link Repo} of {@link FluidSpec} in world.
      * </p>
      * <p>
-     * The return value might not be fully reliable. See methods in {@link PlatformFluidAgent} with annotation {@link cool.muyucloud.croparia.dynamics.api.repo.Unreliable}
+     * The return value might not be fully reliable. See methods in {@link PlatformFluidAgent} with annotation {@link Unreliable}
      * </p>
      *
      * @param world     the world

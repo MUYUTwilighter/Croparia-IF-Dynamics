@@ -134,6 +134,10 @@ public abstract class RepoUnit<T extends ResourceType> implements Repo<T> {
         return consumed;
     }
 
+    public long consume(long amount) {
+        return this.consume(this.getResource(), amount);
+    }
+
     @Override
     public long simAccept(int i, T resource, long amount) {
         if (i != 0 || !this.isAcceptable() || !this.isFluidValid(resource)) return 0L;

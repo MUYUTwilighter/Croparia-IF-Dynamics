@@ -5,22 +5,24 @@ import cool.muyucloud.croparia.dynamics.api.core.item.ElemCrucible;
 import cool.muyucloud.croparia.dynamics.api.core.item.ElenetAstrolabe;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.ElemForgeRecipe;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.input.EfrContainer;
+import cool.muyucloud.croparia.dynamics.api.core.recipe.type.EfrType;
 import cool.muyucloud.croparia.dynamics.api.core.util.Constants;
 import cool.muyucloud.croparia.dynamics.api.core.util.RecipeProcessor;
 import cool.muyucloud.croparia.dynamics.api.core.util.RecipeProcessorUnit;
+import cool.muyucloud.croparia.dynamics.api.elenet.ElenetAddress;
 import cool.muyucloud.croparia.dynamics.api.elenet.ElenetPeer;
 import cool.muyucloud.croparia.dynamics.api.elenet.ElenetPeerProvider;
 import cool.muyucloud.croparia.dynamics.api.repo.ElenetRepo;
-import cool.muyucloud.croparia.dynamics.api.repo.FuelUnit;
+import cool.muyucloud.croparia.dynamics.api.repo.FuelRepo;
 import cool.muyucloud.croparia.dynamics.api.repo.RepoBatch;
 import cool.muyucloud.croparia.dynamics.api.repo.RepoUnit;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.CrucibleBatch;
-import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.FluidUnit;
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemUnit;
 import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
+import cool.muyucloud.croparia.dynamics.api.resource.type.FluidSpec;
+import cool.muyucloud.croparia.dynamics.api.resource.type.ItemSpec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -28,10 +30,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,20 +43,27 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public abstract class ElemForgeBlockEntity<F extends ResourceType> extends BlockEntity implements ElenetPeerProvider {
     private final RecipeProcessor<F> recipeProcessor = new RecipeProcessor<>();
-    private final transient RecipeType<? extends ElemForgeRecipe> recipeType;
     private final CrucibleBatch crucibleBatch = new CrucibleBatch();
     private final ItemUnit crucibleSlot = new ItemUnit(item -> item.isOf(Constants.TAG_CRUCIBLES), 1);
     private final RepoBatch<ItemSpec> astrolabeBatch = RepoBatch.of(ItemSpec.TYPE);
     private final ElenetPeer peer = new ElenetPeer();
+    private final transient EfrType recipeType;
     private final transient Map<TypeToken<?>, ElenetRepo<?>> elenetRepos = new HashMap<>();
+    private final transient int maxLevel;
 
     public ElemForgeBlockEntity(
-        BlockEntityType<?> beType, BlockPos pos, BlockState state, RecipeType<? extends ElemForgeRecipe> recipeType
+        BlockEntityType<?> beType, BlockPos pos, BlockState state, EfrType recipeType, int maxLevel
     ) {
         super(beType, pos, state);
         this.recipeType = recipeType;
+        this.maxLevel = maxLevel;
         this.registerElenetRepo(ElenetRepo.of(this::elenetConsumableItems, this::elenetAcceptableItems));
         this.registerElenetRepo(ElenetRepo.of(this::elenetConsumableFluids, this::elenetAcceptableFluids));
+    }
+
+    public int tryUpgrade(int level) {
+        int target = 2 << Math.min(maxLevel, level);
+        return this.addRecipeProcessorUnit(target - this.getRecipeProcessor().size());
     }
 
     @Override
@@ -70,7 +79,7 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         this.peer.load(nbt.getCompound("peer"));
         for (RepoUnit<ItemSpec> unit : this.astrolabeBatch) {
             if (unit.getResource().getItem() instanceof ElenetAstrolabe<?> astrolabe && !unit.isEmpty()) {
-                this.getPeer().setRepo(this.getElenetRepo(astrolabe.getType()));
+                this.peer.setRepo(this.getElenetRepo(astrolabe.getType()));
             }
         }
     }
@@ -105,8 +114,18 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         }
     }
 
+    @Override
+    public void setLevel(Level level) {
+        super.setLevel(level);
+        this.peer.setAddress(ElenetAddress.of(level, this.getBlockPos()));
+    }
+
     public ElenetPeer getPeer() {
-        return peer;
+        return this.peer;
+    }
+
+    public Optional<ElenetPeer> getPeer(ElenetAddress address) {
+        return this.peer.getAddress().equals(address) ? Optional.of(this.peer) : Optional.empty();
     }
 
     public void registerElenetRepo(ElenetRepo<?> elenetRepo) {
@@ -222,7 +241,7 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         return consumable;
     }
 
-    public abstract FuelUnit<F> getFuelUnit();
+    public abstract FuelRepo<F> getFuelUnit();
 
     public RepoBatch<ItemSpec> getCompassBatch() {
         return astrolabeBatch;
@@ -248,14 +267,15 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         return this.getCrucibleSlot().getResource().getItem() instanceof ElemCrucible crucible ? Optional.of(crucible) : Optional.empty();
     }
 
-    public RecipeProcessorUnit<F> addRecipeProcessorUnit(
-        @Nullable RepoBatch<ItemSpec> itemInputs, @Nullable RepoBatch<FluidSpec> fluidBatch,
-        @Nullable RepoBatch<ItemSpec> itemOutputs, @Nullable RepoBatch<FluidSpec> fluidOutputs
-    ) {
-        EfrContainer container = EfrContainer.of(itemInputs, fluidBatch, itemOutputs, fluidOutputs);
-        RecipeProcessorUnit<F> unit = new RecipeProcessorUnit<>(this.getRecipeType(), this.getCrucibleBatch(), container, this.getFuelUnit());
-        this.getRecipeProcessor().add(unit);
-        return unit;
+    public int addRecipeProcessorUnit(int count) {
+        int result = 0;
+        for (int i = 0; i < count; ++i) {
+            EfrContainer container = recipeType.container();
+            RecipeProcessorUnit<F> unit = new RecipeProcessorUnit<>(this.getRecipeType(), this.getCrucibleBatch(), container, this.getFuelUnit());
+            this.getRecipeProcessor().add(unit);
+            result++;
+        }
+        return result;
     }
 
     protected void updateCrucible() {

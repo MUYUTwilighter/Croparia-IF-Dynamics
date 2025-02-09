@@ -1,4 +1,4 @@
-package cool.muyucloud.croparia.dynamics.api.repo.fluid;
+package cool.muyucloud.croparia.dynamics.api.resource.type;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import cool.muyucloud.croparia.dynamics.CropariaIfDynamics;
 import cool.muyucloud.croparia.dynamics.annotation.SuggestAccess;
-import cool.muyucloud.croparia.dynamics.api.repo.FuelUnit;
+import cool.muyucloud.croparia.dynamics.api.repo.FuelRepo;
 import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
 import net.minecraft.core.BlockPos;
@@ -27,7 +27,7 @@ public class ElenetHub<F extends ResourceType> implements ElenetAccess {
     private static final float REFRESH_RATE = 0.05F;
 
     @NotNull
-    protected transient final FuelUnit<F> fuelUnit;
+    protected transient final FuelRepo<F> fuelRepo;
     @NotNull
     protected transient final Supplier<Float> fuelEffect;
     @NotNull
@@ -41,8 +41,8 @@ public class ElenetHub<F extends ResourceType> implements ElenetAccess {
     protected boolean autoRefresh = true;
     private transient boolean removed = false;
 
-    public ElenetHub(@NotNull FuelUnit<F> fuelUnit, @NotNull Supplier<Float> fuelEffect, @NotNull ElenetAddress address) {
-        this.fuelUnit = fuelUnit;
+    public ElenetHub(@NotNull FuelRepo<F> fuelRepo, @NotNull Supplier<Float> fuelEffect, @NotNull ElenetAddress address) {
+        this.fuelRepo = fuelRepo;
         this.fuelEffect = fuelEffect;
         this.address = address;
     }
@@ -66,7 +66,7 @@ public class ElenetHub<F extends ResourceType> implements ElenetAccess {
 
     public void tick() {
         if (this.isIdle()) return;
-        this.fuelUnit.burn(this.calcFuel());
+        this.fuelRepo.burn(this.calcFuel());
         if (this.autoRefresh && Math.random() < REFRESH_RATE) {
             ElenetTask.subscribeIfAvailable(this::onRefresh, this.getRange(), List.of(), List.of());
         }
@@ -93,7 +93,7 @@ public class ElenetHub<F extends ResourceType> implements ElenetAccess {
     }
 
     public boolean isIdle() {
-        return !removed && fuelUnit.isEnoughFor(this.calcFuel());
+        return !removed && fuelRepo.isEnoughFor(this.calcFuel());
     }
 
     public <T extends ResourceType> Optional<Collection<ElenetAddress>> resonatedHubsOfType(TypeToken<T> type) {

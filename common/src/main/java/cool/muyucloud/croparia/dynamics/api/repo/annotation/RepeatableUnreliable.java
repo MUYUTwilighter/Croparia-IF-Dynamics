@@ -1,4 +1,4 @@
-package cool.muyucloud.croparia.dynamics.api.repo;
+package cool.muyucloud.croparia.dynamics.api.repo.annotation;
 
 import java.lang.annotation.Inherited;
 

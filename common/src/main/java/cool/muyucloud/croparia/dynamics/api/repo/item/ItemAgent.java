@@ -2,6 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.item;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
+import cool.muyucloud.croparia.dynamics.api.resource.type.ItemSpec;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 
 import java.util.function.Supplier;

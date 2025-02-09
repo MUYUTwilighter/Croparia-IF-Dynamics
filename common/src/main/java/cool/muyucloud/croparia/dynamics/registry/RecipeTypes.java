@@ -12,6 +12,6 @@ public class RecipeTypes {
     private static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(CropariaIf.MOD_ID, Registries.RECIPE_TYPE);
 
     public static RegistrySupplier<EfrType> registerEfr(String id) {
-        return RECIPE_TYPES.register(id, () -> new EfrType(CropariaIf.of(id)));
+        return RECIPE_TYPES.register(id, () -> new EfrType(CropariaIf.of(id), 1, 1, 1, 1, item -> true, fluid -> true));
     }
 }

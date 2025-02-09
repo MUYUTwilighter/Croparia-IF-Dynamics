@@ -2,10 +2,10 @@ package cool.muyucloud.croparia.dynamics.api.core.item;
 
 import net.minecraft.world.item.Item;
 
-public class ElemCrucible extends Item {
+public class ForgeUpgrade extends Item {
     private final int tier;
 
-    public ElemCrucible(int tier, Properties properties) {
+    public ForgeUpgrade(int tier, Properties properties) {
         super(properties);
         this.tier = tier;
     }

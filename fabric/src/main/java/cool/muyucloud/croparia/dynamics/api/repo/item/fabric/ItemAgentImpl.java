@@ -2,7 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.item.fabric;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.repo.item.ItemAgent;
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
+import cool.muyucloud.croparia.dynamics.api.resource.type.ItemSpec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;

@@ -1,8 +1,8 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item.forge;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
-import cool.muyucloud.croparia.dynamics.api.repo.item.ItemSpec;
 import cool.muyucloud.croparia.dynamics.api.repo.item.PlatformItemAgent;
+import cool.muyucloud.croparia.dynamics.api.resource.type.ItemSpec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 

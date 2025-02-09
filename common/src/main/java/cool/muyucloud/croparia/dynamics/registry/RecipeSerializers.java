@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 public class RecipeSerializers {
     private static final DeferredRegister<RecipeSerializer<?>> SERIALIZERS = DeferredRegister.create(CropariaIf.MOD_ID, Registries.RECIPE_SERIALIZER);
 
-    public static final RegistrySupplier<EfrSerializer> TEST = register("test", () -> new EfrSerializer(1, 1, 1, 1));
+    public static final RegistrySupplier<EfrSerializer> TEST = register("test", () -> EfrSerializer.INSTANCE);
 
     public static <T extends RecipeSerializer<?>> RegistrySupplier<T> register(String id, Supplier<T> supplier) {
         return SERIALIZERS.register(id, supplier);

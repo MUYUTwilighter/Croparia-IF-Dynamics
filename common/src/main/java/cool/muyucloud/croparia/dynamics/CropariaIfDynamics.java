@@ -13,7 +13,7 @@ public final class CropariaIfDynamics {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static void init() {
-        // Write common init code here.
+
     }
 
     public static void onServerStarting(MinecraftServer server) {

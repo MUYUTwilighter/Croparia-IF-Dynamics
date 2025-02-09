@@ -3,17 +3,18 @@ package cool.muyucloud.croparia.dynamics.api.repo;
 import com.google.gson.JsonObject;
 import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
-public class FuelUnit<T extends ResourceType> implements Repo<T> {
+public class FuelRepo<T extends ResourceType> implements Repo<T> {
     private final transient T resource;
     private final transient long capacity;
     private transient long amount = 0;
 
-    public FuelUnit(@NotNull T resource, long capacity) {
-        this.resource = resource;
+    public FuelRepo(@NotNull TypeToken<T> type, long capacity) {
+        this.resource = type.empty();
         this.capacity = capacity;
     }
 
@@ -26,8 +27,16 @@ public class FuelUnit<T extends ResourceType> implements Repo<T> {
         this.amount = GsonHelper.getAsLong(json, "amount", 0L);
     }
 
+    public void load(CompoundTag nbt) {
+        this.amount = nbt.getLong("amount");
+    }
+
     public void save(JsonObject json) {
         json.addProperty("amount", this.amount);
+    }
+
+    public void save(CompoundTag nbt) {
+        nbt.putLong("amount", this.amount);
     }
 
     public boolean isResourceValid(T resource) {

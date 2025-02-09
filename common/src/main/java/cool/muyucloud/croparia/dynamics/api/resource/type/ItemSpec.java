@@ -1,4 +1,4 @@
-package cool.muyucloud.croparia.dynamics.api.repo.item;
+package cool.muyucloud.croparia.dynamics.api.resource.type;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -75,7 +75,9 @@ public class ItemSpec implements ResourceType {
     }
 
     public ItemStack toStack() {
-        return toStack(1);
+        ItemStack stack = this.getItem().getDefaultInstance();
+        stack.setTag(this.getNbt().orElse(null));
+        return stack;
     }
 
     public boolean is(Item item) {

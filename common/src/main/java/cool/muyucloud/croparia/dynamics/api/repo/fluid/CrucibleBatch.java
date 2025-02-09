@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import cool.muyucloud.croparia.api.element.ElementsEnum;
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
+import cool.muyucloud.croparia.dynamics.api.resource.type.FluidSpec;
 import cool.muyucloud.croparia.registry.Fluids;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;

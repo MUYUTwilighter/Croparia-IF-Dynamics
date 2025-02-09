@@ -5,6 +5,7 @@ import com.mojang.serialization.JsonOps;
 import cool.muyucloud.croparia.dynamics.CropariaIfDynamics;
 import cool.muyucloud.croparia.dynamics.api.repo.RepoUnit;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
+import cool.muyucloud.croparia.dynamics.api.resource.type.ItemSpec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;

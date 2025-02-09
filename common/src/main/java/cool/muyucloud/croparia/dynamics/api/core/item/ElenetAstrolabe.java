@@ -10,8 +10,8 @@ public class ElenetAstrolabe<T extends ResourceType> extends Item implements Typ
     @NotNull
     private final TypeToken<T> type;
 
-    public ElenetAstrolabe(@NotNull TypeToken<T> type) {
-        super(new Item.Properties());
+    public ElenetAstrolabe(@NotNull TypeToken<T> type, Properties properties) {
+        super(properties);
         this.type = type;
     }
 

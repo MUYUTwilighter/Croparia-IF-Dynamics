@@ -1,7 +1,7 @@
 package cool.muyucloud.croparia.dynamics.api.repo.item;
 
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
-import cool.muyucloud.croparia.dynamics.api.repo.Unreliable;
+import cool.muyucloud.croparia.dynamics.api.repo.annotation.Unreliable;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
