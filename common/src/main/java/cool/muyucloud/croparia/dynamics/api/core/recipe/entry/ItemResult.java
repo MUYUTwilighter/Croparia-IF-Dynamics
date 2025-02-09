@@ -16,8 +16,8 @@ public class ItemResult {
     public static final MapCodec<ItemResult> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ResourceLocation.CODEC.fieldOf("id").forGetter(ItemResult::getId),
         CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(ItemResult::getNbt),
-        Codec.LONG.fieldOf("amount").forGetter(ItemResult::getAmount)
-    ).apply(instance, (id, nbt, amount) -> new ItemResult(id, nbt.orElse(null), amount)));
+        Codec.LONG.optionalFieldOf("amount").forGetter(result -> Optional.of(result.getAmount()))
+    ).apply(instance, (id, nbt, amount) -> new ItemResult(id, nbt.orElse(null), amount.orElse(1L))));
 
     @NotNull
     private final ResourceLocation id;

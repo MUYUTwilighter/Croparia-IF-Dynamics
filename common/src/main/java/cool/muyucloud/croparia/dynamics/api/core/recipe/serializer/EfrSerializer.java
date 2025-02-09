@@ -32,13 +32,13 @@ public class EfrSerializer implements RecipeSerializer<ElemForgeRecipe> {
         ).getFirst();
         EfrType recipeType = (EfrType) BuiltInRegistries.RECIPE_TYPE.get(recipeTypeId);
         if (recipeType == null) throw new IllegalArgumentException("Unknown recipe type: " + recipeTypeId);
-        List<ItemEntry> itemEntries = readList(json.getAsJsonArray("itemEntries"), ItemEntry.CODEC, recipeType.itemInputSize());
-        List<FluidEntry> fluidEntries = readList(json.getAsJsonArray("fluidEntries"), FluidEntry.CODEC, recipeType.fluidInputSize());
-        List<ItemResult> itemResults = readList(json.getAsJsonArray("itemResults"), ItemResult.CODEC, recipeType.itemOutputSize());
-        List<FluidResult> fluidResults = readList(json.getAsJsonArray("fluidResults"), FluidResult.CODEC, recipeType.fluidOutputSize());
+        List<ItemEntry> itemInputs = readList(json.getAsJsonArray("item_inputs"), ItemEntry.CODEC, recipeType.itemInputSize());
+        List<FluidEntry> fluidInputs = readList(json.getAsJsonArray("fluid_inputs"), FluidEntry.CODEC, recipeType.fluidInputSize());
+        List<ItemResult> itemOutputs = readList(json.getAsJsonArray("item_outputs"), ItemResult.CODEC, recipeType.itemOutputSize());
+        List<FluidResult> fluidOutputs = readList(json.getAsJsonArray("fluid_outputs"), FluidResult.CODEC, recipeType.fluidOutputSize());
         int duration = json.get("duration").getAsInt();
         int fuel = GsonHelper.getAsInt(json, "fuel", 0);
-        return new ElemForgeRecipe(id, recipeType, this, itemEntries, fluidEntries, itemResults, fluidResults, duration, fuel);
+        return new ElemForgeRecipe(id, recipeType, this, itemInputs, fluidInputs, itemOutputs, fluidOutputs, duration, fuel);
     }
 
     public <E> List<E> readList(@Nullable JsonElement json, MapCodec<E> elemCodec, int maxSize) {
@@ -62,13 +62,13 @@ public class EfrSerializer implements RecipeSerializer<ElemForgeRecipe> {
         ResourceLocation recipeTypeId = friendlyByteBuf.readResourceLocation();
         EfrType recipeType = (EfrType) BuiltInRegistries.RECIPE_TYPE.get(recipeTypeId);
         if (recipeType == null) throw new IllegalArgumentException("Unknown recipe type: " + recipeTypeId);
-        List<ItemEntry> itemEntries = recipeType.itemInputSize() > 0 ? friendlyByteBuf.readJsonWithCodec(ItemEntry.CODEC.codec().listOf()) : Collections.emptyList();
-        List<FluidEntry> fluidEntries = recipeType.fluidInputSize() > 0 ? friendlyByteBuf.readJsonWithCodec(FluidEntry.CODEC.codec().listOf()) : Collections.emptyList();
-        List<ItemResult> itemResults = recipeType.itemOutputSize() > 0 ? friendlyByteBuf.readJsonWithCodec(ItemResult.CODEC.codec().listOf()) : Collections.emptyList();
-        List<FluidResult> fluidResults = recipeType.fluidOutputSize() > 0 ? friendlyByteBuf.readJsonWithCodec(FluidResult.CODEC.codec().listOf()) : Collections.emptyList();
+        List<ItemEntry> itemInputs = recipeType.itemInputSize() > 0 ? friendlyByteBuf.readJsonWithCodec(ItemEntry.CODEC.codec().listOf()) : Collections.emptyList();
+        List<FluidEntry> fluidInputs = recipeType.fluidInputSize() > 0 ? friendlyByteBuf.readJsonWithCodec(FluidEntry.CODEC.codec().listOf()) : Collections.emptyList();
+        List<ItemResult> itemOutputs = recipeType.itemOutputSize() > 0 ? friendlyByteBuf.readJsonWithCodec(ItemResult.CODEC.codec().listOf()) : Collections.emptyList();
+        List<FluidResult> fluidOutputs = recipeType.fluidOutputSize() > 0 ? friendlyByteBuf.readJsonWithCodec(FluidResult.CODEC.codec().listOf()) : Collections.emptyList();
         int duration = friendlyByteBuf.readInt();
         int fuel = friendlyByteBuf.readInt();
-        return new ElemForgeRecipe(id, recipeType, this, itemEntries, fluidEntries, itemResults, fluidResults, duration, fuel);
+        return new ElemForgeRecipe(id, recipeType, this, itemInputs, fluidInputs, itemOutputs, fluidOutputs, duration, fuel);
     }
 
     @Override

@@ -20,9 +20,9 @@ public class ItemEntry {
         ResourceLocation.CODEC.optionalFieldOf("id").forGetter(ItemEntry::getId),
         TagKey.codec(Registries.ITEM).optionalFieldOf("tag").forGetter(ItemEntry::getTag),
         CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(ItemEntry::getNbt),
-        Codec.LONG.fieldOf("amount").forGetter(ItemEntry::getAmount),
-        Codec.BOOL.fieldOf("effect").forGetter(ItemEntry::canEffect)
-    ).apply(instance, (id, tag, nbt, amount, elemEffect) -> new ItemEntry(id.orElse(null), tag.orElse(null), nbt.orElse(null), amount, elemEffect)));
+        Codec.LONG.optionalFieldOf("amount").forGetter(entry -> Optional.of(entry.getAmount())),
+        Codec.BOOL.optionalFieldOf("effect").forGetter(entry -> Optional.of(entry.canEffect()))
+    ).apply(instance, (id, tag, nbt, amount, elemEffect) -> new ItemEntry(id.orElse(null), tag.orElse(null), nbt.orElse(null), amount.orElse(1L), elemEffect.orElse(true))));
 
     @Nullable
     private final ResourceLocation id;

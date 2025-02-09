@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -21,18 +22,20 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Supplier;
+
 @SuppressWarnings({"unused", "deprecation"})
 public class ElemForgeBlock extends BaseEntityBlock {
     public static final BooleanProperty RUNNING = BooleanProperty.create("running");
     public static final IntegerProperty TIER = IntegerProperty.create("tier", 0, 3);
 
     @NotNull
-    private final BlockEntityType<? extends ElemForgeBlockEntity<?>> blockEntityType;
+    private final Supplier<BlockEntityType<? extends ElemForgeBlockEntity<?>>> blockEntityType;
 
-    protected ElemForgeBlock(@NotNull Properties properties, @NotNull BlockEntityType<? extends ElemForgeBlockEntity<?>> blockEntityType) {
+    public ElemForgeBlock(@NotNull Properties properties, @NotNull Supplier<BlockEntityType<? extends ElemForgeBlockEntity<?>>> blockEntityType) {
         super(properties);
         this.blockEntityType = blockEntityType;
-        this.registerDefaultState(this.defaultBlockState().setValue(RUNNING, false));
+        this.registerDefaultState(this.defaultBlockState().setValue(RUNNING, false).setValue(TIER, 0));
     }
 
     @Override
@@ -52,6 +55,7 @@ public class ElemForgeBlock extends BaseEntityBlock {
                         return InteractionResult.PASS;
                     } else {
                         state.setValue(TIER, upgrade.getTier());
+                        stack.shrink(1);
                     }
                 }
             }
@@ -59,14 +63,37 @@ public class ElemForgeBlock extends BaseEntityBlock {
         return InteractionResult.PASS;
     }
 
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos blockPos, BlockState future, boolean bl) {
+        super.onRemove(state, level, blockPos, future, bl);
+        if (state.getBlock() != future.getBlock()) {
+            BlockEntity be = level.getBlockEntity(blockPos);
+            if (be instanceof ElemForgeBlockEntity<?> forge) {
+                forge.onRemove();
+            }
+        }
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return blockEntityType.create(blockPos, blockState);
+        return blockEntityType.get().create(blockPos, blockState);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(RUNNING);
+        builder.add(TIER);
+    }
+
+    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return createTickerHelper(
+            type, this.blockEntityType.get(),
+            (world, pos, state1, be) -> {
+                if (!world.isClientSide) {
+                    be.tick(world.getServer());
+                }
+            }
+        );
     }
 }

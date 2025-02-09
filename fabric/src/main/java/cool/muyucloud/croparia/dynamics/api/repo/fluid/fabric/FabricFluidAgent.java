@@ -141,7 +141,6 @@ public class FabricFluidAgent implements PlatformFluidAgent {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public long accept(int i, FluidSpec fluid, long amount) {
         if (!this.get().supportsInsertion()) {
             return 0L;

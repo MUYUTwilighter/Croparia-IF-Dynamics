@@ -16,7 +16,13 @@ import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class FluidEntry {
-    public static final MapCodec<FluidEntry> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(ResourceLocation.CODEC.optionalFieldOf("id").forGetter(FluidEntry::getId), TagKey.codec(Registries.FLUID).optionalFieldOf("tag").forGetter(FluidEntry::getTag), CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(FluidEntry::getNbt), Codec.LONG.fieldOf("amount").forGetter(FluidEntry::getAmount), Codec.BOOL.fieldOf("elem_effect").forGetter(FluidEntry::canEffect)).apply(instance, (id, tag, nbt, amount, elemEffect) -> new FluidEntry(id.orElse(null), tag.orElse(null), nbt.orElse(null), amount, elemEffect)));
+    public static final MapCodec<FluidEntry> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        ResourceLocation.CODEC.optionalFieldOf("id").forGetter(FluidEntry::getId),
+        TagKey.codec(Registries.FLUID).optionalFieldOf("tag").forGetter(FluidEntry::getTag),
+        CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(FluidEntry::getNbt),
+        Codec.LONG.optionalFieldOf("amount").forGetter(entry -> Optional.of(entry.getAmount())),
+        Codec.BOOL.optionalFieldOf("effect").forGetter(entry -> Optional.of(entry.canEffect()))
+    ).apply(instance, (id, tag, nbt, amount, elemEffect) -> new FluidEntry(id.orElse(null), tag.orElse(null), nbt.orElse(null), amount.orElse(20250L), elemEffect.orElse(true))));
 
     @Nullable
     private final ResourceLocation id;

@@ -1,4 +1,4 @@
-package cool.muyucloud.croparia.dynamics.api.core;
+package cool.muyucloud.croparia.dynamics.api.core.util;
 
 import cool.muyucloud.croparia.dynamics.annotation.ServerOnly;
 import cool.muyucloud.croparia.dynamics.api.elenet.ElenetAddress;

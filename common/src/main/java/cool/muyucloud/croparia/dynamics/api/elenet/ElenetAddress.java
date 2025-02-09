@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import cool.muyucloud.croparia.dynamics.annotation.ClientOnly;
 import cool.muyucloud.croparia.dynamics.annotation.ServerOnly;
-import cool.muyucloud.croparia.dynamics.api.core.ServerProvider;
+import cool.muyucloud.croparia.dynamics.api.core.util.ServerProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;

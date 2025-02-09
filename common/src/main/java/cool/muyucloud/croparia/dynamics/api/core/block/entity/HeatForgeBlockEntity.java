@@ -13,12 +13,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.function.Supplier;
+
 @SuppressWarnings("unused")
 public class HeatForgeBlockEntity extends ElemForgeBlockEntity<Heat> {
     private final ItemUnit fuelSource = new ItemUnit(item -> FuelRegistry.get(item.toStack()) > 0, 64);
     private final BurningFuel burningFuel = new BurningFuel();
 
-    public HeatForgeBlockEntity(BlockEntityType<?> beType, BlockPos pos, BlockState state, EfrType recipeType, int maxLevel) {
+    public HeatForgeBlockEntity(Supplier<BlockEntityType<?>> beType, BlockPos pos, BlockState state, EfrType recipeType, int maxLevel) {
         super(beType, pos, state, recipeType, maxLevel);
     }
 

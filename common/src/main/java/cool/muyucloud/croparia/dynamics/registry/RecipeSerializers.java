@@ -18,4 +18,8 @@ public class RecipeSerializers {
     public static <T extends RecipeSerializer<?>> RegistrySupplier<T> register(String id, Supplier<T> supplier) {
         return SERIALIZERS.register(id, supplier);
     }
+
+    public static void register() {
+        SERIALIZERS.register();
+    }
 }

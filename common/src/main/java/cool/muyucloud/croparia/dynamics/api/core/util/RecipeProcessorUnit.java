@@ -3,7 +3,6 @@ package cool.muyucloud.croparia.dynamics.api.core.util;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import cool.muyucloud.croparia.dynamics.annotation.ServerOnly;
-import cool.muyucloud.croparia.dynamics.api.core.ServerProvider;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.ElemForgeRecipe;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.input.EfrContainer;
 import cool.muyucloud.croparia.dynamics.api.repo.FuelRepo;

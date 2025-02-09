@@ -2,6 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.repo.fluid;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
+import cool.muyucloud.croparia.api.element.ElementAccess;
 import cool.muyucloud.croparia.api.element.ElementsEnum;
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
@@ -15,6 +16,8 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 public class CrucibleBatch implements Repo<FluidSpec>, Iterable<FluidUnit> {
+    private static final ElementsEnum[] ELEMENTS = {ElementsEnum.EARTH, ElementsEnum.WATER, ElementsEnum.FIRE, ElementsEnum.AIR};
+
     private final Map<ElementsEnum, FluidUnit> units = ImmutableMap.of(
         ElementsEnum.EARTH, FluidUnit.of(fluid -> fluid.is(Fluids.EARTH.get()), 81000 * 3),
         ElementsEnum.WATER, FluidUnit.of(fluid -> fluid.is(Fluids.WATER.get()), 81000 * 3),
@@ -125,36 +128,73 @@ public class CrucibleBatch implements Repo<FluidSpec>, Iterable<FluidUnit> {
 
     @Override
     public FluidSpec resourceFor(int i) {
-        return null;
+        ElementsEnum element = ELEMENTS[i];
+        FluidUnit unit = units.get(element);
+        if (unit != null) {
+            return unit.getResource();
+        }
+        return FluidSpec.EMPTY;
     }
 
     @Override
     public long simConsume(int i, FluidSpec resource, long amount) {
+        ElementsEnum element = ELEMENTS[i];
+        FluidUnit unit = units.get(element);
+        if (unit != null) {
+            return unit.simConsume(resource, amount);
+        }
         return 0;
     }
 
     @Override
     public long consume(int i, FluidSpec resource, long amount) {
+        ElementsEnum element = ELEMENTS[i];
+        FluidUnit unit = units.get(element);
+        if (unit != null) {
+            return unit.consume(resource, amount);
+        }
         return 0;
     }
 
     @Override
     public long simAccept(int i, FluidSpec resource, long amount) {
+        ElementsEnum element = ELEMENTS[i];
+        FluidUnit unit = units.get(element);
+        if (unit != null) {
+            return unit.simAccept(resource, amount);
+        }
         return 0;
     }
 
     @Override
     public long accept(int i, FluidSpec resource, long amount) {
+        ElementsEnum element = ELEMENTS[i];
+        FluidUnit unit = units.get(element);
+        if (unit != null) {
+            return unit.accept(resource, amount);
+        }
         return 0;
     }
 
     @Override
     public long capacityFor(int i, FluidSpec resource) {
+        if (resource.getFluid() instanceof ElementAccess access) {
+            FluidUnit unit = units.get(access.getElement());
+            if (unit != null && unit.getResource().equals(resource)) {
+                return unit.getCapacity();
+            }
+        }
         return 0;
     }
 
     @Override
     public long amountFor(int i, FluidSpec resource) {
+        if (resource.getFluid() instanceof ElementAccess access) {
+            FluidUnit unit = units.get(access.getElement());
+            if (unit != null && unit.getResource().equals(resource)) {
+                return unit.getAmount();
+            }
+        }
         return 0;
     }
 

@@ -1,0 +1,15 @@
+{
+  "type": "croparia:test",
+  "fuel": 0,
+  "duration": 10,
+  "item_inputs": [
+    {
+      "id": "minecraft:stone"
+    }
+  ],
+  "item_outputs": [
+    {
+      "id": "minecraft:dirt"
+    }
+  ]
+}

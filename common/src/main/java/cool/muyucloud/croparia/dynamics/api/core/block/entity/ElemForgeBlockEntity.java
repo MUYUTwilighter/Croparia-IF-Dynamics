@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public abstract class ElemForgeBlockEntity<F extends ResourceType> extends BlockEntity implements ElenetPeerProvider {
@@ -52,13 +53,28 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
     private final transient int maxLevel;
 
     public ElemForgeBlockEntity(
-        BlockEntityType<?> beType, BlockPos pos, BlockState state, EfrType recipeType, int maxLevel
+        Supplier<BlockEntityType<?>> beType, BlockPos pos, BlockState state, EfrType recipeType, int maxLevel
     ) {
-        super(beType, pos, state);
+        super(beType.get(), pos, state);
         this.recipeType = recipeType;
         this.maxLevel = maxLevel;
         this.registerElenetRepo(ElenetRepo.of(this::elenetConsumableItems, this::elenetAcceptableItems));
         this.registerElenetRepo(ElenetRepo.of(this::elenetConsumableFluids, this::elenetAcceptableFluids));
+        this.tryUpgrade(state.getValue(ElemForgeBlock.TIER));
+    }
+
+    public void tick(MinecraftServer server) {
+        this.updateCrucible();
+        this.getRecipeProcessor().tick(server);
+        if (this.getRecipeProcessor().isRunning()) {
+            Objects.requireNonNull(this.getLevel()).setBlock(this.getBlockPos(), this.getBlockState().setValue(ElemForgeBlock.RUNNING, true), 3);
+        } else {
+            Objects.requireNonNull(this.getLevel()).setBlock(this.getBlockPos(), this.getBlockState().setValue(ElemForgeBlock.RUNNING, false), 3);
+        }
+    }
+
+    public void onRemove() {
+        this.getPeer().onRemove();
     }
 
     public int tryUpgrade(int level) {
@@ -102,16 +118,6 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         CompoundTag peerTag = new CompoundTag();
         compoundTag.put("peer", peerTag);
         this.peer.save(peerTag);
-    }
-
-    public void tick(MinecraftServer server) {
-        this.updateCrucible();
-        this.getRecipeProcessor().tick(server);
-        if (this.getRecipeProcessor().isRunning()) {
-            Objects.requireNonNull(this.getLevel()).setBlock(this.getBlockPos(), this.getBlockState().setValue(ElemForgeBlock.RUNNING, true), 3);
-        } else {
-            Objects.requireNonNull(this.getLevel()).setBlock(this.getBlockPos(), this.getBlockState().setValue(ElemForgeBlock.RUNNING, false), 3);
-        }
     }
 
     @Override
