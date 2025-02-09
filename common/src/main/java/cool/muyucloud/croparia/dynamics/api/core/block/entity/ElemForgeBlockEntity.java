@@ -64,6 +64,7 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         this.crucibleBatch.load(nbt.getCompound("crucible_batch"));
         this.crucibleSlot.load(nbt.getCompound("crucible_slot"));
         ListTag astrolabeBatchTag = nbt.getList("astrolabe_batch", CompoundTag.TAG_COMPOUND);
+        this.astrolabeBatch.clear();
         this.astrolabeBatch.add(ItemUnit.of(item -> item.getItem() instanceof ElenetAstrolabe, 1, astrolabeBatchTag.size()));
         this.astrolabeBatch.load(astrolabeBatchTag);
         this.peer.load(nbt.getCompound("peer"));

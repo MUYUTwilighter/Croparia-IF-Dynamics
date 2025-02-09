@@ -108,6 +108,10 @@ public class RepoBatch<T extends ResourceType> implements Repo<T>, Iterable<Repo
         return units.remove(i);
     }
 
+    public void clear() {
+        units.clear();
+    }
+
     @Override
     public int size() {
         return units.size();
