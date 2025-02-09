@@ -5,6 +5,8 @@ import com.mojang.serialization.JsonOps;
 import cool.muyucloud.croparia.dynamics.CropariaIfDynamics;
 import cool.muyucloud.croparia.dynamics.api.repo.RepoUnit;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
@@ -44,9 +46,25 @@ public class FluidUnit extends RepoUnit<FluidSpec> {
         }
     }
 
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        if (tag.contains("fluid")) {
+            this.fluid = FluidSpec.CODEC.codec().decode(NbtOps.INSTANCE, tag.get("fluid")).getOrThrow(
+                false, msg -> CropariaIfDynamics.LOGGER.error("Failed to decode fluid: %s".formatted(msg))
+            ).getFirst();
+        }
+    }
+
     public void save(JsonObject json) {
         super.save(json);
         json.add("fluid", FluidSpec.CODEC.codec().encodeStart(JsonOps.INSTANCE, this.fluid).getOrThrow(
+            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode fluid: %s".formatted(msg))
+        ));
+    }
+
+    public void save(CompoundTag tag) {
+        super.save(tag);
+        tag.put("fluid", FluidSpec.CODEC.codec().encodeStart(NbtOps.INSTANCE, this.fluid).getOrThrow(
             false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode fluid: %s".formatted(msg))
         ));
     }

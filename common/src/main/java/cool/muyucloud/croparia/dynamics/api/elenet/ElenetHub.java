@@ -8,7 +8,6 @@ import cool.muyucloud.croparia.dynamics.annotation.SuggestAccess;
 import cool.muyucloud.croparia.dynamics.api.repo.FuelUnit;
 import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
-import cool.muyucloud.croparia.dynamics.util.Provider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -20,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public class ElenetHub<F extends ResourceType> implements ElenetAccess {
@@ -29,7 +29,7 @@ public class ElenetHub<F extends ResourceType> implements ElenetAccess {
     @NotNull
     protected transient final FuelUnit<F> fuelUnit;
     @NotNull
-    protected transient final Provider<Float> fuelEffect;
+    protected transient final Supplier<Float> fuelEffect;
     @NotNull
     protected transient ElenetAddress address;
     protected final Map<TypeToken<?>, ResourceLocation> elenets = new HashMap<>();
@@ -41,7 +41,7 @@ public class ElenetHub<F extends ResourceType> implements ElenetAccess {
     protected boolean autoRefresh = true;
     private transient boolean removed = false;
 
-    public ElenetHub(@NotNull FuelUnit<F> fuelUnit, @NotNull Provider<Float> fuelEffect, @NotNull ElenetAddress address) {
+    public ElenetHub(@NotNull FuelUnit<F> fuelUnit, @NotNull Supplier<Float> fuelEffect, @NotNull ElenetAddress address) {
         this.fuelUnit = fuelUnit;
         this.fuelEffect = fuelEffect;
         this.address = address;

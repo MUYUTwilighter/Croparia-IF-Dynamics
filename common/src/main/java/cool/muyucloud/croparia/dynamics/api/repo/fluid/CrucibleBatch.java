@@ -6,6 +6,7 @@ import cool.muyucloud.croparia.api.element.ElementsEnum;
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
 import cool.muyucloud.croparia.registry.Fluids;
+import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -57,6 +58,18 @@ public class CrucibleBatch implements Repo<FluidSpec>, Iterable<FluidUnit> {
             units.get(element).save(unitJson);
             json.add(element.getSerializedName(), unitJson);
         }
+    }
+
+    public void load(CompoundTag nbt) {
+        this.units.forEach((element, unit) -> unit.load(nbt.getCompound(element.getSerializedName())));
+    }
+
+    public void save(CompoundTag nbt) {
+        this.units.forEach((element, unit) -> {
+            CompoundTag unitTag = new CompoundTag();
+            unit.save(unitTag);
+            nbt.put(element.getSerializedName(), unitTag);
+        });
     }
 
     public float getSpeedEffect() {

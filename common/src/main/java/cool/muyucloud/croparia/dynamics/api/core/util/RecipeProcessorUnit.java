@@ -9,6 +9,7 @@ import cool.muyucloud.croparia.dynamics.api.core.recipe.input.EfrContainer;
 import cool.muyucloud.croparia.dynamics.api.repo.FuelUnit;
 import cool.muyucloud.croparia.dynamics.api.repo.fluid.CrucibleBatch;
 import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.GsonHelper;
@@ -132,9 +133,22 @@ public class RecipeProcessorUnit<F extends ResourceType> {
         this.progress = GsonHelper.getAsFloat(json, "progress", 0F);
     }
 
+    @ServerOnly
+    public void load(CompoundTag nbt) {
+        ResourceLocation recipeId = ResourceLocation.tryParse(nbt.getString("recipe"));
+        recipeId = recipeId == null ? null : ResourceLocation.tryParse("minecraft:missing");
+        this.recipe = this.findRecipe(ServerProvider.getOrThrow(), recipeId).orElse(null);
+        this.progress = nbt.getFloat("progress");
+    }
+
     public void save(JsonObject json) {
         json.addProperty("recipe", recipe == null ? "minecraft:missing" : recipe.getId().toString());
         json.addProperty("progress", progress);
+    }
+
+    public void save(CompoundTag nbt) {
+        nbt.putString("recipe", recipe == null ? "minecraft:missing" : recipe.getId().toString());
+        nbt.putFloat("progress", progress);
     }
 
     public Optional<? extends ElemForgeRecipe> findRecipe(MinecraftServer server, @Nullable ResourceLocation id) {

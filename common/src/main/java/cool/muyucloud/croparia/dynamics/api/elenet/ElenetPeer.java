@@ -7,6 +7,8 @@ import cool.muyucloud.croparia.dynamics.CropariaIfDynamics;
 import cool.muyucloud.croparia.dynamics.api.repo.Repo;
 import cool.muyucloud.croparia.dynamics.api.resource.ResourceType;
 import cool.muyucloud.croparia.dynamics.api.resource.TypeToken;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -20,20 +22,48 @@ public class ElenetPeer implements ElenetAccess {
     private transient final Map<TypeToken<?>, Repo<?>> repos = new HashMap<>();
     @NotNull
     private final Map<TypeToken<?>, ElenetAddress> hubs = new HashMap<>();
-    @NotNull
     private ElenetAddress address;
 
-    public ElenetPeer(@NotNull ElenetAddress address) {
-        this.address = address;
+    public void load(JsonObject json) {
+        this.address = ElenetAddress.CODEC.codec().decode(JsonOps.INSTANCE, json.get("address")).getOrThrow(
+            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to decode address: %s".formatted(msg))
+        ).getFirst();
+        this.hubs.clear();
+        this.hubs.putAll(Codec.unboundedMap(TypeToken.CODEC, ElenetAddress.CODEC.codec()).decode(
+            JsonOps.INSTANCE, json.get("hubs")
+        ).getOrThrow(
+            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to decode hub addresses: %s".formatted(msg))
+        ).getFirst());
     }
 
-    public void load(JsonObject json) {
+    public void load(@NotNull CompoundTag nbt) {
+        this.address = ElenetAddress.CODEC.codec().decode(NbtOps.INSTANCE, nbt.get("address")).getOrThrow(
+            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to decode address: %s".formatted(msg))
+        ).getFirst();
         this.hubs.clear();
-        this.hubs.putAll(Codec.unboundedMap(TypeToken.CODEC, ElenetAddress.CODEC.codec()).decode(JsonOps.INSTANCE, json.get("hubs")).getOrThrow(false, msg -> CropariaIfDynamics.LOGGER.error("Failed to decode hub addresses: %s".formatted(msg))).getFirst());
+        this.hubs.putAll(Codec.unboundedMap(TypeToken.CODEC, ElenetAddress.CODEC.codec()).decode(
+            NbtOps.INSTANCE, nbt.get("hubs")
+        ).getOrThrow(
+            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to decode hub addresses: %s".formatted(msg))
+        ).getFirst());
     }
 
     public void save(JsonObject json) {
-        json.add("hubs", Codec.unboundedMap(TypeToken.CODEC, ElenetAddress.CODEC.codec()).encodeStart(JsonOps.INSTANCE, this.hubs).getOrThrow(false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode hub addresses: %s".formatted(msg))));
+        json.add("address", ElenetAddress.CODEC.codec().encodeStart(JsonOps.INSTANCE, this.address).getOrThrow(
+            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode address: %s".formatted(msg))
+        ));
+        json.add("hubs", Codec.unboundedMap(TypeToken.CODEC, ElenetAddress.CODEC.codec()).encodeStart(JsonOps.INSTANCE, this.hubs).getOrThrow(
+            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode hub addresses: %s".formatted(msg))
+        ));
+    }
+
+    public void save(@NotNull CompoundTag nbt) {
+        nbt.put("address", ElenetAddress.CODEC.codec().encodeStart(NbtOps.INSTANCE, this.address).getOrThrow(
+            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode address: %s".formatted(msg))
+        ));
+        nbt.put("hubs", Codec.unboundedMap(TypeToken.CODEC, ElenetAddress.CODEC.codec()).encodeStart(NbtOps.INSTANCE, this.hubs).getOrThrow(
+            false, msg -> CropariaIfDynamics.LOGGER.error("Failed to encode hub addresses: %s".formatted(msg))
+        ));
     }
 
     public void setAddress(@NotNull ElenetAddress address) {

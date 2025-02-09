@@ -42,6 +42,26 @@ public class EfrContainer implements Container {
         this.fluidOutputs = fluidOutputs;
     }
 
+    @Nullable
+    public RepoBatch<ItemSpec> getItemInputs() {
+        return itemInputs;
+    }
+
+    @Nullable
+    public RepoBatch<FluidSpec> getFluidInputs() {
+        return fluidInputs;
+    }
+
+    @Nullable
+    public RepoBatch<ItemSpec> getItemOutputs() {
+        return itemOutputs;
+    }
+
+    @Nullable
+    public RepoBatch<FluidSpec> getFluidOutputs() {
+        return fluidOutputs;
+    }
+
     public void consumeItem(ItemEntry entry) {
         if (itemInputs == null) return;
         long required = entry.getAmount();
@@ -158,10 +178,10 @@ public class EfrContainer implements Container {
 
     public boolean shouldUpdateRecipe() {
         if (itemInputs != null && itemInputs.isEmpty() && fluidInputs != null && fluidInputs.isEmpty()) return false;
-        return itemInputs != null && itemInputs.shouldUpdateRecipe()
-            || fluidInputs != null && fluidInputs.shouldUpdateRecipe()
-            || itemOutputs != null && itemOutputs.shouldUpdateRecipe()
-            || fluidOutputs != null && fluidOutputs.shouldUpdateRecipe();
+        return itemInputs != null && itemInputs.isChanged()
+            || fluidInputs != null && fluidInputs.isChanged()
+            || itemOutputs != null && itemOutputs.isChanged()
+            || fluidOutputs != null && fluidOutputs.isChanged();
     }
 
     @Override

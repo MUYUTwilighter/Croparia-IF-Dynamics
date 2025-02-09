@@ -31,6 +31,10 @@ public class ItemSpec implements ResourceType {
         return new ItemSpec(stack.getItem(), stack.getTag());
     }
 
+    public static ItemSpec from(Item item) {
+        return new ItemSpec(item, null);
+    }
+
     private final Item item;
     private final CompoundTag nbt;
 
