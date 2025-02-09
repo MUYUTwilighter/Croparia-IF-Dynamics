@@ -2,7 +2,7 @@ package cool.muyucloud.croparia.dynamics.api.core.block.entity;
 
 import cool.muyucloud.croparia.dynamics.api.core.block.ElemForgeBlock;
 import cool.muyucloud.croparia.dynamics.api.core.item.ElemCrucible;
-import cool.muyucloud.croparia.dynamics.api.core.item.ElenetCompass;
+import cool.muyucloud.croparia.dynamics.api.core.item.ElenetAstrolabe;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.ElemForgeRecipe;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.input.EfrContainer;
 import cool.muyucloud.croparia.dynamics.api.core.util.Constants;
@@ -44,7 +44,7 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
     private final transient RecipeType<? extends ElemForgeRecipe> recipeType;
     private final CrucibleBatch crucibleBatch = new CrucibleBatch();
     private final ItemUnit crucibleSlot = new ItemUnit(item -> item.isOf(Constants.TAG_CRUCIBLES), 1);
-    private final RepoBatch<ItemSpec> compassBatch = RepoBatch.of(ItemSpec.TYPE);
+    private final RepoBatch<ItemSpec> astrolabeBatch = RepoBatch.of(ItemSpec.TYPE);
     private final ElenetPeer peer = new ElenetPeer();
     private final transient Map<TypeToken<?>, ElenetRepo<?>> elenetRepos = new HashMap<>();
 
@@ -63,11 +63,11 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         this.recipeProcessor.load(nbt.getList("recipe_processor", CompoundTag.TAG_COMPOUND));
         this.crucibleBatch.load(nbt.getCompound("crucible_batch"));
         this.crucibleSlot.load(nbt.getCompound("crucible_slot"));
-        this.compassBatch.load(nbt.getList("compass_batch", CompoundTag.TAG_COMPOUND));
+        this.astrolabeBatch.load(nbt.getList("astrolabe_batch", CompoundTag.TAG_COMPOUND));
         this.peer.load(nbt.getCompound("peer"));
-        for (RepoUnit<ItemSpec> unit : this.compassBatch) {
-            if (unit.getResource().getItem() instanceof ElenetCompass<?> compass && !unit.isEmpty()) {
-                this.getPeer().setRepo(this.getElenetRepo(compass.getType()));
+        for (RepoUnit<ItemSpec> unit : this.astrolabeBatch) {
+            if (unit.getResource().getItem() instanceof ElenetAstrolabe<?> astrolabe && !unit.isEmpty()) {
+                this.getPeer().setRepo(this.getElenetRepo(astrolabe.getType()));
             }
         }
     }
@@ -88,9 +88,9 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         this.crucibleSlot.save(crucibleSlotTag);
         compoundTag.put("crucible_slot", crucibleSlotTag);
 
-        ListTag compassBatchTag = new ListTag();
-        this.compassBatch.save(compassBatchTag);
-        compoundTag.put("compass_batch", compassBatchTag);
+        ListTag astrolabeBatchTag = new ListTag();
+        this.astrolabeBatch.save(astrolabeBatchTag);
+        compoundTag.put("astrolabe_batch", astrolabeBatchTag);
 
         CompoundTag peerTag = new CompoundTag();
         this.peer.save(peerTag);
@@ -122,8 +122,8 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
 
     public boolean isElenetEnabled(TypeToken<?> token) {
         for (RepoUnit<ItemSpec> unit : this.getCompassBatch()) {
-            if (unit.getResource().getItem() instanceof ElenetCompass<?> compass) {
-                if (compass.getType() == token) {
+            if (unit.getResource().getItem() instanceof ElenetAstrolabe<?> astrolabe) {
+                if (astrolabe.getType() == token) {
                     return true;
                 }
             }
@@ -133,14 +133,14 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
 
     public boolean addCompass(ItemStack stack) {
         Item item = stack.getItem();
-        if (item instanceof ElenetCompass<?> compass) {
-            if (this.isElenetEnabled(compass.getType())) {
+        if (item instanceof ElenetAstrolabe<?> astrolabe) {
+            if (this.isElenetEnabled(astrolabe.getType())) {
                 return false;
             }
             stack.shrink(1);
             ItemUnit unit = new ItemUnit(itemSpec -> true, 1);
             unit.accept(ItemSpec.from(item), 1);
-            this.getPeer().setRepo(this.getElenetRepo(compass.getType()));
+            this.getPeer().setRepo(this.getElenetRepo(astrolabe.getType()));
             return true;
         }
         return false;
@@ -150,8 +150,8 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         int i = 0;
         ItemStack result = ItemStack.EMPTY;
         for (RepoUnit<ItemSpec> unit : this.getCompassBatch()) {
-            if (unit.getResource().getItem() instanceof ElenetCompass<?> compass) {
-                if (compass.getType() == token) {
+            if (unit.getResource().getItem() instanceof ElenetAstrolabe<?> astrolabe) {
+                if (astrolabe.getType() == token) {
                     ItemStack stack = unit.getResource().toStack(1);
                     break;
                 }
@@ -227,7 +227,7 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
     public abstract FuelUnit<F> getFuelUnit();
 
     public RepoBatch<ItemSpec> getCompassBatch() {
-        return compassBatch;
+        return astrolabeBatch;
     }
 
     protected RecipeType<? extends ElemForgeRecipe> getRecipeType() {
