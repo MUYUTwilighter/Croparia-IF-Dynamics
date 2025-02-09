@@ -63,7 +63,9 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         this.recipeProcessor.load(nbt.getList("recipe_processor", CompoundTag.TAG_COMPOUND));
         this.crucibleBatch.load(nbt.getCompound("crucible_batch"));
         this.crucibleSlot.load(nbt.getCompound("crucible_slot"));
-        this.astrolabeBatch.load(nbt.getList("astrolabe_batch", CompoundTag.TAG_COMPOUND));
+        ListTag astrolabeBatchTag = nbt.getList("astrolabe_batch", CompoundTag.TAG_COMPOUND);
+        this.astrolabeBatch.add(ItemUnit.of(item -> item.getItem() instanceof ElenetAstrolabe, 1, astrolabeBatchTag.size()));
+        this.astrolabeBatch.load(astrolabeBatchTag);
         this.peer.load(nbt.getCompound("peer"));
         for (RepoUnit<ItemSpec> unit : this.astrolabeBatch) {
             if (unit.getResource().getItem() instanceof ElenetAstrolabe<?> astrolabe && !unit.isEmpty()) {
@@ -75,26 +77,21 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
     @Override
     protected void saveAdditional(CompoundTag compoundTag) {
         super.saveAdditional(compoundTag);
-
         ListTag recipeProcessorTag = new ListTag();
-        this.recipeProcessor.save(recipeProcessorTag);
         compoundTag.put("recipe_processor", recipeProcessorTag);
-
+        this.recipeProcessor.save(recipeProcessorTag);
         CompoundTag crucibleBatchTag = new CompoundTag();
-        this.crucibleBatch.save(crucibleBatchTag);
         compoundTag.put("crucible_batch", crucibleBatchTag);
-
+        this.crucibleBatch.save(crucibleBatchTag);
         CompoundTag crucibleSlotTag = new CompoundTag();
-        this.crucibleSlot.save(crucibleSlotTag);
         compoundTag.put("crucible_slot", crucibleSlotTag);
-
+        this.crucibleSlot.save(crucibleSlotTag);
         ListTag astrolabeBatchTag = new ListTag();
-        this.astrolabeBatch.save(astrolabeBatchTag);
         compoundTag.put("astrolabe_batch", astrolabeBatchTag);
-
+        this.astrolabeBatch.save(astrolabeBatchTag);
         CompoundTag peerTag = new CompoundTag();
-        this.peer.save(peerTag);
         compoundTag.put("peer", peerTag);
+        this.peer.save(peerTag);
     }
 
     public void tick(MinecraftServer server) {
@@ -138,7 +135,7 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
                 return false;
             }
             stack.shrink(1);
-            ItemUnit unit = new ItemUnit(itemSpec -> true, 1);
+            ItemUnit unit = new ItemUnit(itemSpec -> itemSpec.getItem() instanceof ElenetAstrolabe, 1);
             unit.accept(ItemSpec.from(item), 1);
             this.getPeer().setRepo(this.getElenetRepo(astrolabe.getType()));
             return true;
