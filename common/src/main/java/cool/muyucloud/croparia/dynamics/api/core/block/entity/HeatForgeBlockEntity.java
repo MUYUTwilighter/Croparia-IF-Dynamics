@@ -1,5 +1,6 @@
 package cool.muyucloud.croparia.dynamics.api.core.block.entity;
 
+import cool.muyucloud.croparia.dynamics.api.core.block.ElemForgeBlock;
 import cool.muyucloud.croparia.dynamics.api.core.recipe.type.EfrType;
 import cool.muyucloud.croparia.dynamics.api.repo.BurningFuel;
 import cool.muyucloud.croparia.dynamics.api.repo.FuelRepo;
@@ -43,13 +44,16 @@ public class HeatForgeBlockEntity extends ElemForgeBlockEntity<Heat> {
     }
 
     @Override
-    public void tick(MinecraftServer server) {
-        super.tick(server);
+    public void tick(MinecraftServer server, BlockState state) {
+        super.tick(server, state);
         if (burningFuel.isEmpty() && this.getRecipeProcessor().isReady()) {
             Item source = this.fuelSource.getResource().getItem();
             long amount = this.fuelSource.consume(1);
             if (amount > 0) {
                 this.burningFuel.refuel(source);
+                state.setValue(ElemForgeBlock.RUNNING, true);
+            } else {
+                state.setValue(ElemForgeBlock.RUNNING, false);
             }
         } else {
             burningFuel.burn(1);

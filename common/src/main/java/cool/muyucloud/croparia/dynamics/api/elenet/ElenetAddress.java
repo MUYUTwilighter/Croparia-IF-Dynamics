@@ -45,6 +45,8 @@ public record ElenetAddress(Level world, BlockPos pos) {
                 throw new IllegalArgumentException("Unknown world: " + worldId);
             }
             return new ElenetAddress(world, pos);
+        } catch (Throwable t) {
+            throw new IllegalStateException("Server not available", t);
         }
     }
 

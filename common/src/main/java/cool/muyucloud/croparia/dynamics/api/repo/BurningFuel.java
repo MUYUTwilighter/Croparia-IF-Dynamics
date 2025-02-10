@@ -81,4 +81,44 @@ public class BurningFuel extends FuelRepo<Heat> {
     public long capacityFor(int i, Heat resource) {
         return i == 0 ? capacity : 0;
     }
+
+    @Override
+    public long consume(Heat resource, long amount) {
+        return amount;
+    }
+
+    @Override
+    public long consume(int i, Heat resource, long amount) {
+        return amount;
+    }
+
+    @Override
+    public long simConsume(Heat resource, long amount) {
+        return amount;
+    }
+
+    @Override
+    public long simConsume(int i, Heat resource, long amount) {
+        return amount;
+    }
+
+    @Override
+    public long accept(Heat resource, long amount) {
+        return 0;
+    }
+
+    @Override
+    public long accept(int i, Heat resource, long amount) {
+        return 0;
+    }
+
+    @Override
+    public long simAccept(int i, Heat resource, long amount) {
+        return 0;
+    }
+
+    @Override
+    public long simAccept(Heat resource, long amount) {
+        return 0;
+    }
 }

@@ -12,17 +12,17 @@ public class ElenetTask implements Comparable<ElenetTask> {
     public static final short MAX_EXPENSE = 100;
     private static final SortedArraySet<ElenetTask> TASKS = SortedArraySet.create();
 
-    public static void subscribe(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs, short rank) {
+    public static void subscribe(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub<?>> hubs, short rank) {
         ElenetTask task_ = new ElenetTask(task, expense, elenets, hubs, rank);
         TASKS.add(task_);
     }
 
-    public static void subscribe(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs) {
+    public static void subscribe(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub<?>> hubs) {
         ElenetTask task_ = new ElenetTask(task, expense, elenets, hubs);
         TASKS.add(task_);
     }
 
-    public static void subscribeIfAvailable(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs) {
+    public static void subscribeIfAvailable(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub<?>> hubs) {
         if (mayAccept(expense)) {
             subscribe(task, expense, elenets, hubs);
         }
@@ -59,7 +59,7 @@ public class ElenetTask implements Comparable<ElenetTask> {
     /**
      * Whether the specified elenet hub is suspended
      */
-    public static boolean isSuspended(ElenetHub hub) {
+    public static boolean isSuspended(ElenetHub<?> hub) {
         for (ElenetTask task : TASKS) {
             if (task.isSuspendedThis(hub)) {
                 return true;
@@ -90,12 +90,12 @@ public class ElenetTask implements Comparable<ElenetTask> {
     }
 
     private final Set<Elenet<?>> elenets = new HashSet<>();
-    private final Set<ElenetHub> hubs = new HashSet<>();
+    private final Set<ElenetHub<?>> hubs = new HashSet<>();
     private final Runnable task;
     private final short rank;
     private final short expense;
 
-    public ElenetTask(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs) {
+    public ElenetTask(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub<?>> hubs) {
         this.elenets.addAll(elenets);
         this.hubs.addAll(hubs);
         this.task = task;
@@ -103,7 +103,7 @@ public class ElenetTask implements Comparable<ElenetTask> {
         this.rank = this.genRank();
     }
 
-    public ElenetTask(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub> hubs, short rank) {
+    public ElenetTask(Runnable task, short expense, Collection<? extends Elenet<?>> elenets, Collection<? extends ElenetHub<?>> hubs, short rank) {
         this.elenets.addAll(elenets);
         this.hubs.addAll(hubs);
         this.task = task;
@@ -126,7 +126,7 @@ public class ElenetTask implements Comparable<ElenetTask> {
                 }
             }
             if (flag) continue;
-            for (ElenetHub hub : this.hubs) {
+            for (ElenetHub<?> hub : this.hubs) {
                 if (task.isSuspendedThis(hub)) {
                     least = task.rank;
                     break;
@@ -140,7 +140,7 @@ public class ElenetTask implements Comparable<ElenetTask> {
         return elenets.contains(elenet);
     }
 
-    public boolean isSuspendedThis(ElenetHub hub) {
+    public boolean isSuspendedThis(ElenetHub<?> hub) {
         return hubs.contains(hub);
     }
 

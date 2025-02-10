@@ -37,13 +37,12 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public abstract class ElemForgeBlockEntity<F extends ResourceType> extends BlockEntity implements ElenetPeerProvider {
-    private final RecipeProcessor<F> recipeProcessor = new RecipeProcessor<>();
+    private final RecipeProcessor<F> recipeProcessor = new RecipeProcessor<>(); // TODO: Save & Load EFR Container
     private final CrucibleBatch crucibleBatch = new CrucibleBatch();
     private final ItemUnit crucibleSlot = new ItemUnit(item -> item.isOf(Constants.TAG_CRUCIBLES), 1);
     private final RepoBatch<ItemSpec> astrolabeBatch = RepoBatch.of(ItemSpec.TYPE);
@@ -63,13 +62,13 @@ public abstract class ElemForgeBlockEntity<F extends ResourceType> extends Block
         this.tryUpgrade(state.getValue(ElemForgeBlock.TIER));
     }
 
-    public void tick(MinecraftServer server) {
+    public void tick(MinecraftServer server, BlockState state) {
         this.updateCrucible();
         this.getRecipeProcessor().tick(server);
         if (this.getRecipeProcessor().isRunning()) {
-            Objects.requireNonNull(this.getLevel()).setBlock(this.getBlockPos(), this.getBlockState().setValue(ElemForgeBlock.RUNNING, true), 3);
+            state.setValue(ElemForgeBlock.RUNNING, true);
         } else {
-            Objects.requireNonNull(this.getLevel()).setBlock(this.getBlockPos(), this.getBlockState().setValue(ElemForgeBlock.RUNNING, false), 3);
+            state.setValue(ElemForgeBlock.RUNNING, false);
         }
     }
 
